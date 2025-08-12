@@ -1,7 +1,7 @@
 # Functional Programming Lectures Index
 
 ## Overview
-This series of lectures explores functional programming concepts from fundamentals to advanced applications in modern JavaScript development. The curriculum is designed with a **lean and modular approach**, emphasizing **separation of concerns** and **functional programming principles** throughout. As you progress, you'll learn how to build maintainable, scalable applications using pure functions, immutable data structures, and modern Redux architecture patterns.
+This series of lectures explores functional programming concepts from fundamentals to advanced applications in modern TypeScript development. The curriculum is designed with a **lean and modular approach**, emphasizing **separation of concerns** and **functional programming principles** throughout. As you progress, you'll learn how to build maintainable, scalable applications using pure functions, immutable data structures, and modern Redux architecture patterns.
 
 **Key Learning Philosophy:**
 - **Functions for Everything**: Every concept is taught through the lens of pure functions
@@ -14,7 +14,7 @@ This series of lectures explores functional programming concepts from fundamenta
 1. **Fundamentals** (Beginner)
    - What is a function in TypeScript?
    - The simplest FP TS Hello World
-   - Basic Functional Programming JavaScript knowledge
+   - Basic Functional Programming TypeScript knowledge
    - ES6+ Features for Functional Programming
    - TypeScript and Functional Programming
 
@@ -144,7 +144,7 @@ const addWithLogging = (a: number, b: number): number => {
 ### Benefits of Pure Functions
 ```typescript
 // 1. Predictable and testable
-const testAdd = () => {
+const testAdd = (): boolean => {
   return add(2, 3) === 5 && add(0, 0) === 0;
 };
 
@@ -602,14 +602,14 @@ Make sure all functions are pure and compose them together.
 - [Functional Programming Fundamentals](https://www.freecodecamp.org/news/functional-programming-in-javascript/)
 - [Pure Functions](https://www.sitepoint.com/functional-programming-pure-functions/)
 
-# Basic Functional Programming JavaScript Knowledge
+# Basic Functional Programming TypeScript Knowledge
 
 ## Overview
 **Difficulty:** Beginner  
 **Estimated Time:** 2-3 hours  
-**Prerequisites:** Basic JavaScript knowledge
+**Prerequisites:** Basic TypeScript knowledge
 
-This lecture introduces the fundamental concepts of functional programming using vanilla JavaScript.
+This lecture introduces the fundamental concepts of functional programming using TypeScript.
 
 ## Learning Objectives
 - Understand pure functions and their benefits
@@ -622,19 +622,19 @@ This lecture introduces the fundamental concepts of functional programming using
 ### 1. Pure Functions
 A pure function always returns the same output for the same input and has no side effects.
 
-```javascript
+```typescript
 // ✅ Pure function
-const add = (a, b) => a + b;
+const add = (a: number, b: number): number => a + b;
 
 // ❌ Impure function (side effect)
-const addWithLogging = (a, b) => {
+const addWithLogging = (a: number, b: number): number => {
   console.log('Adding numbers'); // Side effect
   return a + b;
 };
 
 // ❌ Impure function (depends on external state)
 let total = 0;
-const addToTotal = (num) => {
+const addToTotal = (num: number): number => {
   total += num; // Mutates external state
   return total;
 };
@@ -643,7 +643,7 @@ const addToTotal = (num) => {
 ### 2. Immutability
 Never modify existing data structures; create new ones instead.
 
-```javascript
+```typescript
 // ❌ Mutating arrays
 const numbers = [1, 2, 3];
 numbers.push(4); // Mutation!
@@ -665,19 +665,20 @@ const updatedUser = { ...user, age: 26 }; // Spread operator
 ### 3. Higher-Order Functions
 Functions that take other functions as arguments or return functions.
 
-```javascript
+```typescript
 // Function that takes a function as argument
-const applyOperation = (operation, a, b) => operation(a, b);
+const applyOperation = (operation: (a: number, b: number) => number, a: number, b: number): number => 
+  operation(a, b);
 
-const add = (a, b) => a + b;
-const multiply = (a, b) => a * b;
+const add = (a: number, b: number): number => a + b;
+const multiply = (a: number, b: number): number => a * b;
 
 console.log(applyOperation(add, 5, 3)); // 8
 console.log(applyOperation(multiply, 5, 3)); // 15
 
 // Function that returns a function
-const createGreeter = (greeting) => {
-  return (name) => `${greeting}, ${name}!`;
+const createGreeter = (greeting: string) => {
+  return (name: string): string => `${greeting}, ${name}!`;
 };
 
 const sayHello = createGreeter('Hello');
@@ -690,7 +691,7 @@ console.log(sayGoodbye('Bob')); // "Goodbye, Bob!"
 ## Array Methods for Functional Programming
 
 ### 1. map() - Transform Elements
-```javascript
+```typescript
 const numbers = [1, 2, 3, 4, 5];
 
 // Double each number
@@ -698,7 +699,12 @@ const doubled = numbers.map(n => n * 2);
 console.log(doubled); // [2, 4, 6, 8, 10]
 
 // Transform objects
-const users = [
+interface User {
+  name: string;
+  age: number;
+}
+
+const users: User[] = [
   { name: 'Alice', age: 25 },
   { name: 'Bob', age: 30 }
 ];
@@ -708,7 +714,7 @@ console.log(names); // ['Alice', 'Bob']
 ```
 
 ### 2. filter() - Select Elements
-```javascript
+```typescript
 const numbers = [1, 2, 3, 4, 5, 6];
 
 // Get even numbers
@@ -716,7 +722,13 @@ const evens = numbers.filter(n => n % 2 === 0);
 console.log(evens); // [2, 4, 6]
 
 // Filter objects
-const users = [
+interface User {
+  name: string;
+  age: number;
+  active: boolean;
+}
+
+const users: User[] = [
   { name: 'Alice', age: 25, active: true },
   { name: 'Bob', age: 30, active: false },
   { name: 'Charlie', age: 35, active: true }
@@ -727,7 +739,7 @@ console.log(activeUsers); // [{ name: 'Alice', age: 25, active: true }, { name: 
 ```
 
 ### 3. reduce() - Accumulate Values
-```javascript
+```typescript
 const numbers = [1, 2, 3, 4, 5];
 
 // Sum all numbers
@@ -735,7 +747,13 @@ const sum = numbers.reduce((acc, num) => acc + num, 0);
 console.log(sum); // 15
 
 // Group by property
-const users = [
+interface User {
+  name: string;
+  age: number;
+  city: string;
+}
+
+const users: User[] = [
   { name: 'Alice', age: 25, city: 'NYC' },
   { name: 'Bob', age: 30, city: 'LA' },
   { name: 'Charlie', age: 35, city: 'NYC' }
@@ -747,15 +765,21 @@ const groupedByCity = users.reduce((acc, user) => {
   }
   acc[user.city].push(user);
   return acc;
-}, {});
+}, {} as Record<string, User[]>);
 
 console.log(groupedByCity);
 // { NYC: [{ name: 'Alice', age: 25, city: 'NYC' }, { name: 'Charlie', age: 35, city: 'NYC' }], LA: [{ name: 'Bob', age: 30, city: 'LA' }] }
 ```
 
 ### 4. Chaining Methods
-```javascript
-const users = [
+```typescript
+interface User {
+  name: string;
+  age: number;
+  active: boolean;
+}
+
+const users: User[] = [
   { name: 'Alice', age: 25, active: true },
   { name: 'Bob', age: 30, active: false },
   { name: 'Charlie', age: 35, active: true },
@@ -774,23 +798,23 @@ console.log(result); // ['Charlie']
 ## Function Composition Basics
 
 ### Simple Composition
-```javascript
+```typescript
 // Compose two functions
-const compose = (f, g) => x => f(g(x));
+const compose = <A, B, C>(f: (b: B) => C, g: (a: A) => B) => (x: A): C => f(g(x));
 
-const addOne = x => x + 1;
-const multiplyByTwo = x => x * 2;
+const addOne = (x: number): number => x + 1;
+const multiplyByTwo = (x: number): number => x * 2;
 
 const addOneThenMultiply = compose(multiplyByTwo, addOne);
 console.log(addOneThenMultiply(5)); // 12
 
 // Compose multiple functions
-const pipe = (...fns) => x => fns.reduce((acc, fn) => fn(acc), x);
+const pipe = <T>(...fns: Array<(arg: T) => T>) => (x: T): T => fns.reduce((acc, fn) => fn(acc), x);
 
 const processData = pipe(
-  x => x * 2,
-  x => x + 1,
-  x => x.toString()
+  (x: number) => x * 2,
+  (x: number) => x + 1,
+  (x: number) => x.toString()
 );
 
 console.log(processData(5)); // "11"
@@ -799,8 +823,14 @@ console.log(processData(5)); // "11"
 ## Real-World Examples
 
 ### Data Processing Pipeline
-```javascript
-const orders = [
+```typescript
+interface Order {
+  id: number;
+  amount: number;
+  status: string;
+}
+
+const orders: Order[] = [
   { id: 1, amount: 100, status: 'completed' },
   { id: 2, amount: 200, status: 'pending' },
   { id: 3, amount: 150, status: 'completed' },
@@ -817,14 +847,17 @@ console.log(totalRevenue); // 250
 ```
 
 ### Validation Pipeline
-```javascript
-const validateEmail = email => {
+```typescript
+const validateEmail = (email: string): string | null => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email) ? email : null;
 };
 
-const validateLength = email => email && email.length > 5 ? email : null;
-const normalizeEmail = email => email && email.toLowerCase();
+const validateLength = (email: string | null): string | null => 
+  email && email.length > 5 ? email : null;
+
+const normalizeEmail = (email: string | null): string | null => 
+  email && email.toLowerCase();
 
 const validateAndNormalize = pipe(validateEmail, validateLength, normalizeEmail);
 
@@ -835,9 +868,9 @@ console.log(validateAndNormalize('invalid')); // null
 ## Best Practices
 
 ### 1. Keep Functions Small and Focused
-```javascript
+```typescript
 // ❌ Too many responsibilities
-const processUser = (user) => {
+const processUser = (user: any) => {
   // Validation, transformation, and side effects all mixed together
   if (!user.name) throw new Error('Name required');
   const processed = { ...user, name: user.name.toUpperCase() };
@@ -846,12 +879,12 @@ const processUser = (user) => {
 };
 
 // ✅ Separated concerns
-const validateUser = (user) => {
+const validateUser = (user: any) => {
   if (!user.name) throw new Error('Name required');
   return user;
 };
 
-const transformUser = (user) => ({
+const transformUser = (user: any) => ({
   ...user,
   name: user.name.toUpperCase()
 });
@@ -860,28 +893,28 @@ const processUser = pipe(validateUser, transformUser);
 ```
 
 ### 2. Avoid Side Effects
-```javascript
+```typescript
 // ❌ Side effects in pure functions
-const calculateTotal = (items) => {
+const calculateTotal = (items: any[]): number => {
   const total = items.reduce((sum, item) => sum + item.price, 0);
   console.log(`Total: ${total}`); // Side effect
   return total;
 };
 
 // ✅ Pure function
-const calculateTotal = (items) => {
+const calculateTotal = (items: any[]): number => {
   return items.reduce((sum, item) => sum + item.price, 0);
 };
 ```
 
 ### 3. Use Descriptive Names
-```javascript
+```typescript
 // ❌ Unclear names
-const fn = (arr) => arr.filter(x => x > 0).map(x => x * 2);
+const fn = (arr: number[]): number[] => arr.filter(x => x > 0).map(x => x * 2);
 
 // ✅ Descriptive names
-const getPositiveNumbers = (numbers) => numbers.filter(num => num > 0);
-const doubleNumbers = (numbers) => numbers.map(num => num * 2);
+const getPositiveNumbers = (numbers: number[]): number[] => numbers.filter(num => num > 0);
+const doubleNumbers = (numbers: number[]): number[] => numbers.map(num => num * 2);
 const processNumbers = pipe(getPositiveNumbers, doubleNumbers);
 ```
 
@@ -897,9 +930,9 @@ Create a pure function that processes a list of products and returns the total p
 ## Overview
 **Difficulty:** Beginner-Intermediate  
 **Estimated Time:** 2-3 hours  
-**Prerequisites:** Basic Functional Programming JavaScript knowledge
+**Prerequisites:** Basic Functional Programming TypeScript knowledge
 
-This lecture explores how modern JavaScript features enhance functional programming capabilities.
+This lecture explores how modern TypeScript features enhance functional programming capabilities.
 
 ## Learning Objectives
 - Master arrow functions and their benefits
@@ -910,23 +943,23 @@ This lecture explores how modern JavaScript features enhance functional programm
 ## Arrow Functions
 
 ### Basic Syntax
-```javascript
+```typescript
 // Traditional function
-const add = function(a, b) {
+const add = function(a: number, b: number): number {
   return a + b;
 };
 
 // Arrow function
-const add = (a, b) => a + b;
+const add = (a: number, b: number): number => a + b;
 
 // Single parameter (parentheses optional)
-const double = x => x * 2;
+const double = (x: number): number => x * 2;
 
 // No parameters
-const getRandom = () => Math.random();
+const getRandom = (): number => Math.random();
 
 // Multiple statements
-const processUser = (user) => {
+const processUser = (user: any) => {
   const validated = validateUser(user);
   const transformed = transformUser(validated);
   return transformed;
@@ -934,7 +967,7 @@ const processUser = (user) => {
 ```
 
 ### Lexical `this` Binding
-```javascript
+```typescript
 // Traditional function - `this` context issues
 const user = {
   name: 'Alice',
@@ -957,12 +990,12 @@ const user = {
 ```
 
 ### Functional Programming Benefits
-```javascript
+```typescript
 // Cleaner higher-order functions
 const numbers = [1, 2, 3, 4, 5];
 
 // Traditional
-const doubled = numbers.map(function(num) {
+const doubled = numbers.map(function(num: number) {
   return num * 2;
 });
 
@@ -979,7 +1012,7 @@ const result = numbers
 ## Destructuring
 
 ### Array Destructuring
-```javascript
+```typescript
 // Basic destructuring
 const numbers = [1, 2, 3, 4, 5];
 const [first, second, ...rest] = numbers;
@@ -988,11 +1021,11 @@ console.log(second); // 2
 console.log(rest); // [3, 4, 5]
 
 // Function parameters
-const processUser = ([name, age, city]) => {
+const processUser = ([name, age, city]: [string, number, string]) => {
   return { name, age, city };
 };
 
-const userData = ['Alice', 25, 'NYC'];
+const userData: [string, number, string] = ['Alice', 25, 'NYC'];
 const user = processUser(userData);
 console.log(user); // { name: 'Alice', age: 25, city: 'NYC' }
 
@@ -1003,7 +1036,7 @@ console.log(a, b); // 2, 1
 ```
 
 ### Object Destructuring
-```javascript
+```typescript
 // Basic object destructuring
 const user = { name: 'Alice', age: 25, city: 'NYC' };
 const { name, age, city } = user;
@@ -1031,9 +1064,9 @@ console.log(name, city, zip); // Alice NYC 10001
 ```
 
 ### Function Parameters
-```javascript
+```typescript
 // Destructuring in function parameters
-const createUser = ({ name, age, email = null }) => {
+const createUser = ({ name, age, email = null }: { name: string; age: number; email?: string }) => {
   return { name, age, email };
 };
 
@@ -1041,10 +1074,10 @@ const user = createUser({ name: 'Alice', age: 25 });
 console.log(user); // { name: 'Alice', age: 25, email: null }
 
 // Multiple return values
-const getUserStats = (user) => {
+const getUserStats = (user: any) => {
   const { name, posts } = user;
   const postCount = posts.length;
-  const avgLikes = posts.reduce((sum, post) => sum + post.likes, 0) / postCount;
+  const avgLikes = posts.reduce((sum: number, post: any) => sum + post.likes, 0) / postCount;
   
   return { name, postCount, avgLikes };
 };
@@ -1053,7 +1086,7 @@ const getUserStats = (user) => {
 ## Spread and Rest Operators
 
 ### Spread Operator
-```javascript
+```typescript
 // Array spreading
 const numbers = [1, 2, 3];
 const moreNumbers = [...numbers, 4, 5];
@@ -1077,9 +1110,9 @@ console.log(max); // 5
 ```
 
 ### Rest Operator
-```javascript
+```typescript
 // Collecting arguments
-const sum = (...numbers) => {
+const sum = (...numbers: number[]): number => {
   return numbers.reduce((sum, num) => sum + num, 0);
 };
 
@@ -1096,7 +1129,7 @@ console.log(otherProps); // { age: 25, city: 'NYC' }
 ## Template Literals
 
 ### Basic Usage
-```javascript
+```typescript
 const name = 'Alice';
 const age = 25;
 
@@ -1116,9 +1149,9 @@ const html = `
 ```
 
 ### Tagged Templates
-```javascript
+```typescript
 // Tagged template function
-const highlight = (strings, ...values) => {
+const highlight = (strings: TemplateStringsArray, ...values: any[]) => {
   return strings.reduce((result, string, index) => {
     const value = values[index] || '';
     return result + string + (value ? `<span class="highlight">${value}</span>` : '');
@@ -1134,29 +1167,29 @@ console.log(result); // "Hello, <span class="highlight">Alice</span>. You are <s
 ## Default Parameters
 
 ### Basic Defaults
-```javascript
+```typescript
 // Traditional approach
-const greet = (name) => {
+const greet = (name: string) => {
   name = name || 'Guest';
   return `Hello, ${name}!`;
 };
 
 // Default parameters
-const greet = (name = 'Guest') => `Hello, ${name}!`;
+const greet = (name: string = 'Guest'): string => `Hello, ${name}!`;
 
 console.log(greet('Alice')); // "Hello, Alice!"
 console.log(greet()); // "Hello, Guest!"
 
 // Multiple defaults
-const createUser = (name = 'Anonymous', age = 18, email = null) => {
+const createUser = (name: string = 'Anonymous', age: number = 18, email: string | null = null) => {
   return { name, age, email };
 };
 ```
 
 ### Function Defaults
-```javascript
+```typescript
 // Default function parameter
-const processData = (data, processor = x => x) => {
+const processData = <T>(data: T, processor: (x: T) => T = (x: T) => x): T => {
   return processor(data);
 };
 
@@ -1167,31 +1200,31 @@ console.log(processData([1, 2, 3], arr => arr.map(x => x * 2))); // [2, 4, 6]
 ## Modules and Functional Programming
 
 ### Named Exports
-```javascript
-// math.js
-export const add = (a, b) => a + b;
-export const subtract = (a, b) => a - b;
-export const multiply = (a, b) => a * b;
+```typescript
+// math.ts
+export const add = (a: number, b: number): number => a + b;
+export const subtract = (a: number, b: number): number => a - b;
+export const multiply = (a: number, b: number): number => a * b;
 
-// utils.js
-export const compose = (...fns) => x => fns.reduce((acc, fn) => fn(acc), x);
-export const pipe = (...fns) => x => fns.reduceRight((acc, fn) => fn(acc), x);
+// utils.ts
+export const compose = <A, B, C>(...fns: Array<(arg: A) => A>) => (x: A): A => fns.reduce((acc, fn) => fn(acc), x);
+export const pipe = <A, B, C>(...fns: Array<(arg: A) => A>) => (x: A): A => fns.reduceRight((acc, fn) => fn(acc), x);
 ```
 
 ### Default Exports
-```javascript
-// userService.js
-const validateUser = (user) => {
+```typescript
+// userService.ts
+const validateUser = (user: any) => {
   if (!user.name) throw new Error('Name required');
   return user;
 };
 
-const transformUser = (user) => ({
+const transformUser = (user: any) => ({
   ...user,
   name: user.name.toUpperCase()
 });
 
-const processUser = (user) => {
+const processUser = (user: any) => {
   const validated = validateUser(user);
   return transformUser(validated);
 };
@@ -1200,8 +1233,8 @@ export default processUser;
 ```
 
 ### Importing
-```javascript
-// main.js
+```typescript
+// main.ts
 import { add, multiply } from './math.js';
 import { compose, pipe } from './utils.js';
 import processUser from './userService.js';
@@ -1214,38 +1247,38 @@ const processedUser = processUser({ name: 'alice', age: 25 });
 ## Enhanced Functional Patterns
 
 ### Partial Application
-```javascript
+```typescript
 // Using default parameters for partial application
-const add = (a, b) => a + b;
-const addFive = (b) => add(5, b);
+const add = (a: number, b: number): number => a + b;
+const addFive = (b: number): number => add(5, b);
 
 console.log(addFive(3)); // 8
 
 // More flexible partial application
-const partial = (fn, ...args) => (...moreArgs) => fn(...args, ...moreArgs);
+const partial = <T extends any[], R>(fn: (...args: T) => R, ...args: Partial<T>) => (...moreArgs: any[]): R => fn(...args, ...moreArgs);
 const addFive = partial(add, 5);
 console.log(addFive(3)); // 8
 ```
 
 ### Currying with Arrow Functions
-```javascript
+```typescript
 // Manual currying
-const add = (a) => (b) => a + b;
+const add = (a: number) => (b: number): number => a + b;
 const addFive = add(5);
 console.log(addFive(3)); // 8
 
 // Auto-currying utility
-const curry = (fn) => {
+const curry = <T extends any[], R>(fn: (...args: T) => R) => {
   const arity = fn.length;
-  return function curried(...args) {
+  return function curried(...args: any[]): any {
     if (args.length >= arity) {
       return fn(...args);
     }
-    return (...moreArgs) => curried(...args, ...moreArgs);
+    return (...moreArgs: any[]) => curried(...args, ...moreArgs);
   };
 };
 
-const add = curry((a, b) => a + b);
+const add = curry((a: number, b: number): number => a + b);
 const addFive = add(5);
 console.log(addFive(3)); // 8
 ```
@@ -1253,8 +1286,14 @@ console.log(addFive(3)); // 8
 ## Real-World Examples
 
 ### Data Processing Pipeline
-```javascript
-const users = [
+```typescript
+interface User {
+  name: string;
+  age: number;
+  active: boolean;
+}
+
+const users: User[] = [
   { name: 'Alice', age: 25, active: true },
   { name: 'Bob', age: 30, active: false },
   { name: 'Charlie', age: 35, active: true }
@@ -1270,9 +1309,15 @@ console.log(getActiveUserNames); // ['Alice', 'Charlie']
 ```
 
 ### Configuration Management
-```javascript
-const createConfig = (userConfig = {}) => {
-  const defaults = {
+```typescript
+interface Config {
+  theme: string;
+  language: string;
+  notifications: boolean;
+}
+
+const createConfig = (userConfig: Partial<Config> = {}) => {
+  const defaults: Config = {
     theme: 'dark',
     language: 'en',
     notifications: true
@@ -1752,7 +1797,7 @@ Create a type-safe functional utility library that includes:
 ## Overview
 **Difficulty:** Intermediate  
 **Estimated Time:** 2-3 hours  
-**Prerequisites:** Basic Functional Programming JavaScript knowledge
+**Prerequisites:** Basic Functional Programming TypeScript knowledge
 
 Redux follows functional programming principles at its core. This lecture explores how Redux patterns align with functional programming concepts. While this covers traditional Redux patterns, **Redux Toolkit (RTK) and RTK Query are the modern, official approach** that supersedes these patterns in production applications.
 
@@ -1768,9 +1813,9 @@ Redux follows functional programming principles at its core. This lecture explor
 
 ### 1. Pure Functions
 Redux reducers must be pure functions:
-```javascript
+```typescript
 // Pure function - same input always produces same output
-const counterReducer = (state = 0, action) => {
+const counterReducer = (state = 0, action: any) => {
   switch (action.type) {
     case 'INCREMENT':
       return state + 1; // No side effects, immutable
@@ -1784,15 +1829,15 @@ const counterReducer = (state = 0, action) => {
 
 ### 2. Immutability
 State updates must be immutable:
-```javascript
+```typescript
 // ❌ Wrong - mutating state
-const wrongReducer = (state, action) => {
+const wrongReducer = (state: any, action: any) => {
   state.count += 1; // Mutation!
   return state;
 };
 
 // ✅ Correct - immutable update
-const correctReducer = (state, action) => {
+const correctReducer = (state: any, action: any) => {
   return {
     ...state,
     count: state.count + 1
@@ -1802,7 +1847,7 @@ const correctReducer = (state, action) => {
 
 ### 3. Composition
 Redux combines multiple reducers functionally:
-```javascript
+```typescript
 const rootReducer = combineReducers({
   users: usersReducer,
   posts: postsReducer,
@@ -1813,21 +1858,21 @@ const rootReducer = combineReducers({
 ## Standard Patterns
 
 ### Action Creators as Pure Functions
-```javascript
+```typescript
 // Pure function that creates actions
-const addTodo = (text) => ({
+const addTodo = (text: string) => ({
   type: 'ADD_TODO',
   payload: { text, completed: false }
 });
 ```
 
 ### Selectors as Pure Functions
-```javascript
+```typescript
 // Pure function for data selection
-const selectCompletedTodos = (state) => 
-  state.todos.filter(todo => todo.completed);
+const selectCompletedTodos = (state: any) => 
+  state.todos.filter((todo: any) => todo.completed);
 
-const selectTodoCount = (state) => 
+const selectTodoCount = (state: any) => 
   state.todos.length;
 ```
 
@@ -1868,7 +1913,7 @@ Redux Toolkit (RTK) simplifies Redux while maintaining functional programming pr
 ## Functional Programming in RTK
 
 ### 1. createSlice - Pure Function Generators
-```javascript
+```typescript
 import { createSlice } from '@reduxjs/toolkit';
 
 const todoSlice = createSlice({
@@ -1889,7 +1934,7 @@ const todoSlice = createSlice({
 ```
 
 ### 2. Functional Action Creators
-```javascript
+```typescript
 // RTK automatically generates pure action creators
 const { addTodo, toggleTodo } = todoSlice.actions;
 
@@ -1899,13 +1944,13 @@ const toggleAction = toggleTodo(1);
 ```
 
 ### 3. createAsyncThunk - Functional Side Effects
-```javascript
+```typescript
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
 // Pure function that returns a thunk (function returning function)
 const fetchTodos = createAsyncThunk(
   'todos/fetchTodos',
-  async (userId) => {
+  async (userId: number) => {
     const response = await fetch(`/api/users/${userId}/todos`);
     return response.json();
   }
@@ -1915,7 +1960,7 @@ const fetchTodos = createAsyncThunk(
 ## Functional Benefits of RTK
 
 ### Immutability Made Easy
-```javascript
+```typescript
 // RTK uses Immer under the hood
 const counterSlice = createSlice({
   name: 'counter',
@@ -1929,7 +1974,7 @@ const counterSlice = createSlice({
 ```
 
 ### Composition with combineReducers
-```javascript
+```typescript
 import { configureStore } from '@reduxjs/toolkit';
 
 const store = configureStore({
@@ -1944,7 +1989,7 @@ const store = configureStore({
 ## Functional Patterns in RTK Query
 
 ### Pure Data Fetching
-```javascript
+```typescript
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 const api = createApi({
@@ -1952,9 +1997,9 @@ const api = createApi({
   endpoints: (builder) => ({
     // Pure function that defines data fetching
     getTodos: builder.query({
-      query: (userId) => `users/${userId}/todos`,
+      query: (userId: number) => `users/${userId}/todos`,
       // Transform is a pure function
-      transformResponse: (response) => response.data
+      transformResponse: (response: any) => response.data
     })
   })
 });
@@ -1978,7 +2023,7 @@ Create a Redux Toolkit slice for a user profile with async thunk for fetching us
 ## Overview
 **Difficulty:** Intermediate  
 **Estimated Time:** 2-3 hours  
-**Prerequisites:** Basic Functional Programming JavaScript knowledge, ES6+ Features for Functional Programming
+**Prerequisites:** Basic Functional Programming TypeScript knowledge, ES6+ Features for Functional Programming
 
 Functional composition is a core principle where complex functions are built by combining simpler functions. This lecture explores composition patterns from James Sinclair and Eric Elliott's work. **Composition is the key to building lean, modular codebases** that are easy to maintain and extend.
 
@@ -2004,26 +2049,26 @@ Functional composition is a core principle where complex functions are built by 
 ## Function Composition Basics
 
 ### Mathematical Composition
-```javascript
+```typescript
 // Mathematical composition: (f ∘ g)(x) = f(g(x))
-const compose = (f, g) => x => f(g(x));
+const compose = <A, B, C>(f: (b: B) => C, g: (a: A) => B) => (x: A): C => f(g(x));
 
-const addOne = x => x + 1;
-const multiplyByTwo = x => x * 2;
+const addOne = (x: number): number => x + 1;
+const multiplyByTwo = (x: number): number => x * 2;
 
 const addOneThenMultiply = compose(multiplyByTwo, addOne);
 console.log(addOneThenMultiply(5)); // 12
 ```
 
 ### Pipeline Composition
-```javascript
+```typescript
 // Pipeline: data flows through functions left to right
-const pipe = (...fns) => x => fns.reduce((acc, fn) => fn(acc), x);
+const pipe = <T>(...fns: Array<(arg: T) => T>) => (x: T): T => fns.reduce((acc, fn) => fn(acc), x);
 
 const processData = pipe(
-  x => x * 2,
-  x => x + 1,
-  x => x.toString()
+  (x: number) => x * 2,
+  (x: number) => x + 1,
+  (x: number) => x.toString()
 );
 
 console.log(processData(5)); // "11"
@@ -2032,17 +2077,23 @@ console.log(processData(5)); // "11"
 ## Real-World Composition Examples
 
 ### Data Processing Pipeline
-```javascript
-const users = [
+```typescript
+interface User {
+  name: string;
+  age: number;
+  active: boolean;
+}
+
+const users: User[] = [
   { name: 'Alice', age: 25, active: true },
   { name: 'Bob', age: 30, active: false },
   { name: 'Charlie', age: 35, active: true }
 ];
 
 // Pure functions for data transformation
-const filterActive = users => users.filter(user => user.active);
-const mapNames = users => users.map(user => user.name);
-const sortNames = names => names.sort();
+const filterActive = (users: User[]) => users.filter(user => user.active);
+const mapNames = (users: User[]) => users.map(user => user.name);
+const sortNames = (names: string[]) => names.sort();
 
 // Compose the pipeline
 const getActiveUserNames = pipe(filterActive, mapNames, sortNames);
@@ -2050,10 +2101,10 @@ console.log(getActiveUserNames(users)); // ["Alice", "Charlie"]
 ```
 
 ### Validation Pipeline
-```javascript
-const validateEmail = email => email.includes('@') ? email : null;
-const validateLength = email => email && email.length > 5 ? email : null;
-const normalizeEmail = email => email && email.toLowerCase();
+```typescript
+const validateEmail = (email: string): string | null => email.includes('@') ? email : null;
+const validateLength = (email: string | null): string | null => email && email.length > 5 ? email : null;
+const normalizeEmail = (email: string | null): string | null => email && email.toLowerCase();
 
 const validateAndNormalize = pipe(validateEmail, validateLength, normalizeEmail);
 
@@ -2064,11 +2115,11 @@ console.log(validateAndNormalize('invalid')); // null
 ## Advanced Composition Patterns
 
 ### Point-Free Style
-```javascript
+```typescript
 // Avoid mentioning the data explicitly
-const prop = key => obj => obj[key];
-const map = fn => arr => arr.map(fn);
-const filter = fn => arr => arr.filter(fn);
+const prop = <K extends keyof any>(key: K) => <T extends Record<K, any>>(obj: T): T[K] => obj[key];
+const map = <T, U>(fn: (item: T) => U) => (arr: T[]): U[] => arr.map(fn);
+const filter = <T>(fn: (item: T) => boolean) => (arr: T[]): T[] => arr.filter(fn);
 
 // Point-free composition
 const getActiveUserNames = pipe(
@@ -2079,18 +2130,18 @@ const getActiveUserNames = pipe(
 ```
 
 ### Composition with Currying
-```javascript
-const curry = fn => {
-  return function curried(...args) {
+```typescript
+const curry = <T extends any[], R>(fn: (...args: T) => R) => {
+  return function curried(...args: any[]): any {
     if (args.length >= fn.length) {
       return fn(...args);
     }
-    return (...moreArgs) => curried(...args, ...moreArgs);
+    return (...moreArgs: any[]) => curried(...args, ...moreArgs);
   };
 };
 
-const add = curry((a, b) => a + b);
-const multiply = curry((a, b) => a * b);
+const add = curry((a: number, b: number): number => a + b);
+const multiply = curry((a: number, b: number): number => a * b);
 
 const addThenMultiply = pipe(add(5), multiply(2));
 console.log(addThenMultiply(3)); // 16
@@ -2099,24 +2150,24 @@ console.log(addThenMultiply(3)); // 16
 ## Composition in React/Redux
 
 ### Selector Composition
-```javascript
+```typescript
 // Compose selectors for complex data queries
-const selectUsers = state => state.users;
+const selectUsers = (state: any) => state.users;
 const selectActiveUsers = pipe(selectUsers, filter(prop('active')));
 const selectActiveUserNames = pipe(selectActiveUsers, map(prop('name')));
 ```
 
 ### Action Creator Composition
-```javascript
-const withMeta = meta => action => ({ ...action, meta });
-const withTimestamp = action => ({ ...action, timestamp: Date.now() });
+```typescript
+const withMeta = (meta: any) => (action: any) => ({ ...action, meta });
+const withTimestamp = (action: any) => ({ ...action, timestamp: Date.now() });
 
 const createActionWithMeta = pipe(
   withMeta({ source: 'user' }),
   withTimestamp
 );
 
-const addTodo = text => ({ type: 'ADD_TODO', payload: { text } });
+const addTodo = (text: string) => ({ type: 'ADD_TODO', payload: { text } });
 const addTodoWithMeta = pipe(addTodo, createActionWithMeta);
 ```
 
@@ -2154,42 +2205,40 @@ A monad is a type that wraps a value and provides two operations:
 1. **return/unit**: Wraps a value in the monad
 2. **bind/flatMap**: Chains operations on the monad
 
-```javascript
+```typescript
 // Monad interface (conceptual)
-class Monad {
-  static return(value) { /* wraps value */ }
-  bind(fn) { /* chains operations */ }
+class Monad<T> {
+  static return<T>(value: T): Monad<T> { /* wraps value */ }
+  bind<U>(fn: (value: T) => Monad<U>): Monad<U> { /* chains operations */ }
 }
 ```
 
 ## Common Monad Types
 
 ### 1. Maybe Monad (Handles null/undefined)
-```javascript
-class Maybe {
-  constructor(value) {
-    this.value = value;
-  }
+```typescript
+class Maybe<T> {
+  private constructor(private value: T | null) {}
 
-  static just(value) {
+  static just<T>(value: T): Maybe<T> {
     return new Maybe(value);
   }
 
-  static nothing() {
-    return new Maybe(null);
+  static nothing<T>(): Maybe<T> {
+    return new Maybe<T>(null);
   }
 
-  bind(fn) {
+  bind<U>(fn: (value: T) => Maybe<U>): Maybe<U> {
     return this.value === null || this.value === undefined
-      ? Maybe.nothing()
+      ? Maybe.nothing<U>()
       : fn(this.value);
   }
 
-  map(fn) {
+  map<U>(fn: (value: T) => U): Maybe<U> {
     return this.bind(value => Maybe.just(fn(value)));
   }
 
-  getOrElse(defaultValue) {
+  getOrElse(defaultValue: T): T {
     return this.value === null || this.value === undefined 
       ? defaultValue 
       : this.value;
@@ -2197,7 +2246,7 @@ class Maybe {
 }
 
 // Usage
-const safeDivide = (a, b) => 
+const safeDivide = (a: number, b: number): Maybe<number> => 
   b === 0 ? Maybe.nothing() : Maybe.just(a / b);
 
 const result = Maybe.just(10)
@@ -2208,32 +2257,32 @@ console.log(result.value); // 1
 ```
 
 ### 2. Either Monad (Handles errors)
-```javascript
-class Either {
-  constructor(value, isLeft = false) {
-    this.value = value;
-    this.isLeft = isLeft;
-  }
+```typescript
+class Either<L, R> {
+  private constructor(
+    private value: L | R,
+    private isLeft: boolean
+  ) {}
 
-  static left(error) {
+  static left<L, R>(error: L): Either<L, R> {
     return new Either(error, true);
   }
 
-  static right(value) {
+  static right<L, R>(value: R): Either<L, R> {
     return new Either(value, false);
   }
 
-  bind(fn) {
-    return this.isLeft ? this : fn(this.value);
+  bind<U>(fn: (value: R) => Either<L, U>): Either<L, U> {
+    return this.isLeft ? this as Either<L, U> : fn(this.value as R);
   }
 
-  map(fn) {
+  map<U>(fn: (value: R) => U): Either<L, U> {
     return this.bind(value => Either.right(fn(value)));
   }
 }
 
 // Usage
-const parseNumber = (str) => {
+const parseNumber = (str: string): Either<string, number> => {
   const num = parseInt(str);
   return isNaN(num) 
     ? Either.left('Invalid number')
@@ -2246,22 +2295,20 @@ const result = parseNumber('123')
 ```
 
 ### 3. List Monad (Handles collections)
-```javascript
-class List {
-  constructor(values) {
-    this.values = values;
-  }
+```typescript
+class List<T> {
+  constructor(private values: T[]) {}
 
-  static return(value) {
+  static return<T>(value: T): List<T> {
     return new List([value]);
   }
 
-  bind(fn) {
+  bind<U>(fn: (value: T) => List<U>): List<U> {
     const results = this.values.flatMap(value => fn(value).values);
     return new List(results);
   }
 
-  map(fn) {
+  map<U>(fn: (value: T) => U): List<U> {
     return this.bind(value => List.return(fn(value)));
   }
 }
@@ -2275,10 +2322,10 @@ console.log(doubled.values); // [1, 2, 2, 4, 3, 6]
 ## Monad Laws
 
 ### 1. Left Identity
-```javascript
+```typescript
 // return(a).bind(f) === f(a)
 const a = 5;
-const f = x => Maybe.just(x * 2);
+const f = (x: number) => Maybe.just(x * 2);
 
 const left = Maybe.just(a).bind(f);
 const right = f(a);
@@ -2286,7 +2333,7 @@ const right = f(a);
 ```
 
 ### 2. Right Identity
-```javascript
+```typescript
 // m.bind(return) === m
 const m = Maybe.just(5);
 const left = m.bind(Maybe.just);
@@ -2295,11 +2342,11 @@ const right = m;
 ```
 
 ### 3. Associativity
-```javascript
+```typescript
 // m.bind(f).bind(g) === m.bind(x => f(x).bind(g))
 const m = Maybe.just(5);
-const f = x => Maybe.just(x * 2);
-const g = x => Maybe.just(x + 1);
+const f = (x: number) => Maybe.just(x * 2);
+const g = (x: number) => Maybe.just(x + 1);
 
 const left = m.bind(f).bind(g);
 const right = m.bind(x => f(x).bind(g));
@@ -2309,14 +2356,19 @@ const right = m.bind(x => f(x).bind(g));
 ## Practical Applications
 
 ### Error Handling
-```javascript
-const validateUser = (user) => {
+```typescript
+interface User {
+  name: string;
+  email: string;
+}
+
+const validateUser = (user: User): Either<string, User> => {
   if (!user.name) return Either.left('Name required');
   if (!user.email) return Either.left('Email required');
   return Either.right(user);
 };
 
-const saveUser = (user) => {
+const saveUser = (user: User): Either<string, User & { id: number }> => {
   // Simulate database save
   return Either.right({ ...user, id: Date.now() });
 };
@@ -2327,10 +2379,10 @@ const result = validateUser({ name: 'Alice', email: 'alice@example.com' })
 ```
 
 ### Optional Chaining
-```javascript
-const getUser = (id) => Maybe.just({ id, name: 'Alice' });
-const getProfile = (user) => Maybe.just({ ...user, bio: 'Developer' });
-const getAvatar = (profile) => Maybe.just({ ...profile, avatar: 'avatar.jpg' });
+```typescript
+const getUser = (id: number) => Maybe.just({ id, name: 'Alice' });
+const getProfile = (user: any) => Maybe.just({ ...user, bio: 'Developer' });
+const getAvatar = (profile: any) => Maybe.just({ ...profile, avatar: 'avatar.jpg' });
 
 const result = getUser(1)
   .bind(getProfile)
@@ -2341,18 +2393,18 @@ const result = getUser(1)
 ## Monads in Modern JavaScript
 
 ### Promise as a Monad
-```javascript
+```typescript
 // Promise implements monad-like behavior
-const fetchUser = (id) => fetch(`/api/users/${id}`).then(r => r.json());
-const fetchPosts = (user) => fetch(`/api/users/${user.id}/posts`).then(r => r.json());
+const fetchUser = (id: number) => fetch(`/api/users/${id}`).then(r => r.json());
+const fetchPosts = (user: any) => fetch(`/api/users/${user.id}/posts`).then(r => r.json());
 
 const result = fetchUser(1)
   .then(user => fetchPosts(user))
-  .then(posts => posts.map(post => post.title));
+  .then(posts => posts.map((post: any) => post.title));
 ```
 
 ### Array as a Monad
-```javascript
+```typescript
 // Array implements monad behavior with flatMap
 const numbers = [1, 2, 3];
 const result = numbers
@@ -2395,12 +2447,12 @@ Reactive programming is programming with asynchronous data streams. Everything i
 - Timer events
 - Component state changes
 
-```javascript
+```typescript
 // Traditional imperative approach
 let count = 0;
 button.addEventListener('click', () => {
   count++;
-  display.textContent = count;
+  display.textContent = count.toString();
 });
 
 // Reactive approach with streams
@@ -2408,15 +2460,15 @@ const clickStream = fromEvent(button, 'click');
 const countStream = clickStream.pipe(
   scan((acc) => acc + 1, 0)
 );
-countStream.subscribe(count => display.textContent = count);
+countStream.subscribe(count => display.textContent = count.toString());
 ```
 
 ## Core Concepts
 
 ### 1. Streams
-```javascript
+```typescript
 // A stream is a sequence of events over time
-const stream = new Observable(observer => {
+const stream = new Observable<number>(observer => {
   observer.next(1);
   observer.next(2);
   observer.next(3);
@@ -2424,50 +2476,50 @@ const stream = new Observable(observer => {
 });
 
 stream.subscribe({
-  next: value => console.log(value),
+  next: (value: number) => console.log(value),
   complete: () => console.log('Done')
 });
 ```
 
 ### 2. Operators
-```javascript
+```typescript
 // Transform streams using operators
 const numbers$ = of(1, 2, 3, 4, 5);
 
 const doubled$ = numbers$.pipe(
-  map(x => x * 2),
-  filter(x => x > 5)
+  map((x: number) => x * 2),
+  filter((x: number) => x > 5)
 );
 
 doubled$.subscribe(console.log); // 6, 8, 10
 ```
 
 ### 3. Composition
-```javascript
+```typescript
 // Combine multiple streams
 const clicks$ = fromEvent(button, 'click');
 const timer$ = interval(1000);
 
 const combined$ = merge(clicks$, timer$);
-combined$.subscribe(event => console.log('Event:', event));
+combined$.subscribe((event: any) => console.log('Event:', event));
 ```
 
 ## Cycle.js Architecture
 
 ### MVI Pattern (Model-View-Intent)
-```javascript
+```typescript
 import { run } from '@cycle/run';
 import { makeDOMDriver } from '@cycle/dom';
 import { makeHTTPDriver } from '@cycle/http';
 
-function main(sources) {
+function main(sources: any) {
   // Intent: User actions → actions
   const click$ = sources.DOM.select('.button').events('click');
   const action$ = click$.map(() => ({ type: 'INCREMENT' }));
 
   // Model: Actions → state
   const state$ = action$.pipe(
-    scan((state, action) => {
+    scan((state: any, action: any) => {
       switch (action.type) {
         case 'INCREMENT':
           return { ...state, count: state.count + 1 };
@@ -2478,7 +2530,7 @@ function main(sources) {
   );
 
   // View: State → DOM
-  const vdom$ = state$.map(state => 
+  const vdom$ = state$.map((state: any) => 
     h('div', [
       h('h1', `Count: ${state.count}`),
       h('button.button', 'Increment')
@@ -2498,18 +2550,18 @@ run(main, {
 ## Functional Reactive Programming
 
 ### Pure Functions with Streams
-```javascript
+```typescript
 // Pure function that transforms a stream
-const incrementCounter = (action$) => 
+const incrementCounter = (action$: any) => 
   action$.pipe(
-    filter(action => action.type === 'INCREMENT'),
-    scan((count, action) => count + 1, 0)
+    filter((action: any) => action.type === 'INCREMENT'),
+    scan((count: number, action: any) => count + 1, 0)
   );
 
 // Pure function for DOM rendering
-const renderCounter = (count$) =>
+const renderCounter = (count$: any) =>
   count$.pipe(
-    map(count => h('div', [
+    map((count: number) => h('div', [
       h('h1', `Count: ${count}`),
       h('button', 'Increment')
     ]))
@@ -2517,12 +2569,12 @@ const renderCounter = (count$) =>
 ```
 
 ### Composition of Streams
-```javascript
+```typescript
 // Compose multiple stream transformations
 const processUserInput = pipe(
   debounceTime(300),
-  map(event => event.target.value),
-  filter(text => text.length > 2),
+  map((event: any) => event.target.value),
+  filter((text: string) => text.length > 2),
   distinctUntilChanged()
 );
 
@@ -2532,28 +2584,44 @@ const searchResults$ = userInput$.pipe(processUserInput);
 ## Real-World Examples
 
 ### Search with Debouncing
-```javascript
-function searchComponent(sources) {
+```typescript
+interface SearchResult {
+  title: string;
+  id: string;
+}
+
+interface SearchSources {
+  DOM: {
+    select: (selector: string) => {
+      events: (eventType: string) => Observable<Event>;
+    };
+  };
+  HTTP: {
+    get: (url: string) => Observable<{ body: { results: SearchResult[] } }>;
+  };
+}
+
+function searchComponent(sources: SearchSources) {
   const input$ = sources.DOM.select('.search').events('input');
   
   const searchTerm$ = input$.pipe(
-    map(event => event.target.value),
+    map((event: Event) => (event.target as HTMLInputElement).value),
     debounceTime(300),
-    filter(term => term.length > 2)
+    filter((term: string) => term.length > 2)
   );
 
   const searchResults$ = searchTerm$.pipe(
-    switchMap(term => 
+    switchMap((term: string) => 
       sources.HTTP.get(`/api/search?q=${term}`)
     ),
-    map(response => response.body.results)
+    map((response: { body: { results: SearchResult[] } }) => response.body.results)
   );
 
   const vdom$ = combineLatest(searchTerm$, searchResults$).pipe(
-    map(([term, results]) => 
+    map(([term, results]: [string, SearchResult[]]) => 
       h('div', [
         h('input.search', { placeholder: 'Search...' }),
-        h('ul', results.map(result => 
+        h('ul', results.map((result: SearchResult) => 
           h('li', result.title)
         ))
       ])
@@ -2562,38 +2630,52 @@ function searchComponent(sources) {
 
   return {
     DOM: vdom$,
-    HTTP: searchTerm$.map(term => ({
+    HTTP: searchTerm$.pipe(map((term: string) => ({
       url: `/api/search?q=${term}`,
       category: 'search'
-    }))
+    })))
   };
 }
 ```
 
 ### Todo App with Streams
-```javascript
-function todoApp(sources) {
+```typescript
+interface Todo {
+  id: number;
+  text: string;
+  completed: boolean;
+}
+
+interface TodoSources {
+  DOM: {
+    select: (selector: string) => {
+      events: (eventType: string) => Observable<Event>;
+    };
+  };
+}
+
+function todoApp(sources: TodoSources) {
   // Intent
   const addTodo$ = sources.DOM.select('.add-todo').events('click');
   const newTodoText$ = sources.DOM.select('.new-todo').events('input')
-    .map(event => event.target.value);
+    .pipe(map((event: Event) => (event.target as HTMLInputElement).value));
 
   // Model
   const todos$ = addTodo$.pipe(
     withLatestFrom(newTodoText$),
-    scan((todos, [_, text]) => [
+    scan((todos: Todo[], [_, text]: [Event, string]) => [
       ...todos,
       { id: Date.now(), text, completed: false }
-    ], [])
+    ], [] as Todo[])
   );
 
   // View
   const vdom$ = todos$.pipe(
-    map(todos => 
+    map((todos: Todo[]) => 
       h('div', [
         h('input.new-todo', { placeholder: 'New todo' }),
         h('button.add-todo', 'Add'),
-        h('ul', todos.map(todo => 
+        h('ul', todos.map((todo: Todo) => 
           h('li', { key: todo.id }, todo.text)
         ))
       ])
@@ -2607,21 +2689,21 @@ function todoApp(sources) {
 ## Benefits of Reactive Programming
 
 ### 1. Declarative
-```javascript
+```typescript
 // Declarative: Describe what you want, not how to get it
 const result$ = source$.pipe(
-  filter(x => x > 0),
-  map(x => x * 2),
+  filter((x: number) => x > 0),
+  map((x: number) => x * 2),
   take(5)
 );
 ```
 
 ### 2. Compositional
-```javascript
+```typescript
 // Compose complex behaviors from simple streams
 const userInput$ = fromEvent(input, 'input');
 const validation$ = userInput$.pipe(
-  map(validate),
+  map((event: Event) => validate((event.target as HTMLInputElement).value)),
   distinctUntilChanged()
 );
 const submit$ = fromEvent(form, 'submit');
@@ -2629,10 +2711,10 @@ const formData$ = combineLatest(userInput$, validation$);
 ```
 
 ### 3. Testable
-```javascript
+```typescript
 // Easy to test with marble testing
 const input$ = cold('a-b-c', { a: 1, b: 2, c: 3 });
-const result$ = input$.pipe(map(x => x * 2));
+const result$ = input$.pipe(map((x: number) => x * 2));
 const expected$ = cold('a-b-c', { a: 2, b: 4, c: 6 });
 
 expectObservable(result$).toBe(expected$);
@@ -2662,13 +2744,25 @@ This lecture combines all the functional programming concepts we've learned into
 ## Building a Functional Todo Application
 
 ### 1. State Management with Redux Toolkit
-```javascript
+```typescript
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+
+interface Todo {
+  id: number;
+  text: string;
+  completed: boolean;
+}
+
+interface TodoState {
+  items: Todo[];
+  loading: boolean;
+  error: string | null;
+}
 
 // Pure action creators
 const todoSlice = createSlice({
   name: 'todos',
-  initialState: { items: [], loading: false, error: null },
+  initialState: { items: [], loading: false, error: null } as TodoState,
   reducers: {
     addTodo: (state, action) => {
       state.items.push(action.payload);
@@ -2693,7 +2787,7 @@ const todoSlice = createSlice({
 // Async thunk for side effects
 const fetchTodos = createAsyncThunk(
   'todos/fetchTodos',
-  async (userId) => {
+  async (userId: number) => {
     try {
       const response = await fetch(`/api/users/${userId}/todos`);
       if (!response.ok) {
@@ -2708,15 +2802,22 @@ const fetchTodos = createAsyncThunk(
 ```
 
 ### 2. Functional Composition for Data Processing
-```javascript
+```typescript
+interface Todo {
+  id: number;
+  text: string;
+  completed: boolean;
+  createdAt: string;
+}
+
 // Pure functions for data transformation
-const filterByStatus = (status) => (todos) => 
+const filterByStatus = (status: boolean) => (todos: Todo[]) => 
   todos.filter(todo => todo.completed === status);
 
-const sortByDate = (todos) => 
-  todos.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+const sortByDate = (todos: Todo[]) => 
+  todos.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-const mapToDisplay = (todos) => 
+const mapToDisplay = (todos: Todo[]) => 
   todos.map(todo => ({
     ...todo,
     displayText: todo.completed ? `✓ ${todo.text}` : todo.text
@@ -2731,33 +2832,30 @@ const processTodos = pipe(
 ```
 
 ### 3. Monads for Error Handling
-```javascript
+```typescript
 // Either monad for API calls
-class ApiResult {
-  constructor(value, isError = false) {
-    this.value = value;
-    this.isError = isError;
-  }
+class ApiResult<T> {
+  private constructor(private value: T | string, private isError: boolean) {}
 
-  static success(value) {
+  static success<T>(value: T): ApiResult<T> {
     return new ApiResult(value, false);
   }
 
-  static error(message) {
+  static error<T>(message: string): ApiResult<T> {
     return new ApiResult(message, true);
   }
 
-  bind(fn) {
-    return this.isError ? this : fn(this.value);
+  bind<U>(fn: (value: T) => ApiResult<U>): ApiResult<U> {
+    return this.isError ? this as ApiResult<U> : fn(this.value as T);
   }
 
-  map(fn) {
+  map<U>(fn: (value: T) => U): ApiResult<U> {
     return this.bind(value => ApiResult.success(fn(value)));
   }
 }
 
 // Safe API wrapper
-const safeApiCall = async (url) => {
+const safeApiCall = async <T>(url: string): Promise<ApiResult<T>> => {
   try {
     const response = await fetch(url);
     if (!response.ok) {
@@ -2766,24 +2864,37 @@ const safeApiCall = async (url) => {
     const data = await response.json();
     return ApiResult.success(data);
   } catch (error) {
-    return ApiResult.error(`API call failed: ${error.message}`);
+    return ApiResult.error(`API call failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 };
 
 // Usage with composition
 const fetchUserTodos = pipe(
-  (userId) => `/api/users/${userId}/todos`,
+  (userId: number) => `/api/users/${userId}/todos`,
   safeApiCall,
   result => result.map(processTodos)
 );
 ```
 
 ### 4. Reactive Components with Streams
-```javascript
+```typescript
 import { fromEvent, combineLatest, merge } from 'rxjs';
 import { map, filter, debounceTime, switchMap } from 'rxjs/operators';
 
-function TodoComponent(sources) {
+interface TodoAction {
+  type: 'ADD_TODO' | 'TOGGLE_TODO';
+  payload: { text: string } | string;
+}
+
+interface TodoComponentSources {
+  DOM: {
+    select: (selector: string) => {
+      events: (eventType: string) => Observable<Event>;
+    };
+  };
+}
+
+function TodoComponent(sources: TodoComponentSources) {
   // Intent: User actions
   const addTodo$ = sources.DOM.select('.add-todo').events('click');
   const inputChange$ = sources.DOM.select('.todo-input').events('input');
@@ -2791,46 +2902,49 @@ function TodoComponent(sources) {
 
   // Model: State management
   const newTodoText$ = inputChange$.pipe(
-    map(event => event.target.value),
+    map((event: Event) => (event.target as HTMLInputElement).value),
     debounceTime(300)
   );
 
   const todos$ = merge(
     addTodo$.pipe(
       withLatestFrom(newTodoText$),
-      map(([_, text]) => ({ type: 'ADD_TODO', payload: { text } }))
+      map(([_, text]: [Event, string]) => ({ type: 'ADD_TODO' as const, payload: { text } }))
     ),
     toggleTodo$.pipe(
-      map(event => ({ type: 'TOGGLE_TODO', payload: event.target.dataset.id }))
+      map((event: Event) => ({ 
+        type: 'TOGGLE_TODO' as const, 
+        payload: (event.target as HTMLElement).dataset.id || '' 
+      }))
     )
   ).pipe(
-    scan((todos, action) => {
+    scan((todos: Todo[], action: TodoAction) => {
       switch (action.type) {
         case 'ADD_TODO':
           return [...todos, { 
             id: Date.now(), 
-            text: action.payload.text, 
+            text: (action.payload as { text: string }).text, 
             completed: false 
           }];
         case 'TOGGLE_TODO':
           return todos.map(todo => 
-            todo.id === parseInt(action.payload) 
+            todo.id === parseInt(action.payload as string) 
               ? { ...todo, completed: !todo.completed }
               : todo
           );
         default:
           return todos;
       }
-    }, [])
+    }, [] as Todo[])
   );
 
   // View: Render UI
   const vdom$ = todos$.pipe(
-    map(todos => 
+    map((todos: Todo[]) => 
       h('div.todo-app', [
         h('input.todo-input', { placeholder: 'Add todo...' }),
         h('button.add-todo', 'Add'),
-        h('ul.todo-list', todos.map(todo => 
+        h('ul.todo-list', todos.map((todo: Todo) => 
           h('li.todo-item', { 
             key: todo.id,
             'data-id': todo.id,
@@ -2848,22 +2962,27 @@ function TodoComponent(sources) {
 ## Advanced Patterns
 
 ### 1. Functional State Machines
-```javascript
+```typescript
+interface TodoState {
+  todos: Todo[];
+  filter: string;
+}
+
 // Pure function for state transitions
-const createStateMachine = (initialState, transitions) => {
-  return (state = initialState, action) => {
-    const transition = transitions[action.type];
+const createStateMachine = <T, A>(initialState: T, transitions: Record<string, (state: T, action: A) => T>) => {
+  return (state: T = initialState, action: A): T => {
+    const transition = transitions[(action as any).type];
     return transition ? transition(state, action) : state;
   };
 };
 
 // Todo state machine
 const todoTransitions = {
-  ADD_TODO: (state, action) => ({
+  ADD_TODO: (state: TodoState, action: any) => ({
     ...state,
     todos: [...state.todos, action.payload]
   }),
-  TOGGLE_TODO: (state, action) => ({
+  TOGGLE_TODO: (state: TodoState, action: any) => ({
     ...state,
     todos: state.todos.map(todo => 
       todo.id === action.payload 
@@ -2871,23 +2990,23 @@ const todoTransitions = {
         : todo
     )
   }),
-  DELETE_TODO: (state, action) => ({
+  DELETE_TODO: (state: TodoState, action: any) => ({
     ...state,
     todos: state.todos.filter(todo => todo.id !== action.payload)
   })
 };
 
 const todoReducer = createStateMachine(
-  { todos: [], filter: 'all' },
+  { todos: [], filter: 'all' } as TodoState,
   todoTransitions
 );
 ```
 
 ### 2. Functional Testing
-```javascript
+```typescript
 // Pure function testing
-const testProcessTodos = () => {
-  const input = [
+const testProcessTodos = (): boolean => {
+  const input: Todo[] = [
     { id: 1, text: 'Task 1', completed: false, createdAt: '2023-01-01' },
     { id: 2, text: 'Task 2', completed: true, createdAt: '2023-01-02' },
     { id: 3, text: 'Task 3', completed: false, createdAt: '2023-01-03' }
@@ -2906,11 +3025,11 @@ const testProcessTodos = () => {
 console.log('Test passed:', testProcessTodos());
 
 // Property-based testing example
-const testFilterByStatus = () => {
-  const todos = [
-    { id: 1, text: 'Task 1', completed: false },
-    { id: 2, text: 'Task 2', completed: true },
-    { id: 3, text: 'Task 3', completed: false }
+const testFilterByStatus = (): boolean => {
+  const todos: Todo[] = [
+    { id: 1, text: 'Task 1', completed: false, createdAt: '2023-01-01' },
+    { id: 2, text: 'Task 2', completed: true, createdAt: '2023-01-02' },
+    { id: 3, text: 'Task 3', completed: false, createdAt: '2023-01-03' }
   ];
 
   const activeTodos = filterByStatus(false)(todos);
@@ -2924,8 +3043,8 @@ const testFilterByStatus = () => {
 };
 
 // Integration testing
-const testTodoPipeline = () => {
-  const todos = [
+const testTodoPipeline = (): boolean => {
+  const todos: Todo[] = [
     { id: 1, text: 'Task 1', completed: false, createdAt: '2023-01-01' },
     { id: 2, text: 'Task 2', completed: true, createdAt: '2023-01-02' },
     { id: 3, text: 'Task 3', completed: false, createdAt: '2023-01-03' }
@@ -2952,30 +3071,30 @@ console.log('Pipeline test passed:', testTodoPipeline());
 ```
 
 ### 3. Functional Error Boundaries
-```javascript
+```typescript
 // Maybe monad for component rendering
-const safeRender = (component, props) => {
+const safeRender = <T, R>(component: (props: T) => R, props: T): Maybe<R> => {
   try {
     return Maybe.just(component(props));
   } catch (error) {
     console.error('Render error:', error);
-    return Maybe.nothing();
+    return Maybe.nothing<R>();
   }
 };
 
 // Usage
-const renderTodoList = (todos) => {
+const renderTodoList = (todos: Todo[]): any => {
   if (!Array.isArray(todos)) {
     throw new Error('Todos must be an array');
   }
   
-  return h('ul', todos.map(todo => 
+  return h('ul', todos.map((todo: Todo) => 
     h('li', { key: todo.id }, todo.text)
   ));
 };
 
 const safeTodoList = safeRender(renderTodoList, todos);
-safeTodoList.map(vdom => render(vdom)).getOrElse(() => 
+safeTodoList.map((vdom: any) => render(vdom)).getOrElse(() => 
   h('div.error', 'Failed to render todos')
 );
 ```
@@ -2983,14 +3102,14 @@ safeTodoList.map(vdom => render(vdom)).getOrElse(() =>
 ## Performance Optimization
 
 ### 1. Memoization
-```javascript
+```typescript
 // Pure function memoization
-const memoize = (fn) => {
-  const cache = new Map();
-  return (...args) => {
+const memoize = <T extends any[], R>(fn: (...args: T) => R) => {
+  const cache = new Map<string, R>();
+  return (...args: T): R => {
     const key = JSON.stringify(args);
     if (cache.has(key)) {
-      return cache.get(key);
+      return cache.get(key)!;
     }
     const result = fn(...args);
     cache.set(key, result);
@@ -2998,27 +3117,27 @@ const memoize = (fn) => {
   };
 };
 
-const expensiveCalculation = memoize((numbers) => {
+const expensiveCalculation = memoize((numbers: number[]): number => {
   return numbers.reduce((sum, num) => sum + num, 0);
 });
 ```
 
 ### 2. Lazy Evaluation
-```javascript
+```typescript
 // Lazy stream processing
-const createLazyStream = (generator) => {
+const createLazyStream = <T>(generator: () => Generator<T>) => {
   return {
-    map: (fn) => createLazyStream(function* () {
+    map: <U>(fn: (item: T) => U) => createLazyStream(function* () {
       for (const item of generator()) {
         yield fn(item);
       }
     }),
-    filter: (predicate) => createLazyStream(function* () {
+    filter: (predicate: (item: T) => boolean) => createLazyStream(function* () {
       for (const item of generator()) {
         if (predicate(item)) yield item;
       }
     }),
-    take: (count) => createLazyStream(function* () {
+    take: (count: number) => createLazyStream(function* () {
       let taken = 0;
       for (const item of generator()) {
         if (taken >= count) break;
@@ -3133,26 +3252,31 @@ This lecture explores strategies for maintaining a codebase in pure functional p
 ## Core Maintenance Principles
 
 ### 1. Lean and Modular Codebase
-```javascript
+```typescript
+interface User {
+  name: string;
+  email: string;
+}
+
 // ❌ Bloated, monolithic approach
 const userService = {
-  validateUser: (user) => { /* validation logic */ },
-  saveUser: (user) => { /* save logic */ },
-  sendEmail: (user) => { /* email logic */ },
-  generateReport: (user) => { /* report logic */ },
+  validateUser: (user: User) => { /* validation logic */ },
+  saveUser: (user: User) => { /* save logic */ },
+  sendEmail: (user: User) => { /* email logic */ },
+  generateReport: (user: User) => { /* report logic */ },
   // ... 20 more methods
 };
 
 // ✅ Lean, modular approach
-// userValidation.js
-export const validateUser = (user) => {
+// userValidation.ts
+export const validateUser = (user: User): User => {
   if (!user.name) throw new Error('Name required');
   if (!user.email) throw new Error('Email required');
   return user;
 };
 
-// userRepository.js
-export const saveUser = async (user) => {
+// userRepository.ts
+export const saveUser = async (user: User): Promise<User> => {
   const response = await fetch('/api/users', {
     method: 'POST',
     body: JSON.stringify(user)
@@ -3160,18 +3284,18 @@ export const saveUser = async (user) => {
   return response.json();
 };
 
-// emailService.js
-export const sendWelcomeEmail = async (user) => {
+// emailService.ts
+export const sendWelcomeEmail = async (user: User): Promise<void> => {
   // Email logic isolated
 };
 ```
 
 ### 2. Separation of Concerns
-```javascript
+```typescript
 // ❌ Mixed concerns
-const UserComponent = ({ user }) => {
+const UserComponent = ({ user }: { user: User }) => {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   
   const handleSave = async () => {
     setLoading(true);
@@ -3186,7 +3310,7 @@ const UserComponent = ({ user }) => {
       // UI updates mixed with business logic
       setUser(savedUser);
     } catch (err) {
-      setError(err.message);
+      setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
       setLoading(false);
     }
@@ -3196,10 +3320,16 @@ const UserComponent = ({ user }) => {
 };
 
 // ✅ Separated concerns
-// userSlice.js - Business logic
+// userSlice.ts - Business logic
+interface UserState {
+  user: User | null;
+  loading: boolean;
+  error: string | null;
+}
+
 const userSlice = createSlice({
   name: 'user',
-  initialState: { user: null, loading: false, error: null },
+  initialState: { user: null, loading: false, error: null } as UserState,
   reducers: {
     setUser: (state, action) => {
       state.user = action.payload;
@@ -3213,17 +3343,17 @@ const userSlice = createSlice({
   }
 });
 
-// userActions.js - Pure action creators
+// userActions.ts - Pure action creators
 export const saveUser = createAsyncThunk(
   'user/saveUser',
-  async (user) => {
+  async (user: User) => {
     const validatedUser = validateUser(user);
     return await userRepository.saveUser(validatedUser);
   }
 );
 
-// UserComponent.jsx - UI only
-const UserComponent = ({ user }) => {
+// UserComponent.tsx - UI only
+const UserComponent = ({ user }: { user: User }) => {
   const dispatch = useAppDispatch();
   const { loading, error } = useAppSelector(state => state.user);
   
@@ -3236,31 +3366,31 @@ const UserComponent = ({ user }) => {
 ```
 
 ### 3. Small, Focused Files
-```javascript
+```typescript
 // ❌ Large file with multiple responsibilities
-// userManagement.js (200+ lines)
+// userManagement.ts (200+ lines)
 export class UserManager {
   constructor() { /* setup */ }
   
-  validateUser(user) { /* validation logic */ }
-  saveUser(user) { /* save logic */ }
-  updateUser(user) { /* update logic */ }
-  deleteUser(userId) { /* delete logic */ }
-  sendEmail(user) { /* email logic */ }
-  generateReport(user) { /* report logic */ }
+  validateUser(user: User): User { /* validation logic */ }
+  saveUser(user: User): Promise<User> { /* save logic */ }
+  updateUser(user: User): Promise<User> { /* update logic */ }
+  deleteUser(userId: number): Promise<void> { /* delete logic */ }
+  sendEmail(user: User): Promise<void> { /* email logic */ }
+  generateReport(user: User): Promise<Report> { /* report logic */ }
   // ... many more methods
 }
 
 // ✅ Small, focused files
-// userValidation.js (15 lines)
-export const validateUser = (user) => {
+// userValidation.ts (15 lines)
+export const validateUser = (user: User): User => {
   if (!user.name) throw new Error('Name required');
   if (!user.email) throw new Error('Email required');
   return user;
 };
 
-// userRepository.js (20 lines)
-export const saveUser = async (user) => {
+// userRepository.ts (20 lines)
+export const saveUser = async (user: User): Promise<User> => {
   const response = await fetch('/api/users', {
     method: 'POST',
     body: JSON.stringify(user)
@@ -3268,37 +3398,37 @@ export const saveUser = async (user) => {
   return response.json();
 };
 
-// userEmailService.js (25 lines)
-export const sendWelcomeEmail = async (user) => {
+// userEmailService.ts (25 lines)
+export const sendWelcomeEmail = async (user: User): Promise<void> => {
   // Email-specific logic only
 };
 ```
 
 ### 4. One Function Per File
-```javascript
+```typescript
 // ❌ Multiple functions in one file
-// utils.js
-export const formatDate = (date) => { /* date formatting */ };
-export const formatCurrency = (amount) => { /* currency formatting */ };
-export const validateEmail = (email) => { /* email validation */ };
-export const debounce = (fn, delay) => { /* debounce utility */ };
+// utils.ts
+export const formatDate = (date: Date): string => { /* date formatting */ };
+export const formatCurrency = (amount: number): string => { /* currency formatting */ };
+export const validateEmail = (email: string): boolean => { /* email validation */ };
+export const debounce = <T extends any[]>(fn: (...args: T) => void, delay: number): (...args: T) => void => { /* debounce utility */ };
 
 // ✅ One function per file
-// formatDate.js
-export const formatDate = (date) => {
+// formatDate.ts
+export const formatDate = (date: Date): string => {
   return new Intl.DateTimeFormat('en-US').format(date);
 };
 
-// formatCurrency.js
-export const formatCurrency = (amount) => {
+// formatCurrency.ts
+export const formatCurrency = (amount: number): string => {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD'
   }).format(amount);
 };
 
-// validateEmail.js
-export const validateEmail = (email) => {
+// validateEmail.ts
+export const validateEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 };
@@ -3307,16 +3437,16 @@ export const validateEmail = (email) => {
 ## Redux Toolkit Maintenance Patterns
 
 ### 1. Slice Organization
-```javascript
+```typescript
 // ❌ Monolithic slice
 const appSlice = createSlice({
   name: 'app',
   initialState: {
-    users: [],
-    posts: [],
-    comments: [],
-    settings: {},
-    notifications: [],
+    users: [] as User[],
+    posts: [] as Post[],
+    comments: [] as Comment[],
+    settings: {} as Settings,
+    notifications: [] as Notification[],
     // ... many more domains
   },
   reducers: {
@@ -3325,23 +3455,23 @@ const appSlice = createSlice({
 });
 
 // ✅ Domain-specific slices
-// userSlice.js
+// userSlice.ts
 const userSlice = createSlice({
   name: 'user',
-  initialState: { users: [], loading: false, error: null },
+  initialState: { users: [] as User[], loading: false, error: null as string | null },
   reducers: {
-    setUsers: (state, action) => {
+    setUsers: (state, action: PayloadAction<User[]>) => {
       state.users = action.payload;
     }
   }
 });
 
-// postSlice.js
+// postSlice.ts
 const postSlice = createSlice({
   name: 'post',
-  initialState: { posts: [], loading: false, error: null },
+  initialState: { posts: [] as Post[], loading: false, error: null as string | null },
   reducers: {
-    setPosts: (state, action) => {
+    setPosts: (state, action: PayloadAction<Post[]>) => {
       state.posts = action.payload;
     }
   }
@@ -3349,61 +3479,61 @@ const postSlice = createSlice({
 ```
 
 ### 2. RTK Query API Organization
-```javascript
+```typescript
 // ❌ Single API slice for everything
 const api = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: '/api' }),
   endpoints: (builder) => ({
-    getUsers: builder.query({ query: () => 'users' }),
-    createUser: builder.mutation({ query: (user) => ({ url: 'users', method: 'POST', body: user }) }),
-    getPosts: builder.query({ query: () => 'posts' }),
-    createPost: builder.mutation({ query: (post) => ({ url: 'posts', method: 'POST', body: post }) }),
-    getComments: builder.query({ query: () => 'comments' }),
+    getUsers: builder.query<User[], void>({ query: () => 'users' }),
+    createUser: builder.mutation<User, User>({ query: (user: User) => ({ url: 'users', method: 'POST', body: user }) }),
+    getPosts: builder.query<Post[], void>({ query: () => 'posts' }),
+    createPost: builder.mutation<Post, Post>({ query: (post: Post) => ({ url: 'posts', method: 'POST', body: post }) }),
+    getComments: builder.query<Comment[], void>({ query: () => 'comments' }),
     // ... many more endpoints
   })
 });
 
 // ✅ Domain-specific API slices
-// userApi.js
+// userApi.ts
 const userApi = createApi({
   reducerPath: 'userApi',
   baseQuery: fetchBaseQuery({ baseUrl: '/api' }),
   endpoints: (builder) => ({
-    getUsers: builder.query({ query: () => 'users' }),
-    createUser: builder.mutation({ query: (user) => ({ url: 'users', method: 'POST', body: user }) })
+    getUsers: builder.query<User[], void>({ query: () => 'users' }),
+    createUser: builder.mutation<User, User>({ query: (user: User) => ({ url: 'users', method: 'POST', body: user }) })
   })
 });
 
-// postApi.js
+// postApi.ts
 const postApi = createApi({
   reducerPath: 'postApi',
   baseQuery: fetchBaseQuery({ baseUrl: '/api' }),
   endpoints: (builder) => ({
-    getPosts: builder.query({ query: () => 'posts' }),
-    createPost: builder.mutation({ query: (post) => ({ url: 'posts', method: 'POST', body: post }) })
+    getPosts: builder.query<Post[], void>({ query: () => 'posts' }),
+    createPost: builder.mutation<Post, Post>({ query: (post: Post) => ({ url: 'posts', method: 'POST', body: post }) })
   })
 });
 ```
 
 ### 3. Selector Organization
-```javascript
+```typescript
 // ❌ Complex selectors in components
 const UserList = () => {
-  const users = useSelector(state => 
-    state.user.users.filter(user => user.active)
-      .map(user => ({ ...user, displayName: `${user.firstName} ${user.lastName}` }))
+  const users = useSelector((state: RootState) => 
+    state.user.users.filter((user: User) => user.active)
+      .map((user: User) => ({ ...user, displayName: `${user.firstName} ${user.lastName}` }))
       .sort((a, b) => a.displayName.localeCompare(b.displayName))
   );
 };
 
 // ✅ Pure selector functions
-// userSelectors.js
-export const selectActiveUsers = (state) => 
-  state.user.users.filter(user => user.active);
+// userSelectors.ts
+export const selectActiveUsers = (state: RootState): User[] => 
+  state.user.users.filter((user: User) => user.active);
 
 export const selectUserDisplayNames = createSelector(
   [selectActiveUsers],
-  (users) => users.map(user => ({
+  (users: User[]) => users.map((user: User) => ({
     ...user,
     displayName: `${user.firstName} ${user.lastName}`
   }))
@@ -3411,10 +3541,10 @@ export const selectUserDisplayNames = createSelector(
 
 export const selectSortedUsers = createSelector(
   [selectUserDisplayNames],
-  (users) => users.sort((a, b) => a.displayName.localeCompare(b.displayName))
+  (users: User[]) => users.sort((a, b) => a.displayName.localeCompare(b.displayName))
 );
 
-// UserList.jsx
+// UserList.tsx
 const UserList = () => {
   const users = useSelector(selectSortedUsers);
   return <div>...</div>;
@@ -3424,9 +3554,9 @@ const UserList = () => {
 ## Functional Programming Maintenance Benefits
 
 ### 1. Testability
-```javascript
+```typescript
 // Pure functions are easy to test
-const validateUser = (user) => {
+const validateUser = (user: User): User => {
   if (!user.name) throw new Error('Name required');
   if (!user.email) throw new Error('Email required');
   return user;
@@ -3435,37 +3565,37 @@ const validateUser = (user) => {
 // Simple, focused tests
 describe('validateUser', () => {
   it('should validate a valid user', () => {
-    const user = { name: 'Alice', email: 'alice@example.com' };
+    const user: User = { name: 'Alice', email: 'alice@example.com' };
     expect(validateUser(user)).toEqual(user);
   });
   
   it('should throw error for missing name', () => {
-    const user = { email: 'alice@example.com' };
-    expect(() => validateUser(user)).toThrow('Name required');
+    const user: Partial<User> = { email: 'alice@example.com' };
+    expect(() => validateUser(user as User)).toThrow('Name required');
   });
 });
 ```
 
 ### 2. Maintainability
-```javascript
+```typescript
 // Small, focused functions are easy to understand and modify
-const formatUserDisplayName = (user) => {
+const formatUserDisplayName = (user: User): string => {
   return `${user.firstName} ${user.lastName}`.trim();
 };
 
 // Easy to extend or modify
-const formatUserDisplayName = (user, includeTitle = false) => {
+const formatUserDisplayName = (user: User, includeTitle: boolean = false): string => {
   const baseName = `${user.firstName} ${user.lastName}`.trim();
   return includeTitle ? `${user.title} ${baseName}` : baseName;
 };
 ```
 
 ### 3. Reusability
-```javascript
+```typescript
 // Pure functions can be reused across the application
-const debounce = (fn, delay) => {
-  let timeoutId;
-  return (...args) => {
+const debounce = <T extends any[]>(fn: (...args: T) => void, delay: number): ((...args: T) => void) => {
+  let timeoutId: NodeJS.Timeout;
+  return (...args: T) => {
     clearTimeout(timeoutId);
     timeoutId = setTimeout(() => fn(...args), delay);
   };
@@ -3520,12 +3650,24 @@ This lecture explores advanced Redux Toolkit and RTK Query patterns for maintain
 ## Redux Toolkit's Functional Foundation
 
 ### 1. Pure Reducers with Immer
-```javascript
+```typescript
 import { createSlice } from '@reduxjs/toolkit';
+
+interface Todo {
+  id: number;
+  text: string;
+  completed: boolean;
+}
+
+interface TodoState {
+  items: Todo[];
+  loading: boolean;
+  error: string | null;
+}
 
 const todoSlice = createSlice({
   name: 'todos',
-  initialState: { items: [], loading: false, error: null },
+  initialState: { items: [], loading: false, error: null } as TodoState,
   reducers: {
     // Pure functions that appear mutable but are actually immutable
     addTodo: (state, action) => {
@@ -3546,13 +3688,13 @@ const { addTodo, toggleTodo, removeTodo } = todoSlice.actions;
 ```
 
 ### 2. Functional Async Operations
-```javascript
+```typescript
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
 // Pure function that returns a thunk
 const fetchTodos = createAsyncThunk(
   'todos/fetchTodos',
-  async (userId, { rejectWithValue }) => {
+  async (userId: number, { rejectWithValue }) => {
     try {
       const response = await fetch(`/api/users/${userId}/todos`);
       if (!response.ok) {
@@ -3560,7 +3702,7 @@ const fetchTodos = createAsyncThunk(
       }
       return response.json();
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error instanceof Error ? error.message : 'Unknown error');
     }
   }
 );
@@ -3568,7 +3710,7 @@ const fetchTodos = createAsyncThunk(
 // Pure function for optimistic updates
 const addTodoOptimistic = createAsyncThunk(
   'todos/addTodoOptimistic',
-  async (todo, { dispatch }) => {
+  async (todo: Todo, { dispatch }) => {
     // Optimistic update
     dispatch(addTodo({ ...todo, id: Date.now(), pending: true }));
     
@@ -3593,14 +3735,14 @@ const addTodoOptimistic = createAsyncThunk(
 ## RTK Query Functional Patterns
 
 ### 1. Pure API Definitions
-```javascript
+```typescript
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 const api = createApi({
   baseQuery: fetchBaseQuery({ 
     baseUrl: '/api',
     prepareHeaders: (headers, { getState }) => {
-      const token = getState().auth.token;
+      const token = (getState() as any).auth.token;
       if (token) {
         headers.set('authorization', `Bearer ${token}`);
       }
@@ -3610,16 +3752,16 @@ const api = createApi({
   endpoints: (builder) => ({
     // Pure function that defines data fetching
     getTodos: builder.query({
-      query: (userId) => `users/${userId}/todos`,
+      query: (userId: number) => `users/${userId}/todos`,
       // Pure transformation function
-      transformResponse: (response) => response.data,
+      transformResponse: (response: any) => response.data,
       // Pure cache key function
       providesTags: (result, error, userId) => 
         result ? [{ type: 'Todo', id: userId }] : []
     }),
     
     createTodo: builder.mutation({
-      query: (todo) => ({
+      query: (todo: Todo) => ({
         url: 'todos',
         method: 'POST',
         body: todo
@@ -3634,14 +3776,14 @@ const api = createApi({
 ```
 
 ### 2. Functional Caching Strategy
-```javascript
+```typescript
 // Pure cache key generation
-const generateCacheKey = (userId, filters) => {
+const generateCacheKey = (userId: number, filters: any) => {
   return `todos-${userId}-${JSON.stringify(filters)}`;
 };
 
 // Pure cache invalidation
-const invalidateUserTodos = (userId) => [
+const invalidateUserTodos = (userId: number) => [
   { type: 'Todo', id: userId },
   { type: 'Todo', id: 'LIST' }
 ];
@@ -3651,19 +3793,19 @@ const api = createApi({
   tagTypes: ['Todo', 'User'],
   endpoints: (builder) => ({
     getTodos: builder.query({
-      query: ({ userId, filters = {} }) => ({
+      query: ({ userId, filters = {} }: { userId: number; filters?: any }) => ({
         url: `users/${userId}/todos`,
         params: filters
       }),
       providesTags: (result, error, { userId }) => 
         result ? [
-          ...result.map(todo => ({ type: 'Todo', id: todo.id })),
+          ...result.map((todo: any) => ({ type: 'Todo', id: todo.id })),
           { type: 'Todo', id: `user-${userId}` }
         ] : []
     }),
     
     updateTodo: builder.mutation({
-      query: ({ id, updates }) => ({
+      query: ({ id, updates }: { id: number; updates: any }) => ({
         url: `todos/${id}`,
         method: 'PATCH',
         body: updates
@@ -3678,9 +3820,9 @@ const api = createApi({
 ```
 
 ### 3. Functional Error Handling
-```javascript
+```typescript
 // Pure error transformation
-const transformError = (error) => {
+const transformError = (error: any): { type: string; message: string } => {
   if (error.status === 401) {
     return { type: 'AUTH_ERROR', message: 'Please log in again' };
   }
@@ -3693,11 +3835,11 @@ const transformError = (error) => {
 const api = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: '/api' }),
   endpoints: (builder) => ({
-    getTodos: builder.query({
-      query: (userId) => `users/${userId}/todos`,
-      transformErrorResponse: (response) => transformError(response),
+    getTodos: builder.query<Todo[], number>({
+      query: (userId: number) => `users/${userId}/todos`,
+      transformErrorResponse: (response: any) => transformError(response),
       // Pure retry logic
-      retry: (failedAttempts, error) => {
+      retry: (failedAttempts: number, error: any) => {
         if (error.status === 500 && failedAttempts < 3) {
           return true;
         }
@@ -3711,17 +3853,17 @@ const api = createApi({
 ## Advanced Functional Patterns
 
 ### 1. Functional Selectors with Reselect
-```javascript
+```typescript
 import { createSelector } from '@reduxjs/toolkit';
 
 // Pure selector functions
-const selectTodos = (state) => state.todos.items;
-const selectFilter = (state) => state.todos.filter;
+const selectTodos = (state: any) => state.todos.items;
+const selectFilter = (state: any) => state.todos.filter;
 
 // Memoized derived state
 const selectFilteredTodos = createSelector(
   [selectTodos, selectFilter],
-  (todos, filter) => {
+  (todos: Todo[], filter: string) => {
     switch (filter) {
       case 'completed':
         return todos.filter(todo => todo.completed);
@@ -3735,7 +3877,7 @@ const selectFilteredTodos = createSelector(
 
 const selectTodoStats = createSelector(
   [selectTodos],
-  (todos) => ({
+  (todos: Todo[]) => ({
     total: todos.length,
     completed: todos.filter(todo => todo.completed).length,
     active: todos.filter(todo => !todo.completed).length
@@ -3744,16 +3886,16 @@ const selectTodoStats = createSelector(
 ```
 
 ### 2. Functional Component Integration
-```javascript
+```typescript
 import { useGetTodosQuery, useCreateTodoMutation } from './api';
 
 // Pure component with RTK Query hooks
-const TodoList = ({ userId }) => {
+const TodoList = ({ userId }: { userId: number }) => {
   const { data: todos, isLoading, error } = useGetTodosQuery(userId);
   const [createTodo, { isLoading: isCreating }] = useCreateTodoMutation();
   
   // Pure event handlers
-  const handleAddTodo = async (text) => {
+  const handleAddTodo = async (text: string) => {
     try {
       await createTodo({ userId, text, completed: false }).unwrap();
     } catch (error) {
@@ -3762,7 +3904,7 @@ const TodoList = ({ userId }) => {
   };
   
   if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
+  if (error) return <div>Error: {(error as any).message}</div>;
   
   return (
     <div>
@@ -3776,7 +3918,7 @@ const TodoList = ({ userId }) => {
 ```
 
 ### 3. Functional Middleware
-```javascript
+```typescript
 import { createListenerMiddleware } from '@reduxjs/toolkit';
 
 // Pure middleware functions
@@ -3804,7 +3946,7 @@ listenerMiddleware.startListening({
       const savedTodo = await result.json();
       dispatch(updateTodo({ id: action.payload.id, updates: savedTodo }));
     } catch (error) {
-      dispatch(setError(error.message));
+      dispatch(setError(error instanceof Error ? error.message : 'Unknown error'));
     }
   }
 });
@@ -3813,14 +3955,14 @@ listenerMiddleware.startListening({
 ## Performance Optimization
 
 ### 1. Functional Memoization
-```javascript
+```typescript
 // Pure memoization utility
-const memoize = (fn) => {
-  const cache = new Map();
-  return (...args) => {
+const memoize = <T extends any[], R>(fn: (...args: T) => R) => {
+  const cache = new Map<string, R>();
+  return (...args: T): R => {
     const key = JSON.stringify(args);
     if (cache.has(key)) {
-      return cache.get(key);
+      return cache.get(key)!;
     }
     const result = fn(...args);
     cache.set(key, result);
@@ -3829,17 +3971,17 @@ const memoize = (fn) => {
 };
 
 // Memoized expensive calculation
-const expensiveCalculation = memoize((data) => {
+const expensiveCalculation = memoize((data: any[]) => {
   return data.reduce((acc, item) => acc + item.value, 0);
 });
 ```
 
 ### 2. Functional Lazy Loading
-```javascript
+```typescript
 // Pure lazy loading utility
-const createLazyLoader = (loader) => {
-  let promise = null;
-  return () => {
+const createLazyLoader = <T>(loader: () => Promise<T>) => {
+  let promise: Promise<T> | null = null;
+  return (): Promise<T> => {
     if (!promise) {
       promise = loader();
     }
@@ -3855,7 +3997,7 @@ const lazyPostApi = createLazyLoader(() => import('./postApi'));
 ## Testing Functional RTK Code
 
 ### 1. Pure Function Testing
-```javascript
+```typescript
 // Test pure selectors
 describe('todoSelectors', () => {
   it('should filter completed todos', () => {
@@ -3864,7 +4006,7 @@ describe('todoSelectors', () => {
         items: [
           { id: 1, text: 'Todo 1', completed: true },
           { id: 2, text: 'Todo 2', completed: false }
-        ]
+        ] as Todo[]
       }
     };
     
@@ -3876,7 +4018,7 @@ describe('todoSelectors', () => {
 ```
 
 ### 2. RTK Query Testing
-```javascript
+```typescript
 import { setupApiStore } from '@reduxjs/toolkit/query/react';
 import { api } from './api';
 
@@ -3944,11 +4086,11 @@ This lecture explores modern Redux architecture patterns that prioritize functio
 ## Modern Redux Architecture Priorities
 
 ### 1. RTK Query First Approach
-```javascript
+```typescript
 // ❌ Legacy approach: Manual data fetching with thunks
 const fetchUserData = createAsyncThunk(
   'user/fetchData',
-  async (userId) => {
+  async (userId: number) => {
     const [userResponse, postsResponse, settingsResponse] = await Promise.all([
       fetch(`/api/users/${userId}`),
       fetch(`/api/users/${userId}/posts`),
@@ -3968,19 +4110,19 @@ const api = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: '/api' }),
   endpoints: (builder) => ({
     getUser: builder.query({
-      query: (userId) => `users/${userId}`
+      query: (userId: number) => `users/${userId}`
     }),
     getUserPosts: builder.query({
-      query: (userId) => `users/${userId}/posts`
+      query: (userId: number) => `users/${userId}/posts`
     }),
     getUserSettings: builder.query({
-      query: (userId) => `users/${userId}/settings`
+      query: (userId: number) => `users/${userId}/settings`
     })
   })
 });
 
 // Functional composition of queries
-const useUserData = (userId) => {
+const useUserData = (userId: number) => {
   const user = useGetUserQuery(userId);
   const posts = useGetUserPostsQuery(userId);
   const settings = useGetUserSettingsQuery(userId);
@@ -3996,7 +4138,7 @@ const useUserData = (userId) => {
 ```
 
 ### 2. Functional State Management
-```javascript
+```typescript
 // ❌ Complex state with mixed concerns
 const appSlice = createSlice({
   name: 'app',
@@ -4020,7 +4162,7 @@ const appSlice = createSlice({
 });
 
 // ✅ Domain-specific slices with pure functions
-// userSlice.js - User domain only
+// userSlice.ts - User domain only
 const userSlice = createSlice({
   name: 'user',
   initialState: { currentUser: null },
@@ -4031,7 +4173,7 @@ const userSlice = createSlice({
   }
 });
 
-// uiSlice.js - UI state only
+// uiSlice.ts - UI state only
 const uiSlice = createSlice({
   name: 'ui',
   initialState: { sidebarOpen: false, theme: 'light' },
@@ -4051,23 +4193,29 @@ const uiSlice = createSlice({
 ## Functional State Machine Patterns
 
 ### 1. Pure State Transitions
-```javascript
+```typescript
+interface AuthState {
+  status: 'authenticated' | 'unauthenticated';
+  user: any | null;
+  error: string | null;
+}
+
 // Pure state machine for user authentication
 const createAuthMachine = () => {
   const transitions = {
-    LOGIN: (state, action) => ({
+    LOGIN: (state: AuthState, action: any) => ({
       ...state,
       status: 'authenticated',
       user: action.payload,
       error: null
     }),
-    LOGOUT: (state) => ({
+    LOGOUT: (state: AuthState) => ({
       ...state,
       status: 'unauthenticated',
       user: null,
       error: null
     }),
-    LOGIN_FAILED: (state, action) => ({
+    LOGIN_FAILED: (state: AuthState, action: any) => ({
       ...state,
       status: 'unauthenticated',
       user: null,
@@ -4075,15 +4223,15 @@ const createAuthMachine = () => {
     })
   };
   
-  return (state = { status: 'unauthenticated', user: null, error: null }, action) => {
-    const transition = transitions[action.type];
+  return (state: AuthState = { status: 'unauthenticated', user: null, error: null }, action: any): AuthState => {
+    const transition = transitions[(action as any).type];
     return transition ? transition(state, action) : state;
   };
 };
 
 const authSlice = createSlice({
   name: 'auth',
-  initialState: { status: 'unauthenticated', user: null, error: null },
+  initialState: { status: 'unauthenticated', user: null, error: null } as AuthState,
   reducers: {
     login: (state, action) => {
       state.status = 'authenticated';
@@ -4105,10 +4253,10 @@ const authSlice = createSlice({
 ```
 
 ### 2. Functional Event Handling
-```javascript
+```typescript
 // Pure event handlers
-const createEventHandlers = (dispatch) => ({
-  handleLogin: async (credentials) => {
+const createEventHandlers = (dispatch: any) => ({
+  handleLogin: async (credentials: any) => {
     try {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
@@ -4123,7 +4271,7 @@ const createEventHandlers = (dispatch) => ({
       const user = await response.json();
       dispatch(authSlice.actions.login(user));
     } catch (error) {
-      dispatch(authSlice.actions.loginFailed(error.message));
+      dispatch(authSlice.actions.loginFailed(error instanceof Error ? error.message : 'Unknown error'));
     }
   },
   
@@ -4136,54 +4284,54 @@ const createEventHandlers = (dispatch) => ({
 ## Scalable Application Architecture
 
 ### 1. Feature-Based Organization
-```javascript
+```typescript
 // Feature-based folder structure
 src/
 ├── features/
 │   ├── auth/
-│   │   ├── authSlice.js
-│   │   ├── authApi.js
-│   │   ├── authSelectors.js
+│   │   ├── authSlice.ts
+│   │   ├── authApi.ts
+│   │   ├── authSelectors.ts
 │   │   └── components/
-│   │       ├── LoginForm.jsx
-│   │       └── UserProfile.jsx
+│   │       ├── LoginForm.tsx
+│   │       └── UserProfile.tsx
 │   ├── todos/
-│   │   ├── todoSlice.js
-│   │   ├── todoApi.js
-│   │   ├── todoSelectors.js
+│   │   ├── todoSlice.ts
+│   │   ├── todoApi.ts
+│   │   ├── todoSelectors.ts
 │   │   └── components/
-│   │       ├── TodoList.jsx
-│   │       └── TodoForm.jsx
+│   │       ├── TodoList.tsx
+│   │       └── TodoForm.tsx
 │   └── posts/
-│       ├── postSlice.js
-│       ├── postApi.js
-│       ├── postSelectors.js
+│       ├── postSlice.ts
+│       ├── postApi.ts
+│       ├── postSelectors.ts
 │       └── components/
-│           ├── PostList.jsx
-│           └── PostEditor.jsx
+│           ├── PostList.tsx
+│           └── PostEditor.tsx
 ├── shared/
 │   ├── api/
-│   │   └── baseApi.js
+│   │   └── baseApi.ts
 │   ├── components/
-│   │   ├── Button.jsx
-│   │   └── Modal.jsx
+│   │   ├── Button.tsx
+│   │   └── Modal.tsx
 │   └── utils/
-│       ├── validation.js
-│       └── formatting.js
+│       ├── validation.ts
+│       └── formatting.ts
 └── app/
-    ├── store.js
-    ├── App.jsx
-    └── index.js
+    ├── store.ts
+    ├── App.tsx
+    └── index.ts
 ```
 
 ### 2. Functional API Composition
-```javascript
+```typescript
 // Base API with shared configuration
 const baseApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: '/api',
     prepareHeaders: (headers, { getState }) => {
-      const token = getState().auth.token;
+      const token = (getState() as any).auth.token;
       if (token) {
         headers.set('authorization', `Bearer ${token}`);
       }
@@ -4202,7 +4350,7 @@ const userApi = baseApi.injectEndpoints({
       providesTags: ['User']
     }),
     updateProfile: builder.mutation({
-      query: (updates) => ({
+      query: (updates: any) => ({
         url: 'auth/profile',
         method: 'PATCH',
         body: updates
@@ -4215,15 +4363,15 @@ const userApi = baseApi.injectEndpoints({
 const todoApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getTodos: builder.query({
-      query: (userId) => `users/${userId}/todos`,
+      query: (userId: number) => `users/${userId}/todos`,
       providesTags: (result, error, userId) => 
         result ? [
-          ...result.map(todo => ({ type: 'Todo', id: todo.id })),
+          ...result.map((todo: any) => ({ type: 'Todo', id: todo.id })),
           { type: 'Todo', id: `user-${userId}` }
         ] : []
     }),
     createTodo: builder.mutation({
-      query: (todo) => ({
+      query: (todo: Todo) => ({
         url: 'todos',
         method: 'POST',
         body: todo
@@ -4237,7 +4385,7 @@ const todoApi = baseApi.injectEndpoints({
 ```
 
 ### 3. Functional Component Architecture
-```javascript
+```typescript
 // Pure component composition
 const TodoApp = () => {
   return (
@@ -4267,16 +4415,16 @@ const TodoFeature = () => {
 };
 
 // Pure components with RTK Query
-const TodoList = ({ userId }) => {
+const TodoList = ({ userId }: { userId: number }) => {
   const { data: todos, isLoading, error } = useGetTodosQuery(userId);
   const [updateTodo] = useUpdateTodoMutation();
   const [deleteTodo] = useDeleteTodoMutation();
   
-  const handleToggle = (todo) => {
+  const handleToggle = (todo: Todo) => {
     updateTodo({ id: todo.id, completed: !todo.completed });
   };
   
-  const handleDelete = (todoId) => {
+  const handleDelete = (todoId: number) => {
     deleteTodo(todoId);
   };
   
@@ -4301,21 +4449,21 @@ const TodoList = ({ userId }) => {
 ## Advanced Functional Patterns
 
 ### 1. Functional Middleware Composition
-```javascript
+```typescript
 // Pure middleware functions
-const createLoggingMiddleware = () => (store) => (next) => (action) => {
+const createLoggingMiddleware = () => (store: any) => (next: any) => (action: any) => {
   console.log('Dispatching:', action);
   const result = next(action);
   console.log('New state:', store.getState());
   return result;
 };
 
-const createAnalyticsMiddleware = () => (store) => (next) => (action) => {
+const createAnalyticsMiddleware = () => (store: any) => (next: any) => (action: any) => {
   const result = next(action);
   
   // Track specific actions
   if (action.type === 'todos/addTodo') {
-    analytics.track('todo_created', { userId: store.getState().auth.user?.id });
+    analytics.track('todo_created', { userId: (store.getState() as any).auth.user?.id });
   }
   
   return result;
@@ -4332,25 +4480,25 @@ const store = configureStore({
 ```
 
 ### 2. Functional Error Boundaries
-```javascript
+```typescript
 // Pure error boundary with functional composition
-const createErrorBoundary = (fallback) => {
-  return class ErrorBoundary extends React.Component {
-    constructor(props) {
+const createErrorBoundary = (fallback: (error: Error) => React.ReactElement) => {
+  return class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean; error: Error | null }> {
+    constructor(props: { children: React.ReactNode }) {
       super(props);
       this.state = { hasError: false, error: null };
     }
     
-    static getDerivedStateFromError(error) {
+    static getDerivedStateFromError(error: Error) {
       return { hasError: true, error };
     }
     
-    componentDidCatch(error, errorInfo) {
+    componentDidCatch(error: Error, errorInfo: any) {
       console.error('Error caught by boundary:', error, errorInfo);
     }
     
     render() {
-      if (this.state.hasError) {
+      if (this.state.hasError && this.state.error) {
         return fallback(this.state.error);
       }
       
@@ -4360,7 +4508,7 @@ const createErrorBoundary = (fallback) => {
 };
 
 // Usage with pure error handling
-const ErrorFallback = ({ error }) => (
+const ErrorFallback = ({ error }: { error: Error }) => (
   <div className="error-boundary">
     <h2>Something went wrong</h2>
     <p>{error.message}</p>
@@ -4374,15 +4522,15 @@ const AppErrorBoundary = createErrorBoundary(ErrorFallback);
 ```
 
 ### 3. Functional Performance Optimization
-```javascript
+```typescript
 // Pure performance utilities
-const createMemoizedSelector = (selector, equalityFn = shallowEqual) => {
-  let lastResult = null;
-  let lastArgs = null;
+const createMemoizedSelector = <T extends any[], R>(selector: (...args: T) => R, equalityFn: (a: T, b: T) => boolean = shallowEqual) => {
+  let lastResult: R | null = null;
+  let lastArgs: T | null = null;
   
-  return (...args) => {
+  return (...args: T): R => {
     if (lastArgs && equalityFn(args, lastArgs)) {
-      return lastResult;
+      return lastResult!;
     }
     
     lastArgs = args;
@@ -4392,9 +4540,9 @@ const createMemoizedSelector = (selector, equalityFn = shallowEqual) => {
 };
 
 // Functional lazy loading
-const createLazyComponent = (loader) => {
-  let Component = null;
-  let promise = null;
+const createLazyComponent = <T extends { default: React.ComponentType<any> }>(loader: () => Promise<T>) => {
+  let Component: React.ComponentType<any> | null = null;
+  let promise: Promise<T> | null = null;
   
   return React.lazy(() => {
     if (!promise) {
@@ -4414,7 +4562,7 @@ const LazyTodoList = createLazyComponent(() => import('./TodoList'));
 ## Testing Modern Redux Architecture
 
 ### 1. Functional Testing Patterns
-```javascript
+```typescript
 // Test pure selectors
 describe('todoSelectors', () => {
   it('should select todos by user', () => {
@@ -4424,7 +4572,7 @@ describe('todoSelectors', () => {
           { id: 1, userId: 1, text: 'Todo 1' },
           { id: 2, userId: 2, text: 'Todo 2' },
           { id: 3, userId: 1, text: 'Todo 3' }
-        ]
+        ] as Todo[]
       }
     };
     
@@ -4438,8 +4586,8 @@ describe('todoSelectors', () => {
 // Test pure reducers
 describe('todoSlice', () => {
   it('should handle addTodo', () => {
-    const initialState = { items: [] };
-    const todo = { id: 1, text: 'New Todo' };
+    const initialState = { items: [] } as TodoState;
+    const todo = { id: 1, text: 'New Todo', completed: false };
     
     const newState = todoSlice.reducer(
       initialState,
@@ -4453,14 +4601,14 @@ describe('todoSlice', () => {
 ```
 
 ### 2. RTK Query Testing
-```javascript
+```typescript
 // Test RTK Query endpoints
 describe('todoApi', () => {
   it('should fetch todos', async () => {
     const mockTodos = [
-      { id: 1, text: 'Todo 1' },
-      { id: 2, text: 'Todo 2' }
-    ];
+      { id: 1, text: 'Todo 1', completed: false },
+      { id: 2, text: 'Todo 2', completed: false }
+    ] as Todo[];
     
     server.use(
       rest.get('/api/users/1/todos', (req, res, ctx) => {
