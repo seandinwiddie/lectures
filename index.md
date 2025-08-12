@@ -1,10 +1,19 @@
 # Functional Programming Lectures Index
 
 ## Overview
-This series of lectures explores functional programming concepts from fundamentals to advanced applications in modern JavaScript development.
+This series of lectures explores functional programming concepts from fundamentals to advanced applications in modern JavaScript development. The curriculum is designed with a **lean and modular approach**, emphasizing **separation of concerns** and **functional programming principles** throughout. As you progress, you'll learn how to build maintainable, scalable applications using pure functions, immutable data structures, and modern Redux architecture patterns.
+
+**Key Learning Philosophy:**
+- **Functions for Everything**: Every concept is taught through the lens of pure functions
+- **Immutability First**: Learn to work with immutable data structures from day one
+- **Composition Over Complexity**: Build complex systems from simple, composable parts
+- **Redux Toolkit Priority**: RTK and RTK Query are the definitive choice for state management and data fetching
+- **Lean Architecture**: Focus on small, focused files with clear separation of concerns
 
 ## Learning Path
 1. **Fundamentals** (Beginner)
+   - What is a function in TypeScript?
+   - The simplest FP TS Hello World
    - Basic Functional Programming JavaScript knowledge
    - ES6+ Features for Functional Programming
    - TypeScript and Functional Programming
@@ -25,7 +34,573 @@ This series of lectures explores functional programming concepts from fundamenta
    - Performance optimization techniques
    - Functional programming in other languages (Haskell, Elm, Clojure)
 
+5. **Maintenance & Architecture** (Advanced)
+   - Functional Programming Maintenance Strategy
+   - Redux Toolkit & RTK Query Best Practices
+   - Modern Redux Architecture Patterns
+
+**Architecture Principles You'll Learn:**
+- **Lean and Modular Codebase**: Avoid unnecessary code, duplication, or bloat
+- **Separation of Concerns**: UI components focus on rendering, Redux slices handle business logic
+- **Multiple Command Dispatchers**: Different handlers for different domains
+- **Small, Focused Files**: Preferably one function per file for clarity and testability
+- **Boilerplate vs. Business Logic**: Keep setup code separate from core application rules
+- **No Consolidation**: Distribute business logic by feature rather than centralizing
+
 ## Lectures
+
+# What is a function in TypeScript?
+
+## Overview
+**Difficulty:** Beginner  
+**Estimated Time:** 1-2 hours  
+**Prerequisites:** Basic TypeScript knowledge
+
+This lecture introduces the fundamental concept of functions in TypeScript and how they form the basis of functional programming. This is where your journey into **lean, modular functional programming** begins. You'll learn to write functions that are **pure, testable, and composable** - the building blocks of maintainable codebases.
+
+**Why This Matters for Maintenance:**
+- **Pure functions** are the foundation of predictable, debuggable code
+- **Type safety** prevents runtime errors and makes refactoring safer
+- **Function composition** enables building complex systems from simple parts
+- **Immutability** ensures your functions don't have hidden side effects
+
+## Learning Objectives
+- Understand function types and signatures in TypeScript
+- Learn about pure functions and their characteristics
+- Master function declarations and expressions
+- Practice type-safe function composition
+
+## Function Fundamentals in TypeScript
+
+### Function Declarations
+```typescript
+// Basic function declaration
+function add(a: number, b: number): number {
+  return a + b;
+}
+
+// Function with optional parameters
+function greet(name: string, greeting: string = "Hello"): string {
+  return `${greeting}, ${name}!`;
+}
+
+// Function with rest parameters
+function sum(...numbers: number[]): number {
+  return numbers.reduce((acc, num) => acc + num, 0);
+}
+```
+
+### Function Expressions
+```typescript
+// Function expression with type annotation
+const multiply: (a: number, b: number) => number = (a, b) => a * b;
+
+// Arrow function with explicit types
+const divide = (a: number, b: number): number => a / b;
+
+// Function with generic types
+const identity = <T>(value: T): T => value;
+```
+
+### Function Types
+```typescript
+// Function type aliases
+type BinaryOperation = (a: number, b: number) => number;
+type Predicate<T> = (item: T) => boolean;
+type Transformer<T, U> = (item: T) => U;
+
+// Using function types
+const add: BinaryOperation = (a, b) => a + b;
+const isEven: Predicate<number> = (n) => n % 2 === 0;
+const double: Transformer<number, number> = (n) => n * 2;
+```
+
+## Pure Functions
+
+### Characteristics of Pure Functions
+```typescript
+// ✅ Pure function - same input always produces same output
+const add = (a: number, b: number): number => a + b;
+
+// ✅ Pure function - no side effects
+const formatName = (firstName: string, lastName: string): string => {
+  return `${firstName} ${lastName}`.trim();
+};
+
+// ❌ Impure function - depends on external state
+let total = 0;
+const addToTotal = (num: number): number => {
+  total += num; // Side effect: mutates external state
+  return total;
+};
+
+// ❌ Impure function - side effect (console.log)
+const addWithLogging = (a: number, b: number): number => {
+  console.log(`Adding ${a} and ${b}`); // Side effect
+  return a + b;
+};
+```
+
+### Benefits of Pure Functions
+```typescript
+// 1. Predictable and testable
+const testAdd = () => {
+  return add(2, 3) === 5 && add(0, 0) === 0;
+};
+
+// 2. Memoizable
+const memoize = <T, U>(fn: (arg: T) => U) => {
+  const cache = new Map<T, U>();
+  return (arg: T): U => {
+    if (cache.has(arg)) {
+      return cache.get(arg)!;
+    }
+    const result = fn(arg);
+    cache.set(arg, result);
+    return result;
+  };
+};
+
+const expensiveCalculation = memoize((n: number): number => {
+  // Simulate expensive computation
+  return n * n * n;
+});
+```
+
+## Higher-Order Functions
+
+### Functions as Parameters
+```typescript
+// Function that takes a function as parameter
+const applyOperation = (
+  operation: BinaryOperation, 
+  a: number, 
+  b: number
+): number => {
+  return operation(a, b);
+};
+
+// Usage
+const add: BinaryOperation = (a, b) => a + b;
+const multiply: BinaryOperation = (a, b) => a * b;
+
+console.log(applyOperation(add, 5, 3)); // 8
+console.log(applyOperation(multiply, 5, 3)); // 15
+```
+
+### Functions that Return Functions
+```typescript
+// Function that returns a function
+const createGreeter = (greeting: string) => {
+  return (name: string): string => `${greeting}, ${name}!`;
+};
+
+const sayHello = createGreeter('Hello');
+const sayGoodbye = createGreeter('Goodbye');
+
+console.log(sayHello('Alice')); // "Hello, Alice!"
+console.log(sayGoodbye('Bob')); // "Goodbye, Bob!"
+```
+
+## Function Composition
+
+### Basic Composition
+```typescript
+// Compose two functions
+const compose = <A, B, C>(
+  f: (b: B) => C, 
+  g: (a: A) => B
+): (a: A) => C => {
+  return (x: A) => f(g(x));
+};
+
+const addOne = (x: number): number => x + 1;
+const multiplyByTwo = (x: number): number => x * 2;
+
+const addOneThenMultiply = compose(multiplyByTwo, addOne);
+console.log(addOneThenMultiply(5)); // 12
+```
+
+### Pipeline Composition
+```typescript
+// Pipeline: data flows through functions left to right
+const pipe = <T>(...fns: Array<(arg: T) => T>) => (x: T): T => {
+  return fns.reduce((acc, fn) => fn(acc), x);
+};
+
+const processData = pipe(
+  (x: number) => x * 2,
+  (x: number) => x + 1,
+  (x: number) => x.toString()
+);
+
+console.log(processData(5)); // "11"
+```
+
+## Type-Safe Function Patterns
+
+### Currying
+```typescript
+// Manual currying
+const add = (a: number) => (b: number): number => a + b;
+const addFive = add(5);
+console.log(addFive(3)); // 8
+
+// Auto-currying utility
+const curry = <T extends any[], R>(
+  fn: (...args: T) => R
+) => {
+  const arity = fn.length;
+  
+  const curried = (...args: any[]): any => {
+    if (args.length >= arity) {
+      return fn(...args);
+    }
+    return (...moreArgs: any[]) => curried(...args, ...moreArgs);
+  };
+  
+  return curried;
+};
+
+const multiply = curry((a: number, b: number): number => a * b);
+const multiplyByTwo = multiply(2);
+console.log(multiplyByTwo(5)); // 10
+```
+
+### Partial Application
+```typescript
+// Partial application utility
+const partial = <T extends any[], R>(
+  fn: (...args: T) => R, 
+  ...args: Partial<T>
+) => {
+  return (...moreArgs: any[]): R => {
+    return fn(...args, ...moreArgs);
+  };
+};
+
+const greet = (greeting: string, name: string): string => 
+  `${greeting}, ${name}!`;
+
+const sayHello = partial(greet, 'Hello');
+console.log(sayHello('Alice')); // "Hello, Alice!"
+```
+
+## Real-World Examples
+
+### Data Processing Functions
+```typescript
+// Type-safe data transformation functions
+interface User {
+  name: string;
+  age: number;
+  email: string;
+}
+
+const validateUser = (user: User): User => {
+  if (!user.name) throw new Error('Name is required');
+  if (!user.email) throw new Error('Email is required');
+  if (user.age < 0) throw new Error('Age must be positive');
+  return user;
+};
+
+const formatUser = (user: User): string => {
+  return `${user.name} (${user.age}) - ${user.email}`;
+};
+
+const processUser = pipe(validateUser, formatUser);
+
+// Usage
+const user: User = { name: 'Alice', age: 25, email: 'alice@example.com' };
+console.log(processUser(user)); // "Alice (25) - alice@example.com"
+```
+
+### Configuration Functions
+```typescript
+// Function for creating configuration objects
+interface Config {
+  apiUrl: string;
+  timeout: number;
+  retries: number;
+}
+
+const createConfig = (
+  apiUrl: string, 
+  timeout: number = 5000, 
+  retries: number = 3
+): Config => {
+  return { apiUrl, timeout, retries };
+};
+
+const validateConfig = (config: Config): Config => {
+  if (!config.apiUrl) throw new Error('API URL is required');
+  if (config.timeout < 0) throw new Error('Timeout must be positive');
+  if (config.retries < 0) throw new Error('Retries must be positive');
+  return config;
+};
+
+const createValidConfig = pipe(createConfig, validateConfig);
+```
+
+## Exercise
+Create a type-safe function library that includes:
+- A `map` function that works with arrays and objects
+- A `filter` function with predicate support
+- A `reduce` function for both arrays and objects
+- A `compose` function that can handle multiple arguments
+
+## Resources
+- [TypeScript Functions](https://www.typescriptlang.org/docs/handbook/functions.html)
+- [Functional Programming in TypeScript](https://github.com/gcanti/fp-ts)
+
+# The simplest FP TS Hello World
+
+## Overview
+**Difficulty:** Beginner  
+**Estimated Time:** 1 hour  
+**Prerequisites:** What is a function in TypeScript?
+
+This lecture demonstrates the simplest possible functional programming example in TypeScript - a pure function that processes data without side effects.
+
+## Learning Objectives
+- Write your first pure function in TypeScript
+- Understand function composition in practice
+- Learn to avoid side effects
+- Practice functional programming principles
+
+## The Simplest Functional Program
+
+### Pure Function Example
+```typescript
+// The simplest pure function
+const greet = (name: string): string => `Hello, ${name}!`;
+
+// Usage
+console.log(greet('World')); // "Hello, World!"
+console.log(greet('Alice')); // "Hello, Alice!"
+```
+
+### Why This is Functional Programming
+```typescript
+// 1. Pure function - same input always produces same output
+console.log(greet('World')); // "Hello, World!"
+console.log(greet('World')); // "Hello, World!" (same result)
+
+// 2. No side effects - doesn't modify external state
+const name = 'Alice';
+const greeting = greet(name);
+console.log(name); // 'Alice' (unchanged)
+
+// 3. Referential transparency - can be replaced with its result
+const result = greet('World');
+console.log(result); // "Hello, World!"
+console.log('Hello, World!'); // Same output
+```
+
+## Function Composition Example
+
+### Simple Composition
+```typescript
+// Pure functions
+const toUpperCase = (str: string): string => str.toUpperCase();
+const addExclamation = (str: string): string => str + '!';
+
+// Compose functions
+const shout = (name: string): string => {
+  return addExclamation(toUpperCase(greet(name)));
+};
+
+console.log(shout('World')); // "HELLO, WORLD!!"
+```
+
+### Using Composition Utility
+```typescript
+// Composition utility
+const compose = <A, B, C>(
+  f: (b: B) => C, 
+  g: (a: A) => B
+): (a: A) => C => {
+  return (x: A) => f(g(x));
+};
+
+// Compose multiple functions
+const shout = compose(
+  addExclamation,
+  compose(toUpperCase, greet)
+);
+
+console.log(shout('World')); // "HELLO, WORLD!!"
+```
+
+## Data Transformation Example
+
+### Simple Data Processing
+```typescript
+// Pure functions for data transformation
+const double = (n: number): number => n * 2;
+const addOne = (n: number): number => n + 1;
+const toString = (n: number): string => n.toString();
+
+// Compose transformations
+const processNumber = (n: number): string => {
+  return toString(addOne(double(n)));
+};
+
+console.log(processNumber(5)); // "11"
+```
+
+### Array Processing
+```typescript
+// Pure functions for array processing
+const numbers = [1, 2, 3, 4, 5];
+
+// Transform each number
+const doubled = numbers.map(double);
+console.log(doubled); // [2, 4, 6, 8, 10]
+
+// Filter even numbers
+const isEven = (n: number): boolean => n % 2 === 0;
+const evens = numbers.filter(isEven);
+console.log(evens); // [2, 4]
+
+// Reduce to sum
+const sum = (acc: number, n: number): number => acc + n;
+const total = numbers.reduce(sum, 0);
+console.log(total); // 15
+```
+
+## Avoiding Side Effects
+
+### Good vs Bad Examples
+```typescript
+// ✅ Good - Pure function
+const calculateArea = (width: number, height: number): number => {
+  return width * height;
+};
+
+// ❌ Bad - Side effect (console.log)
+const calculateAreaWithLogging = (width: number, height: number): number => {
+  const area = width * height;
+  console.log(`Area calculated: ${area}`); // Side effect
+  return area;
+};
+
+// ❌ Bad - Mutates external state
+let totalArea = 0;
+const calculateAndStoreArea = (width: number, height: number): number => {
+  const area = width * height;
+  totalArea += area; // Side effect: mutation
+  return area;
+};
+```
+
+## Testing Pure Functions
+
+### Simple Testing
+```typescript
+// Pure functions are easy to test
+const testGreet = (): boolean => {
+  return greet('World') === 'Hello, World!' &&
+         greet('Alice') === 'Hello, Alice!' &&
+         greet('') === 'Hello, !';
+};
+
+const testProcessNumber = (): boolean => {
+  return processNumber(5) === '11' &&
+         processNumber(0) === '1' &&
+         processNumber(10) === '21';
+};
+
+console.log('Greet tests:', testGreet()); // true
+console.log('Process number tests:', testProcessNumber()); // true
+```
+
+## Real-World Simple Example
+
+### User Name Processing
+```typescript
+// Pure functions for user name processing
+const trim = (str: string): string => str.trim();
+const capitalize = (str: string): string => 
+  str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+
+const formatName = (name: string): string => {
+  return capitalize(trim(name));
+};
+
+// Usage
+console.log(formatName('  alice  ')); // "Alice"
+console.log(formatName('BOB')); // "Bob"
+console.log(formatName('charlie')); // "Charlie"
+```
+
+### Configuration Builder
+```typescript
+// Pure function for building configuration
+interface AppConfig {
+  name: string;
+  version: string;
+  debug: boolean;
+}
+
+const createConfig = (
+  name: string, 
+  version: string, 
+  debug: boolean = false
+): AppConfig => {
+  return { name, version, debug };
+};
+
+const validateConfig = (config: AppConfig): AppConfig => {
+  if (!config.name) throw new Error('Name is required');
+  if (!config.version) throw new Error('Version is required');
+  return config;
+};
+
+const buildConfig = (name: string, version: string): AppConfig => {
+  return validateConfig(createConfig(name, version));
+};
+
+// Usage
+const config = buildConfig('MyApp', '1.0.0');
+console.log(config); // { name: 'MyApp', version: '1.0.0', debug: false }
+```
+
+## Key Takeaways
+
+### 1. Start Simple
+- Begin with pure functions that have no side effects
+- Focus on input → output transformations
+- Keep functions small and focused
+
+### 2. Composition Over Complexity
+- Build complex behavior from simple functions
+- Use composition to combine functions
+- Avoid deeply nested logic
+
+### 3. Immutability
+- Never modify input parameters
+- Return new values instead of modifying existing ones
+- Use const for variables that shouldn't change
+
+### 4. Testing
+- Pure functions are easy to test
+- Same input always produces same output
+- No need to mock external dependencies
+
+## Exercise
+Create a simple functional program that:
+1. Takes a list of numbers
+2. Filters out negative numbers
+3. Doubles the remaining numbers
+4. Sums the results
+5. Returns the final sum
+
+Make sure all functions are pure and compose them together.
+
+## Resources
+- [Functional Programming Fundamentals](https://www.freecodecamp.org/news/functional-programming-in-javascript/)
+- [Pure Functions](https://www.sitepoint.com/functional-programming-pure-functions/)
 
 # Basic Functional Programming JavaScript Knowledge
 
@@ -1179,7 +1754,9 @@ Create a type-safe functional utility library that includes:
 **Estimated Time:** 2-3 hours  
 **Prerequisites:** Basic Functional Programming JavaScript knowledge
 
-Redux follows functional programming principles at its core. This lecture explores how Redux patterns align with functional programming concepts.
+Redux follows functional programming principles at its core. This lecture explores how Redux patterns align with functional programming concepts. While this covers traditional Redux patterns, **Redux Toolkit (RTK) and RTK Query are the modern, official approach** that supersedes these patterns in production applications.
+
+**Important Note:** This lecture provides foundational understanding, but **RTK and RTK Query take absolute priority** in modern applications. They eliminate the need for most hand-written data fetching logic and provide better developer experience while maintaining functional programming principles.
 
 ## Learning Objectives
 - Understand how Redux implements functional programming principles
@@ -1272,7 +1849,15 @@ Create a pure reducer function that handles a shopping cart with add/remove/clea
 **Estimated Time:** 2-3 hours  
 **Prerequisites:** Redux Standard Patterns & Functional Programming
 
-Redux Toolkit (RTK) simplifies Redux while maintaining functional programming principles. It provides utilities that make functional patterns more accessible.
+Redux Toolkit (RTK) simplifies Redux while maintaining functional programming principles. It provides utilities that make functional patterns more accessible. **This is the definitive modern Redux approach** that should be used in all new applications.
+
+**Why RTK is Essential:**
+- **Official Redux team support** ensuring long-term maintenance and best practices
+- **Built-in Immer integration** for safe immutable updates with mutable syntax
+- **Automatic action creator generation** reducing boilerplate
+- **TypeScript-first design** with excellent inference and type safety
+- **Seamless Redux DevTools integration** for debugging and time-travel
+- **RTK Query integration** for data fetching and caching (covered in advanced lectures)
 
 ## Learning Objectives
 - Understand how RTK maintains functional programming principles
@@ -1395,7 +1980,20 @@ Create a Redux Toolkit slice for a user profile with async thunk for fetching us
 **Estimated Time:** 2-3 hours  
 **Prerequisites:** Basic Functional Programming JavaScript knowledge, ES6+ Features for Functional Programming
 
-Functional composition is a core principle where complex functions are built by combining simpler functions. This lecture explores composition patterns from James Sinclair and Eric Elliott's work.
+Functional composition is a core principle where complex functions are built by combining simpler functions. This lecture explores composition patterns from James Sinclair and Eric Elliott's work. **Composition is the key to building lean, modular codebases** that are easy to maintain and extend.
+
+**Composition in Practice:**
+- **Small, focused functions** that do one thing well
+- **Pipeline composition** for data transformation workflows
+- **Point-free style** for cleaner, more readable code
+- **Composable selectors** for Redux state management
+- **Function factories** for creating reusable behavior patterns
+
+**Maintenance Benefits:**
+- **Testability**: Each small function can be tested independently
+- **Reusability**: Functions can be combined in many different ways
+- **Readability**: Complex operations become clear, linear pipelines
+- **Maintainability**: Changes to one function don't affect others
 
 ## Learning Objectives
 - Master mathematical function composition
@@ -2502,3 +3100,1399 @@ Build a complete todo application that combines all these patterns: Redux for st
 - [Functional Programming Fundamentals](https://www.youtube.com/watch?v=BMUiFMZr7vk) by MPJ
 - [Functional Programming in JavaScript](https://www.youtube.com/watch?v=BMUiFMZr7vk) by Fun Fun Function
 - [Category Theory for Programmers](https://www.youtube.com/watch?v=O6TyYd8QaQo) by Bartosz Milewski 
+
+# Functional Programming Maintenance Strategy
+
+## Overview
+**Difficulty:** Advanced  
+**Estimated Time:** 3-4 hours  
+**Prerequisites:** Redux Toolkit & Functional Programming, Practical Applications of Functional Programming
+
+This lecture explores strategies for maintaining a codebase in pure functional programming style, focusing on lean architecture, separation of concerns, and Redux Toolkit best practices. **This is where theory meets practice** - you'll learn how to apply all the functional programming concepts you've learned to build maintainable, scalable applications.
+
+**Core Maintenance Philosophy:**
+- **Lean and Modular**: Every file and function has a clear, necessary purpose
+- **Separation of Concerns**: UI logic separate from business logic separate from data logic
+- **Small, Focused Files**: Preferably one function per file for clarity and testability
+- **Multiple Command Dispatchers**: Different handlers for different domains
+- **Boilerplate vs. Business Logic**: Keep setup code separate from core application rules
+- **No Consolidation**: Distribute business logic by feature rather than centralizing
+
+**Why This Matters:**
+- **Maintainability**: Easier to update, debug, and onboard new developers
+- **Testability**: Isolated logic is easier to test
+- **Scalability**: Adding new features or domains is straightforward
+- **Team Collaboration**: Clear boundaries make code ownership obvious
+
+## Learning Objectives
+- Understand lean and modular codebase principles
+- Master separation of concerns in functional architecture
+- Learn Redux Toolkit maintenance patterns
+- Practice functional programming maintenance strategies
+
+## Core Maintenance Principles
+
+### 1. Lean and Modular Codebase
+```javascript
+// ❌ Bloated, monolithic approach
+const userService = {
+  validateUser: (user) => { /* validation logic */ },
+  saveUser: (user) => { /* save logic */ },
+  sendEmail: (user) => { /* email logic */ },
+  generateReport: (user) => { /* report logic */ },
+  // ... 20 more methods
+};
+
+// ✅ Lean, modular approach
+// userValidation.js
+export const validateUser = (user) => {
+  if (!user.name) throw new Error('Name required');
+  if (!user.email) throw new Error('Email required');
+  return user;
+};
+
+// userRepository.js
+export const saveUser = async (user) => {
+  const response = await fetch('/api/users', {
+    method: 'POST',
+    body: JSON.stringify(user)
+  });
+  return response.json();
+};
+
+// emailService.js
+export const sendWelcomeEmail = async (user) => {
+  // Email logic isolated
+};
+```
+
+### 2. Separation of Concerns
+```javascript
+// ❌ Mixed concerns
+const UserComponent = ({ user }) => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  
+  const handleSave = async () => {
+    setLoading(true);
+    try {
+      // Business logic mixed with UI logic
+      if (!user.name) throw new Error('Name required');
+      const response = await fetch('/api/users', {
+        method: 'POST',
+        body: JSON.stringify(user)
+      });
+      const savedUser = await response.json();
+      // UI updates mixed with business logic
+      setUser(savedUser);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  return <div>...</div>;
+};
+
+// ✅ Separated concerns
+// userSlice.js - Business logic
+const userSlice = createSlice({
+  name: 'user',
+  initialState: { user: null, loading: false, error: null },
+  reducers: {
+    setUser: (state, action) => {
+      state.user = action.payload;
+    },
+    setLoading: (state, action) => {
+      state.loading = action.payload;
+    },
+    setError: (state, action) => {
+      state.error = action.payload;
+    }
+  }
+});
+
+// userActions.js - Pure action creators
+export const saveUser = createAsyncThunk(
+  'user/saveUser',
+  async (user) => {
+    const validatedUser = validateUser(user);
+    return await userRepository.saveUser(validatedUser);
+  }
+);
+
+// UserComponent.jsx - UI only
+const UserComponent = ({ user }) => {
+  const dispatch = useAppDispatch();
+  const { loading, error } = useAppSelector(state => state.user);
+  
+  const handleSave = () => {
+    dispatch(saveUser(user));
+  };
+  
+  return <div>...</div>;
+};
+```
+
+### 3. Small, Focused Files
+```javascript
+// ❌ Large file with multiple responsibilities
+// userManagement.js (200+ lines)
+export class UserManager {
+  constructor() { /* setup */ }
+  
+  validateUser(user) { /* validation logic */ }
+  saveUser(user) { /* save logic */ }
+  updateUser(user) { /* update logic */ }
+  deleteUser(userId) { /* delete logic */ }
+  sendEmail(user) { /* email logic */ }
+  generateReport(user) { /* report logic */ }
+  // ... many more methods
+}
+
+// ✅ Small, focused files
+// userValidation.js (15 lines)
+export const validateUser = (user) => {
+  if (!user.name) throw new Error('Name required');
+  if (!user.email) throw new Error('Email required');
+  return user;
+};
+
+// userRepository.js (20 lines)
+export const saveUser = async (user) => {
+  const response = await fetch('/api/users', {
+    method: 'POST',
+    body: JSON.stringify(user)
+  });
+  return response.json();
+};
+
+// userEmailService.js (25 lines)
+export const sendWelcomeEmail = async (user) => {
+  // Email-specific logic only
+};
+```
+
+### 4. One Function Per File
+```javascript
+// ❌ Multiple functions in one file
+// utils.js
+export const formatDate = (date) => { /* date formatting */ };
+export const formatCurrency = (amount) => { /* currency formatting */ };
+export const validateEmail = (email) => { /* email validation */ };
+export const debounce = (fn, delay) => { /* debounce utility */ };
+
+// ✅ One function per file
+// formatDate.js
+export const formatDate = (date) => {
+  return new Intl.DateTimeFormat('en-US').format(date);
+};
+
+// formatCurrency.js
+export const formatCurrency = (amount) => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD'
+  }).format(amount);
+};
+
+// validateEmail.js
+export const validateEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+```
+
+## Redux Toolkit Maintenance Patterns
+
+### 1. Slice Organization
+```javascript
+// ❌ Monolithic slice
+const appSlice = createSlice({
+  name: 'app',
+  initialState: {
+    users: [],
+    posts: [],
+    comments: [],
+    settings: {},
+    notifications: [],
+    // ... many more domains
+  },
+  reducers: {
+    // 50+ reducers mixed together
+  }
+});
+
+// ✅ Domain-specific slices
+// userSlice.js
+const userSlice = createSlice({
+  name: 'user',
+  initialState: { users: [], loading: false, error: null },
+  reducers: {
+    setUsers: (state, action) => {
+      state.users = action.payload;
+    }
+  }
+});
+
+// postSlice.js
+const postSlice = createSlice({
+  name: 'post',
+  initialState: { posts: [], loading: false, error: null },
+  reducers: {
+    setPosts: (state, action) => {
+      state.posts = action.payload;
+    }
+  }
+});
+```
+
+### 2. RTK Query API Organization
+```javascript
+// ❌ Single API slice for everything
+const api = createApi({
+  baseQuery: fetchBaseQuery({ baseUrl: '/api' }),
+  endpoints: (builder) => ({
+    getUsers: builder.query({ query: () => 'users' }),
+    createUser: builder.mutation({ query: (user) => ({ url: 'users', method: 'POST', body: user }) }),
+    getPosts: builder.query({ query: () => 'posts' }),
+    createPost: builder.mutation({ query: (post) => ({ url: 'posts', method: 'POST', body: post }) }),
+    getComments: builder.query({ query: () => 'comments' }),
+    // ... many more endpoints
+  })
+});
+
+// ✅ Domain-specific API slices
+// userApi.js
+const userApi = createApi({
+  reducerPath: 'userApi',
+  baseQuery: fetchBaseQuery({ baseUrl: '/api' }),
+  endpoints: (builder) => ({
+    getUsers: builder.query({ query: () => 'users' }),
+    createUser: builder.mutation({ query: (user) => ({ url: 'users', method: 'POST', body: user }) })
+  })
+});
+
+// postApi.js
+const postApi = createApi({
+  reducerPath: 'postApi',
+  baseQuery: fetchBaseQuery({ baseUrl: '/api' }),
+  endpoints: (builder) => ({
+    getPosts: builder.query({ query: () => 'posts' }),
+    createPost: builder.mutation({ query: (post) => ({ url: 'posts', method: 'POST', body: post }) })
+  })
+});
+```
+
+### 3. Selector Organization
+```javascript
+// ❌ Complex selectors in components
+const UserList = () => {
+  const users = useSelector(state => 
+    state.user.users.filter(user => user.active)
+      .map(user => ({ ...user, displayName: `${user.firstName} ${user.lastName}` }))
+      .sort((a, b) => a.displayName.localeCompare(b.displayName))
+  );
+};
+
+// ✅ Pure selector functions
+// userSelectors.js
+export const selectActiveUsers = (state) => 
+  state.user.users.filter(user => user.active);
+
+export const selectUserDisplayNames = createSelector(
+  [selectActiveUsers],
+  (users) => users.map(user => ({
+    ...user,
+    displayName: `${user.firstName} ${user.lastName}`
+  }))
+);
+
+export const selectSortedUsers = createSelector(
+  [selectUserDisplayNames],
+  (users) => users.sort((a, b) => a.displayName.localeCompare(b.displayName))
+);
+
+// UserList.jsx
+const UserList = () => {
+  const users = useSelector(selectSortedUsers);
+  return <div>...</div>;
+};
+```
+
+## Functional Programming Maintenance Benefits
+
+### 1. Testability
+```javascript
+// Pure functions are easy to test
+const validateUser = (user) => {
+  if (!user.name) throw new Error('Name required');
+  if (!user.email) throw new Error('Email required');
+  return user;
+};
+
+// Simple, focused tests
+describe('validateUser', () => {
+  it('should validate a valid user', () => {
+    const user = { name: 'Alice', email: 'alice@example.com' };
+    expect(validateUser(user)).toEqual(user);
+  });
+  
+  it('should throw error for missing name', () => {
+    const user = { email: 'alice@example.com' };
+    expect(() => validateUser(user)).toThrow('Name required');
+  });
+});
+```
+
+### 2. Maintainability
+```javascript
+// Small, focused functions are easy to understand and modify
+const formatUserDisplayName = (user) => {
+  return `${user.firstName} ${user.lastName}`.trim();
+};
+
+// Easy to extend or modify
+const formatUserDisplayName = (user, includeTitle = false) => {
+  const baseName = `${user.firstName} ${user.lastName}`.trim();
+  return includeTitle ? `${user.title} ${baseName}` : baseName;
+};
+```
+
+### 3. Reusability
+```javascript
+// Pure functions can be reused across the application
+const debounce = (fn, delay) => {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => fn(...args), delay);
+  };
+};
+
+// Used in multiple components
+const debouncedSearch = debounce(searchUsers, 300);
+const debouncedSave = debounce(saveUser, 1000);
+```
+
+## Exercise
+Refactor a monolithic user management component into a functional architecture with:
+- Separate validation, repository, and UI layers
+- Redux Toolkit slices for state management
+- RTK Query for data fetching
+- Pure selector functions
+- One function per file organization
+
+## Resources
+- [Redux Toolkit Best Practices](https://redux-toolkit.js.org/usage/usage-guide)
+- [RTK Query Advanced Patterns](https://redux-toolkit.js.org/rtk-query/usage/advanced-patterns)
+
+# Redux Toolkit & RTK Query Best Practices
+
+## Overview
+**Difficulty:** Advanced  
+**Estimated Time:** 3-4 hours  
+**Prerequisites:** Redux Toolkit & Functional Programming, Functional Programming Maintenance Strategy
+
+This lecture explores advanced Redux Toolkit and RTK Query patterns for maintaining functional programming principles in modern React applications. **RTK Query eliminates the need for most hand-written data fetching logic**, replacing complex thunk/saga patterns with purpose-built data fetching and caching solutions.
+
+**RTK Query Advantages Over Alternatives:**
+- **Automatic caching, invalidation, and background refetching** out-of-the-box
+- **Dedicated API slices per service** with shared base queries reduce complexity
+- **Built-in optimistic updates** and error handling without additional libraries
+- **Seamless Redux DevTools integration** for debugging and time-travel
+- **TypeScript-first design** with excellent inference and type safety
+- **Official Redux team support** ensuring long-term maintenance and best practices
+
+**Functional Programming Benefits:**
+- **Pure API definitions** with transformResponse functions
+- **Immutable cache management** with automatic updates
+- **Composable query patterns** for complex data requirements
+- **Predictable state updates** through Redux store integration
+
+## Learning Objectives
+- Master RTK Query for data fetching and caching
+- Understand Redux Toolkit's functional architecture
+- Learn advanced patterns for state management
+- Practice functional programming with RTK
+
+## Redux Toolkit's Functional Foundation
+
+### 1. Pure Reducers with Immer
+```javascript
+import { createSlice } from '@reduxjs/toolkit';
+
+const todoSlice = createSlice({
+  name: 'todos',
+  initialState: { items: [], loading: false, error: null },
+  reducers: {
+    // Pure functions that appear mutable but are actually immutable
+    addTodo: (state, action) => {
+      state.items.push(action.payload); // Immer handles immutability
+    },
+    toggleTodo: (state, action) => {
+      const todo = state.items.find(t => t.id === action.payload);
+      if (todo) todo.completed = !todo.completed;
+    },
+    removeTodo: (state, action) => {
+      state.items = state.items.filter(t => t.id !== action.payload);
+    }
+  }
+});
+
+// Automatically generated pure action creators
+const { addTodo, toggleTodo, removeTodo } = todoSlice.actions;
+```
+
+### 2. Functional Async Operations
+```javascript
+import { createAsyncThunk } from '@reduxjs/toolkit';
+
+// Pure function that returns a thunk
+const fetchTodos = createAsyncThunk(
+  'todos/fetchTodos',
+  async (userId, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`/api/users/${userId}/todos`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+// Pure function for optimistic updates
+const addTodoOptimistic = createAsyncThunk(
+  'todos/addTodoOptimistic',
+  async (todo, { dispatch }) => {
+    // Optimistic update
+    dispatch(addTodo({ ...todo, id: Date.now(), pending: true }));
+    
+    try {
+      const response = await fetch('/api/todos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(todo)
+      });
+      
+      const savedTodo = await response.json();
+      return savedTodo;
+    } catch (error) {
+      // Rollback on error
+      dispatch(removeTodo(todo.id));
+      throw error;
+    }
+  }
+);
+```
+
+## RTK Query Functional Patterns
+
+### 1. Pure API Definitions
+```javascript
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+
+const api = createApi({
+  baseQuery: fetchBaseQuery({ 
+    baseUrl: '/api',
+    prepareHeaders: (headers, { getState }) => {
+      const token = getState().auth.token;
+      if (token) {
+        headers.set('authorization', `Bearer ${token}`);
+      }
+      return headers;
+    }
+  }),
+  endpoints: (builder) => ({
+    // Pure function that defines data fetching
+    getTodos: builder.query({
+      query: (userId) => `users/${userId}/todos`,
+      // Pure transformation function
+      transformResponse: (response) => response.data,
+      // Pure cache key function
+      providesTags: (result, error, userId) => 
+        result ? [{ type: 'Todo', id: userId }] : []
+    }),
+    
+    createTodo: builder.mutation({
+      query: (todo) => ({
+        url: 'todos',
+        method: 'POST',
+        body: todo
+      }),
+      // Pure invalidation function
+      invalidatesTags: (result, error, todo) => [
+        { type: 'Todo', id: todo.userId }
+      ]
+    })
+  })
+});
+```
+
+### 2. Functional Caching Strategy
+```javascript
+// Pure cache key generation
+const generateCacheKey = (userId, filters) => {
+  return `todos-${userId}-${JSON.stringify(filters)}`;
+};
+
+// Pure cache invalidation
+const invalidateUserTodos = (userId) => [
+  { type: 'Todo', id: userId },
+  { type: 'Todo', id: 'LIST' }
+];
+
+const api = createApi({
+  baseQuery: fetchBaseQuery({ baseUrl: '/api' }),
+  tagTypes: ['Todo', 'User'],
+  endpoints: (builder) => ({
+    getTodos: builder.query({
+      query: ({ userId, filters = {} }) => ({
+        url: `users/${userId}/todos`,
+        params: filters
+      }),
+      providesTags: (result, error, { userId }) => 
+        result ? [
+          ...result.map(todo => ({ type: 'Todo', id: todo.id })),
+          { type: 'Todo', id: `user-${userId}` }
+        ] : []
+    }),
+    
+    updateTodo: builder.mutation({
+      query: ({ id, updates }) => ({
+        url: `todos/${id}`,
+        method: 'PATCH',
+        body: updates
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: 'Todo', id },
+        { type: 'Todo', id: 'LIST' }
+      ]
+    })
+  })
+});
+```
+
+### 3. Functional Error Handling
+```javascript
+// Pure error transformation
+const transformError = (error) => {
+  if (error.status === 401) {
+    return { type: 'AUTH_ERROR', message: 'Please log in again' };
+  }
+  if (error.status === 404) {
+    return { type: 'NOT_FOUND', message: 'Resource not found' };
+  }
+  return { type: 'GENERIC_ERROR', message: error.data?.message || 'An error occurred' };
+};
+
+const api = createApi({
+  baseQuery: fetchBaseQuery({ baseUrl: '/api' }),
+  endpoints: (builder) => ({
+    getTodos: builder.query({
+      query: (userId) => `users/${userId}/todos`,
+      transformErrorResponse: (response) => transformError(response),
+      // Pure retry logic
+      retry: (failedAttempts, error) => {
+        if (error.status === 500 && failedAttempts < 3) {
+          return true;
+        }
+        return false;
+      }
+    })
+  })
+});
+```
+
+## Advanced Functional Patterns
+
+### 1. Functional Selectors with Reselect
+```javascript
+import { createSelector } from '@reduxjs/toolkit';
+
+// Pure selector functions
+const selectTodos = (state) => state.todos.items;
+const selectFilter = (state) => state.todos.filter;
+
+// Memoized derived state
+const selectFilteredTodos = createSelector(
+  [selectTodos, selectFilter],
+  (todos, filter) => {
+    switch (filter) {
+      case 'completed':
+        return todos.filter(todo => todo.completed);
+      case 'active':
+        return todos.filter(todo => !todo.completed);
+      default:
+        return todos;
+    }
+  }
+);
+
+const selectTodoStats = createSelector(
+  [selectTodos],
+  (todos) => ({
+    total: todos.length,
+    completed: todos.filter(todo => todo.completed).length,
+    active: todos.filter(todo => !todo.completed).length
+  })
+);
+```
+
+### 2. Functional Component Integration
+```javascript
+import { useGetTodosQuery, useCreateTodoMutation } from './api';
+
+// Pure component with RTK Query hooks
+const TodoList = ({ userId }) => {
+  const { data: todos, isLoading, error } = useGetTodosQuery(userId);
+  const [createTodo, { isLoading: isCreating }] = useCreateTodoMutation();
+  
+  // Pure event handlers
+  const handleAddTodo = async (text) => {
+    try {
+      await createTodo({ userId, text, completed: false }).unwrap();
+    } catch (error) {
+      console.error('Failed to create todo:', error);
+    }
+  };
+  
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+  
+  return (
+    <div>
+      {todos?.map(todo => (
+        <TodoItem key={todo.id} todo={todo} />
+      ))}
+      <AddTodoForm onSubmit={handleAddTodo} disabled={isCreating} />
+    </div>
+  );
+};
+```
+
+### 3. Functional Middleware
+```javascript
+import { createListenerMiddleware } from '@reduxjs/toolkit';
+
+// Pure middleware functions
+const listenerMiddleware = createListenerMiddleware();
+
+listenerMiddleware.startListening({
+  actionCreator: addTodo,
+  effect: async (action, listenerApi) => {
+    // Pure side effect handling
+    const { dispatch, getState } = listenerApi;
+    
+    // Debounced save
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    try {
+      const result = await fetch('/api/todos', {
+        method: 'POST',
+        body: JSON.stringify(action.payload)
+      });
+      
+      if (!result.ok) {
+        throw new Error('Failed to save todo');
+      }
+      
+      const savedTodo = await result.json();
+      dispatch(updateTodo({ id: action.payload.id, updates: savedTodo }));
+    } catch (error) {
+      dispatch(setError(error.message));
+    }
+  }
+});
+```
+
+## Performance Optimization
+
+### 1. Functional Memoization
+```javascript
+// Pure memoization utility
+const memoize = (fn) => {
+  const cache = new Map();
+  return (...args) => {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) {
+      return cache.get(key);
+    }
+    const result = fn(...args);
+    cache.set(key, result);
+    return result;
+  };
+};
+
+// Memoized expensive calculation
+const expensiveCalculation = memoize((data) => {
+  return data.reduce((acc, item) => acc + item.value, 0);
+});
+```
+
+### 2. Functional Lazy Loading
+```javascript
+// Pure lazy loading utility
+const createLazyLoader = (loader) => {
+  let promise = null;
+  return () => {
+    if (!promise) {
+      promise = loader();
+    }
+    return promise;
+  };
+};
+
+// Lazy load API slices
+const lazyUserApi = createLazyLoader(() => import('./userApi'));
+const lazyPostApi = createLazyLoader(() => import('./postApi'));
+```
+
+## Testing Functional RTK Code
+
+### 1. Pure Function Testing
+```javascript
+// Test pure selectors
+describe('todoSelectors', () => {
+  it('should filter completed todos', () => {
+    const state = {
+      todos: {
+        items: [
+          { id: 1, text: 'Todo 1', completed: true },
+          { id: 2, text: 'Todo 2', completed: false }
+        ]
+      }
+    };
+    
+    const result = selectFilteredTodos(state, 'completed');
+    expect(result).toHaveLength(1);
+    expect(result[0].id).toBe(1);
+  });
+});
+```
+
+### 2. RTK Query Testing
+```javascript
+import { setupApiStore } from '@reduxjs/toolkit/query/react';
+import { api } from './api';
+
+const storeRef = setupApiStore(api);
+
+describe('todoApi', () => {
+  it('should fetch todos', async () => {
+    const { result, waitForNextUpdate } = renderHook(
+      () => useGetTodosQuery(1),
+      { wrapper: ({ children }) => (
+        <Provider store={storeRef.store}>{children}</Provider>
+      )}
+    );
+    
+    expect(result.current.isLoading).toBe(true);
+    
+    await waitForNextUpdate();
+    
+    expect(result.current.isLoading).toBe(false);
+    expect(result.current.data).toBeDefined();
+  });
+});
+```
+
+## Exercise
+Create a complete todo application using RTK Query with:
+- Pure API definitions with proper caching
+- Functional selectors with memoization
+- Error handling with pure transformation functions
+- Optimistic updates with rollback
+- Comprehensive testing
+
+## Resources
+- [RTK Query Advanced Patterns](https://redux-toolkit.js.org/rtk-query/usage/advanced-patterns)
+- [Redux Toolkit Testing](https://redux-toolkit.js.org/rtk-query/usage/testing)
+
+# Modern Redux Architecture Patterns
+
+## Overview
+**Difficulty:** Advanced  
+**Estimated Time:** 4-5 hours  
+**Prerequisites:** Redux Toolkit & RTK Query Best Practices, Functional Programming Maintenance Strategy
+
+This lecture explores modern Redux architecture patterns that prioritize functional programming principles, RTK Query for data management, and scalable application design. **This represents the culmination of all functional programming concepts** applied to real-world application architecture.
+
+**Modern Redux Architecture Priorities:**
+1. **RTK Query First**: Use RTK Query for all data fetching, caching, and server state synchronization
+2. **RTK Slices**: Use createSlice for client-side state management with built-in Immer integration
+3. **Avoid Legacy Patterns**: No hand-written thunks, sagas, or observables for data fetching
+4. **Functional Purity**: Maintain pure reducer functions while leveraging RTK's built-in middleware for side effects
+
+**Architecture Benefits:**
+- **Scalable**: Feature-based organization that grows with your application
+- **Maintainable**: Clear separation of concerns and predictable data flow
+- **Testable**: Pure functions and isolated components are easy to test
+- **Performant**: Automatic optimizations through RTK Query caching and Redux Toolkit
+- **Developer Experience**: Excellent tooling and debugging capabilities
+
+## Learning Objectives
+- Understand modern Redux architecture priorities
+- Master RTK Query-first data management
+- Learn functional state machine patterns
+- Practice scalable Redux application design
+
+## Modern Redux Architecture Priorities
+
+### 1. RTK Query First Approach
+```javascript
+// ❌ Legacy approach: Manual data fetching with thunks
+const fetchUserData = createAsyncThunk(
+  'user/fetchData',
+  async (userId) => {
+    const [userResponse, postsResponse, settingsResponse] = await Promise.all([
+      fetch(`/api/users/${userId}`),
+      fetch(`/api/users/${userId}/posts`),
+      fetch(`/api/users/${userId}/settings`)
+    ]);
+    
+    return {
+      user: await userResponse.json(),
+      posts: await postsResponse.json(),
+      settings: await settingsResponse.json()
+    };
+  }
+);
+
+// ✅ Modern approach: RTK Query for all data fetching
+const api = createApi({
+  baseQuery: fetchBaseQuery({ baseUrl: '/api' }),
+  endpoints: (builder) => ({
+    getUser: builder.query({
+      query: (userId) => `users/${userId}`
+    }),
+    getUserPosts: builder.query({
+      query: (userId) => `users/${userId}/posts`
+    }),
+    getUserSettings: builder.query({
+      query: (userId) => `users/${userId}/settings`
+    })
+  })
+});
+
+// Functional composition of queries
+const useUserData = (userId) => {
+  const user = useGetUserQuery(userId);
+  const posts = useGetUserPostsQuery(userId);
+  const settings = useGetUserSettingsQuery(userId);
+  
+  return {
+    user: user.data,
+    posts: posts.data,
+    settings: settings.data,
+    isLoading: user.isLoading || posts.isLoading || settings.isLoading,
+    error: user.error || posts.error || settings.error
+  };
+};
+```
+
+### 2. Functional State Management
+```javascript
+// ❌ Complex state with mixed concerns
+const appSlice = createSlice({
+  name: 'app',
+  initialState: {
+    user: null,
+    posts: [],
+    settings: {},
+    ui: {
+      loading: false,
+      sidebarOpen: false,
+      theme: 'light'
+    },
+    cache: {
+      userData: null,
+      lastFetch: null
+    }
+  },
+  reducers: {
+    // 20+ reducers handling everything
+  }
+});
+
+// ✅ Domain-specific slices with pure functions
+// userSlice.js - User domain only
+const userSlice = createSlice({
+  name: 'user',
+  initialState: { currentUser: null },
+  reducers: {
+    setCurrentUser: (state, action) => {
+      state.currentUser = action.payload;
+    }
+  }
+});
+
+// uiSlice.js - UI state only
+const uiSlice = createSlice({
+  name: 'ui',
+  initialState: { sidebarOpen: false, theme: 'light' },
+  reducers: {
+    toggleSidebar: (state) => {
+      state.sidebarOpen = !state.sidebarOpen;
+    },
+    setTheme: (state, action) => {
+      state.theme = action.payload;
+    }
+  }
+});
+
+// No cache slice needed - RTK Query handles caching
+```
+
+## Functional State Machine Patterns
+
+### 1. Pure State Transitions
+```javascript
+// Pure state machine for user authentication
+const createAuthMachine = () => {
+  const transitions = {
+    LOGIN: (state, action) => ({
+      ...state,
+      status: 'authenticated',
+      user: action.payload,
+      error: null
+    }),
+    LOGOUT: (state) => ({
+      ...state,
+      status: 'unauthenticated',
+      user: null,
+      error: null
+    }),
+    LOGIN_FAILED: (state, action) => ({
+      ...state,
+      status: 'unauthenticated',
+      user: null,
+      error: action.payload
+    })
+  };
+  
+  return (state = { status: 'unauthenticated', user: null, error: null }, action) => {
+    const transition = transitions[action.type];
+    return transition ? transition(state, action) : state;
+  };
+};
+
+const authSlice = createSlice({
+  name: 'auth',
+  initialState: { status: 'unauthenticated', user: null, error: null },
+  reducers: {
+    login: (state, action) => {
+      state.status = 'authenticated';
+      state.user = action.payload;
+      state.error = null;
+    },
+    logout: (state) => {
+      state.status = 'unauthenticated';
+      state.user = null;
+      state.error = null;
+    },
+    loginFailed: (state, action) => {
+      state.status = 'unauthenticated';
+      state.user = null;
+      state.error = action.payload;
+    }
+  }
+});
+```
+
+### 2. Functional Event Handling
+```javascript
+// Pure event handlers
+const createEventHandlers = (dispatch) => ({
+  handleLogin: async (credentials) => {
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(credentials)
+      });
+      
+      if (!response.ok) {
+        throw new Error('Login failed');
+      }
+      
+      const user = await response.json();
+      dispatch(authSlice.actions.login(user));
+    } catch (error) {
+      dispatch(authSlice.actions.loginFailed(error.message));
+    }
+  },
+  
+  handleLogout: () => {
+    dispatch(authSlice.actions.logout());
+  }
+});
+```
+
+## Scalable Application Architecture
+
+### 1. Feature-Based Organization
+```javascript
+// Feature-based folder structure
+src/
+├── features/
+│   ├── auth/
+│   │   ├── authSlice.js
+│   │   ├── authApi.js
+│   │   ├── authSelectors.js
+│   │   └── components/
+│   │       ├── LoginForm.jsx
+│   │       └── UserProfile.jsx
+│   ├── todos/
+│   │   ├── todoSlice.js
+│   │   ├── todoApi.js
+│   │   ├── todoSelectors.js
+│   │   └── components/
+│   │       ├── TodoList.jsx
+│   │       └── TodoForm.jsx
+│   └── posts/
+│       ├── postSlice.js
+│       ├── postApi.js
+│       ├── postSelectors.js
+│       └── components/
+│           ├── PostList.jsx
+│           └── PostEditor.jsx
+├── shared/
+│   ├── api/
+│   │   └── baseApi.js
+│   ├── components/
+│   │   ├── Button.jsx
+│   │   └── Modal.jsx
+│   └── utils/
+│       ├── validation.js
+│       └── formatting.js
+└── app/
+    ├── store.js
+    ├── App.jsx
+    └── index.js
+```
+
+### 2. Functional API Composition
+```javascript
+// Base API with shared configuration
+const baseApi = createApi({
+  baseQuery: fetchBaseQuery({
+    baseUrl: '/api',
+    prepareHeaders: (headers, { getState }) => {
+      const token = getState().auth.token;
+      if (token) {
+        headers.set('authorization', `Bearer ${token}`);
+      }
+      return headers;
+    }
+  }),
+  tagTypes: ['User', 'Todo', 'Post'],
+  endpoints: () => ({})
+});
+
+// Feature-specific API extensions
+const userApi = baseApi.injectEndpoints({
+  endpoints: (builder) => ({
+    getCurrentUser: builder.query({
+      query: () => 'auth/me',
+      providesTags: ['User']
+    }),
+    updateProfile: builder.mutation({
+      query: (updates) => ({
+        url: 'auth/profile',
+        method: 'PATCH',
+        body: updates
+      }),
+      invalidatesTags: ['User']
+    })
+  })
+});
+
+const todoApi = baseApi.injectEndpoints({
+  endpoints: (builder) => ({
+    getTodos: builder.query({
+      query: (userId) => `users/${userId}/todos`,
+      providesTags: (result, error, userId) => 
+        result ? [
+          ...result.map(todo => ({ type: 'Todo', id: todo.id })),
+          { type: 'Todo', id: `user-${userId}` }
+        ] : []
+    }),
+    createTodo: builder.mutation({
+      query: (todo) => ({
+        url: 'todos',
+        method: 'POST',
+        body: todo
+      }),
+      invalidatesTags: (result, error, todo) => [
+        { type: 'Todo', id: `user-${todo.userId}` }
+      ]
+    })
+  })
+});
+```
+
+### 3. Functional Component Architecture
+```javascript
+// Pure component composition
+const TodoApp = () => {
+  return (
+    <Provider store={store}>
+      <AuthProvider>
+        <TodoFeature />
+      </AuthProvider>
+    </Provider>
+  );
+};
+
+// Feature component with pure composition
+const TodoFeature = () => {
+  const { user } = useAuth();
+  
+  if (!user) {
+    return <LoginForm />;
+  }
+  
+  return (
+    <div className="todo-feature">
+      <TodoHeader user={user} />
+      <TodoList userId={user.id} />
+      <TodoForm userId={user.id} />
+    </div>
+  );
+};
+
+// Pure components with RTK Query
+const TodoList = ({ userId }) => {
+  const { data: todos, isLoading, error } = useGetTodosQuery(userId);
+  const [updateTodo] = useUpdateTodoMutation();
+  const [deleteTodo] = useDeleteTodoMutation();
+  
+  const handleToggle = (todo) => {
+    updateTodo({ id: todo.id, completed: !todo.completed });
+  };
+  
+  const handleDelete = (todoId) => {
+    deleteTodo(todoId);
+  };
+  
+  if (isLoading) return <LoadingSpinner />;
+  if (error) return <ErrorMessage error={error} />;
+  
+  return (
+    <ul className="todo-list">
+      {todos?.map(todo => (
+        <TodoItem
+          key={todo.id}
+          todo={todo}
+          onToggle={handleToggle}
+          onDelete={handleDelete}
+        />
+      ))}
+    </ul>
+  );
+};
+```
+
+## Advanced Functional Patterns
+
+### 1. Functional Middleware Composition
+```javascript
+// Pure middleware functions
+const createLoggingMiddleware = () => (store) => (next) => (action) => {
+  console.log('Dispatching:', action);
+  const result = next(action);
+  console.log('New state:', store.getState());
+  return result;
+};
+
+const createAnalyticsMiddleware = () => (store) => (next) => (action) => {
+  const result = next(action);
+  
+  // Track specific actions
+  if (action.type === 'todos/addTodo') {
+    analytics.track('todo_created', { userId: store.getState().auth.user?.id });
+  }
+  
+  return result;
+};
+
+// Compose middleware functionally
+const store = configureStore({
+  reducer: rootReducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware()
+      .concat(createLoggingMiddleware())
+      .concat(createAnalyticsMiddleware())
+});
+```
+
+### 2. Functional Error Boundaries
+```javascript
+// Pure error boundary with functional composition
+const createErrorBoundary = (fallback) => {
+  return class ErrorBoundary extends React.Component {
+    constructor(props) {
+      super(props);
+      this.state = { hasError: false, error: null };
+    }
+    
+    static getDerivedStateFromError(error) {
+      return { hasError: true, error };
+    }
+    
+    componentDidCatch(error, errorInfo) {
+      console.error('Error caught by boundary:', error, errorInfo);
+    }
+    
+    render() {
+      if (this.state.hasError) {
+        return fallback(this.state.error);
+      }
+      
+      return this.props.children;
+    }
+  };
+};
+
+// Usage with pure error handling
+const ErrorFallback = ({ error }) => (
+  <div className="error-boundary">
+    <h2>Something went wrong</h2>
+    <p>{error.message}</p>
+    <button onClick={() => window.location.reload()}>
+      Reload Page
+    </button>
+  </div>
+);
+
+const AppErrorBoundary = createErrorBoundary(ErrorFallback);
+```
+
+### 3. Functional Performance Optimization
+```javascript
+// Pure performance utilities
+const createMemoizedSelector = (selector, equalityFn = shallowEqual) => {
+  let lastResult = null;
+  let lastArgs = null;
+  
+  return (...args) => {
+    if (lastArgs && equalityFn(args, lastArgs)) {
+      return lastResult;
+    }
+    
+    lastArgs = args;
+    lastResult = selector(...args);
+    return lastResult;
+  };
+};
+
+// Functional lazy loading
+const createLazyComponent = (loader) => {
+  let Component = null;
+  let promise = null;
+  
+  return React.lazy(() => {
+    if (!promise) {
+      promise = loader().then(module => {
+        Component = module.default;
+        return module;
+      });
+    }
+    return promise;
+  });
+};
+
+// Usage
+const LazyTodoList = createLazyComponent(() => import('./TodoList'));
+```
+
+## Testing Modern Redux Architecture
+
+### 1. Functional Testing Patterns
+```javascript
+// Test pure selectors
+describe('todoSelectors', () => {
+  it('should select todos by user', () => {
+    const state = {
+      todos: {
+        items: [
+          { id: 1, userId: 1, text: 'Todo 1' },
+          { id: 2, userId: 2, text: 'Todo 2' },
+          { id: 3, userId: 1, text: 'Todo 3' }
+        ]
+      }
+    };
+    
+    const result = selectTodosByUser(state, 1);
+    expect(result).toHaveLength(2);
+    expect(result[0].id).toBe(1);
+    expect(result[1].id).toBe(3);
+  });
+});
+
+// Test pure reducers
+describe('todoSlice', () => {
+  it('should handle addTodo', () => {
+    const initialState = { items: [] };
+    const todo = { id: 1, text: 'New Todo' };
+    
+    const newState = todoSlice.reducer(
+      initialState,
+      todoSlice.actions.addTodo(todo)
+    );
+    
+    expect(newState.items).toHaveLength(1);
+    expect(newState.items[0]).toEqual(todo);
+  });
+});
+```
+
+### 2. RTK Query Testing
+```javascript
+// Test RTK Query endpoints
+describe('todoApi', () => {
+  it('should fetch todos', async () => {
+    const mockTodos = [
+      { id: 1, text: 'Todo 1' },
+      { id: 2, text: 'Todo 2' }
+    ];
+    
+    server.use(
+      rest.get('/api/users/1/todos', (req, res, ctx) => {
+        return res(ctx.json(mockTodos));
+      })
+    );
+    
+    const { result, waitForNextUpdate } = renderHook(
+      () => useGetTodosQuery(1),
+      { wrapper: ({ children }) => (
+        <Provider store={store}>{children}</Provider>
+      )}
+    );
+    
+    await waitForNextUpdate();
+    
+    expect(result.current.data).toEqual(mockTodos);
+    expect(result.current.isLoading).toBe(false);
+  });
+});
+```
+
+## Exercise
+Build a scalable Redux application with:
+- Feature-based architecture
+- RTK Query for all data management
+- Pure functional components
+- Comprehensive error handling
+- Performance optimization
+- Full test coverage
+
+## Resources
+- [Redux Toolkit Architecture](https://redux-toolkit.js.org/usage/usage-guide)
+- [RTK Query Advanced Patterns](https://redux-toolkit.js.org/rtk-query/usage/advanced-patterns)
+- [Redux Best Practices](https://redux.js.org/style-guide/)
