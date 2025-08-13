@@ -37,7 +37,6 @@ TypeScript will be the language of choice for this course.
    - Redux Standard Patterns & Functional Programming
    - Redux Toolkit & Functional Programming
    - Functional Composition
-   - Functional Error Handling & Validation
 
 3. **Advanced** (Advanced)
    - Monads in Functional Programming
@@ -64,6 +63,199 @@ TypeScript will be the language of choice for this course.
 - **No Consolidation**: Distribute business logic by feature rather than centralizing
 
 ## Lectures
+
+# Basic TypeScript knowledge
+
+## Overview
+**Difficulty:** Beginner  
+**Estimated Time:** 1–2 hours  
+**Prerequisites:** None
+
+This lecture gives you just enough TypeScript to move comfortably through the rest of the functional programming curriculum. You will learn the core of the type system, how to type functions precisely, and how strict typing reinforces immutability and pure functions.
+
+## Why This Matters for Functional Programming
+- **Type safety enables refactoring**: Strong types make it safe to compose many small functions.
+- **Purity and immutability**: Types help prevent accidental mutation and side effects.
+- **Precise function signatures**: Communicate intent and make composition predictable.
+
+## Learning Objectives
+- Understand primitive types, literals, and type inference
+- Use `interface` and `type` effectively
+- Model alternatives with union and intersection types
+- Narrow types with control-flow analysis (`typeof`, `in`, user-defined type predicates)
+- Type functions, higher-order functions, and basic generics
+- Work with arrays, tuples, and readonly types
+- Know when to use `enum` vs `as const`
+- Import/export modules; know key `tsconfig` flags for strictness
+
+## Core Concepts
+
+### Types and Annotations
+```typescript
+const appName: string = "FP Lectures";
+const initialCount: number = 0;
+const isReady: boolean = true;
+
+// Literal types capture exact values
+type Mode = "light" | "dark";
+const defaultMode: Mode = "light";
+```
+
+### Type Inference
+```typescript
+// TS infers types from initializers
+const maxRetries = 3; // number
+
+// Functions infer return types when obvious
+function toUpper(message: string) {
+  return message.toUpperCase();
+}
+```
+
+### Interfaces and Type Aliases
+```typescript
+interface User {
+  id: string;
+  name: string;
+}
+
+type Coordinates = {
+  readonly x: number;
+  readonly y: number;
+};
+
+// Structural typing: compatible if it has the required shape
+const point: Coordinates = { x: 10, y: 20 };
+```
+
+### Unions, Intersections, and Narrowing
+```typescript
+type Loading = { status: "loading" };
+type Success<T> = { status: "success"; data: T };
+type Failure = { status: "failure"; error: string };
+
+type Result<T> = Loading | Success<T> | Failure;
+
+function handleResult<T>(result: Result<T>): string {
+  if (result.status === "loading") return "Loading...";
+  if (result.status === "failure") return `Error: ${result.error}`;
+  return `Data: ${JSON.stringify(result.data)}`;
+}
+
+// Intersection: combine shapes
+type Identified<T> = T & { id: string };
+```
+
+### Type Guards and Predicates
+```typescript
+type Animal = { kind: "cat"; meow: () => string } | { kind: "dog"; bark: () => string };
+
+function isCat(animal: Animal): animal is { kind: "cat"; meow: () => string } {
+  return animal.kind === "cat";
+}
+
+function speak(animal: Animal): string {
+  return isCat(animal) ? animal.meow() : animal.bark();
+}
+```
+
+### Function Types and Higher-Order Functions
+```typescript
+type Binary = (a: number, b: number) => number;
+
+const add: Binary = (a, b) => a + b;
+
+function map<A, B>(items: ReadonlyArray<A>, f: (a: A) => B): B[] {
+  const result: B[] = [];
+  for (const item of items) result.push(f(item));
+  return result;
+}
+```
+
+### Generics Basics
+```typescript
+function first<T>(items: ReadonlyArray<T>): T | undefined {
+  return items[0];
+}
+
+// Constrain with extends
+interface HasId { id: string }
+function indexById<T extends HasId>(items: ReadonlyArray<T>): Record<string, T> {
+  return items.reduce<Record<string, T>>((acc, item) => {
+    acc[item.id] = item;
+    return acc;
+  }, {});
+}
+```
+
+### Arrays, Tuples, and Readonly
+```typescript
+const xs: number[] = [1, 2, 3];
+const ys: Array<number> = [4, 5, 6];
+
+const rgb: [number, number, number] = [255, 255, 0];
+
+// Prefer ReadonlyArray to discourage mutation in FP
+function total(values: ReadonlyArray<number>): number {
+  return values.reduce((sum, n) => sum + n, 0);
+}
+```
+
+### Enums vs. `as const`
+```typescript
+// Prefer union literals via as const for portability/tree-shaking
+const Status = {
+  Idle: "idle",
+  Running: "running",
+  Done: "done",
+} as const;
+type Status = typeof Status[keyof typeof Status];
+
+function next(s: Status): Status {
+  switch (s) {
+    case "idle": return "running";
+    case "running": return "done";
+    case "done": return "idle";
+  }
+}
+```
+
+### Modules and Imports
+```typescript
+// utils/math.ts
+export const multiply = (a: number, b: number): number => a * b;
+
+// app.ts
+import { multiply } from "./utils/math";
+const area = multiply(3, 4);
+```
+
+### Strictness Essentials (`tsconfig.json`)
+```json
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "strict": true,
+    "noImplicitAny": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "moduleResolution": "Bundler",
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true
+  }
+}
+```
+
+## Practice
+- Type a `map` and `filter` pair operating on `ReadonlyArray<number>` without mutation
+- Define a `Result<T>` union for a fetch operation and write a function to render it
+- Write a generic `groupBy` that returns `Record<string, T[]>`
+
+## Check Your Understanding
+- Can you choose between `interface` and `type` and explain why?
+- Can you write a user-defined type guard and use it to narrow a union?
+- Can you write a generic function with a constraint and explain its benefit?
 
 # What is a function?
 
@@ -2499,575 +2691,6 @@ const addTodoWithMeta = pipe(addTodo, createActionWithMeta);
 
 ## Exercise
 Create a composition pipeline that processes a list of products: filters by price range, sorts by rating, and maps to display format. 
-
-# Functional Error Handling & Validation
-
-## Overview
-**Difficulty:** Intermediate  
-**Estimated Time:** 2-3 hours  
-**Prerequisites:** Functional Composition, Basic Functional Programming TypeScript knowledge
-
-This lecture explores functional approaches to error handling and validation, focusing on **pure functions** and **immutable data structures**. You'll learn how to handle errors without throwing exceptions and build robust validation pipelines that maintain functional programming principles.
-
-**Why Functional Error Handling Matters:**
-- **Predictability**: Pure functions with explicit error handling are easier to reason about
-- **Composability**: Error handling functions can be combined with other functions
-- **Type Safety**: TypeScript can enforce proper error handling at compile time
-- **Testability**: Pure error handling functions are easier to test
-- **Maintainability**: Clear error paths make debugging and maintenance easier
-
-**Key Concepts:**
-- **Railway-oriented programming** for error handling
-- **Validation pipelines** using functional composition
-- **Result types** for explicit error handling
-- **Schema validation** with functional patterns
-- **Error aggregation** and reporting
-
-## Learning Objectives
-- Understand functional error handling patterns
-- Master Result/Either types for error handling
-- Learn to build validation pipelines
-- Practice railway-oriented programming
-- Implement schema validation functionally
-
-## Functional Error Handling Patterns
-
-### 1. Result Type Pattern
-```typescript
-// Result type for explicit error handling
-type Result<T, E = string> = 
-  | { success: true; value: T }
-  | { success: false; error: E };
-
-// Pure functions that return Results
-const safeDivide = (a: number, b: number): Result<number, string> => {
-  if (b === 0) {
-    return { success: false, error: 'Division by zero' };
-  }
-  return { success: true, value: a / b };
-};
-
-const safeParseInt = (str: string): Result<number, string> => {
-  const num = parseInt(str);
-  if (isNaN(num)) {
-    return { success: false, error: `Invalid number: ${str}` };
-  }
-  return { success: true, value: num };
-};
-
-// Usage
-const result = safeDivide(10, 2);
-if (result.success) {
-  console.log('Result:', result.value); // 5
-} else {
-  console.log('Error:', result.error);
-}
-```
-
-### 2. Railway-Oriented Programming
-```typescript
-// Railway: functions that always return a Result
-type Railway<T, E = string> = (input: T) => Result<T, E>;
-
-// Helper functions for railway composition
-const bind = <T, E>(
-  fn: (value: T) => Result<T, E>
-) => (result: Result<T, E>): Result<T, E> => {
-  if (!result.success) return result;
-  return fn(result.value);
-};
-
-const map = <T, U, E>(
-  fn: (value: T) => U
-) => (result: Result<T, E>): Result<U, E> => {
-  if (!result.success) return { success: false, error: result.error };
-  return { success: true, value: fn(result.value) };
-};
-
-// Railway composition
-const composeRailway = <T, E>(
-  ...fns: Railway<T, E>[]
-) => (input: T): Result<T, E> => {
-  return fns.reduce((result, fn) => bind(fn)(result), { success: true, value: input });
-};
-```
-
-### 3. Validation Pipeline Example
-```typescript
-interface User {
-  name: string;
-  email: string;
-  age: number;
-}
-
-// Validation functions (pure)
-const validateName = (name: string): Result<string, string> => {
-  if (!name.trim()) {
-    return { success: false, error: 'Name is required' };
-  }
-  if (name.length < 2) {
-    return { success: false, error: 'Name must be at least 2 characters' };
-  }
-  return { success: true, value: name.trim() };
-};
-
-const validateEmail = (email: string): Result<string, string> => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    return { success: false, error: 'Invalid email format' };
-  }
-  return { success: true, value: email.toLowerCase() };
-};
-
-const validateAge = (age: number): Result<number, string> => {
-  if (age < 0 || age > 150) {
-    return { success: false, error: 'Age must be between 0 and 150' };
-  }
-  return { success: true, value: age };
-};
-
-// Compose validation pipeline
-const validateUser = (user: Partial<User>): Result<User, string[]> => {
-  const errors: string[] = [];
-  
-  const nameResult = validateName(user.name || '');
-  const emailResult = validateEmail(user.email || '');
-  const ageResult = validateAge(user.age || 0);
-  
-  if (!nameResult.success) errors.push(nameResult.error);
-  if (!emailResult.success) errors.push(emailResult.error);
-  if (!ageResult.success) errors.push(ageResult.error);
-  
-  if (errors.length > 0) {
-    return { success: false, error: errors };
-  }
-  
-  return {
-    success: true,
-    value: {
-      name: nameResult.value,
-      email: emailResult.value,
-      age: ageResult.value
-    }
-  };
-};
-
-// Usage
-const userData = { name: 'Alice', email: 'alice@example.com', age: 25 };
-const validationResult = validateUser(userData);
-
-if (validationResult.success) {
-  console.log('Valid user:', validationResult.value);
-} else {
-  console.log('Validation errors:', validationResult.error);
-}
-```
-
-## Advanced Validation Patterns
-
-### 1. Schema Validation
-```typescript
-// Schema definition
-type Schema<T> = {
-  [K in keyof T]: (value: any) => Result<T[K], string>;
-};
-
-// Schema validator
-const validateSchema = <T>(schema: Schema<T>) => (data: any): Result<T, string[]> => {
-  const errors: string[] = [];
-  const result: Partial<T> = {};
-  
-  for (const [key, validator] of Object.entries(schema)) {
-    const validationResult = validator(data[key]);
-    if (validationResult.success) {
-      result[key as keyof T] = validationResult.value;
-    } else {
-      errors.push(`${key}: ${validationResult.error}`);
-    }
-  }
-  
-  if (errors.length > 0) {
-    return { success: false, error: errors };
-  }
-  
-  return { success: true, value: result as T };
-};
-
-// Usage
-const userSchema: Schema<User> = {
-  name: validateName,
-  email: validateEmail,
-  age: validateAge
-};
-
-const validateUserWithSchema = validateSchema(userSchema);
-const result = validateUserWithSchema({ name: 'Bob', email: 'invalid', age: -5 });
-```
-
-### 2. Conditional Validation
-```typescript
-// Conditional validation based on other fields
-const validateUserConditional = (user: Partial<User>): Result<User, string[]> => {
-  const errors: string[] = [];
-  
-  // Basic validations
-  const nameResult = validateName(user.name || '');
-  const emailResult = validateEmail(user.email || '');
-  const ageResult = validateAge(user.age || 0);
-  
-  if (!nameResult.success) errors.push(nameResult.error);
-  if (!emailResult.success) errors.push(emailResult.error);
-  if (!ageResult.success) errors.push(ageResult.error);
-  
-  // Conditional validation: if age < 18, require parent email
-  if (ageResult.success && ageResult.value < 18) {
-    if (!user.parentEmail) {
-      errors.push('Parent email required for users under 18');
-    } else {
-      const parentEmailResult = validateEmail(user.parentEmail);
-      if (!parentEmailResult.success) {
-        errors.push(`Parent email: ${parentEmailResult.error}`);
-      }
-    }
-  }
-  
-  if (errors.length > 0) {
-    return { success: false, error: errors };
-  }
-  
-  return {
-    success: true,
-    value: {
-      name: nameResult.value,
-      email: emailResult.value,
-      age: ageResult.value
-    }
-  };
-};
-```
-
-### 3. Async Validation
-```typescript
-// Async validation functions
-const checkEmailAvailability = async (email: string): Promise<Result<string, string>> => {
-  try {
-    const response = await fetch(`/api/check-email?email=${email}`);
-    const data = await response.json();
-    
-    if (data.available) {
-      return { success: true, value: email };
-    } else {
-      return { success: false, error: 'Email already taken' };
-    }
-  } catch (error) {
-    return { success: false, error: 'Failed to check email availability' };
-  }
-};
-
-const validateUserAsync = async (user: Partial<User>): Promise<Result<User, string[]>> => {
-  const errors: string[] = [];
-  
-  // Sync validations
-  const nameResult = validateName(user.name || '');
-  const emailResult = validateEmail(user.email || '');
-  const ageResult = validateAge(user.age || 0);
-  
-  if (!nameResult.success) errors.push(nameResult.error);
-  if (!emailResult.success) errors.push(emailResult.error);
-  if (!ageResult.success) errors.push(ageResult.error);
-  
-  // Async validation
-  if (emailResult.success) {
-    const availabilityResult = await checkEmailAvailability(emailResult.value);
-    if (!availabilityResult.success) {
-      errors.push(availabilityResult.error);
-    }
-  }
-  
-  if (errors.length > 0) {
-    return { success: false, error: errors };
-  }
-  
-  return {
-    success: true,
-    value: {
-      name: nameResult.value,
-      email: emailResult.value,
-      age: ageResult.value
-    }
-  };
-};
-```
-
-## Error Aggregation and Reporting
-
-### 1. Error Collection
-```typescript
-// Collect all errors, not just the first one
-const collectErrors = <T>(
-  validators: Array<(input: T) => Result<any, string>>
-) => (input: T): Result<T, string[]> => {
-  const errors: string[] = [];
-  const results: any[] = [];
-  
-  for (const validator of validators) {
-    const result = validator(input);
-    if (result.success) {
-      results.push(result.value);
-    } else {
-      errors.push(result.error);
-    }
-  }
-  
-  if (errors.length > 0) {
-    return { success: false, error: errors };
-  }
-  
-  return { success: true, value: input };
-};
-```
-
-### 2. Error Formatting
-```typescript
-// Format errors for user display
-const formatErrors = (errors: string[]): string => {
-  if (errors.length === 1) {
-    return errors[0];
-  }
-  
-  return errors.map((error, index) => `${index + 1}. ${error}`).join('\n');
-};
-
-// Usage
-const validationResult = validateUser(invalidUser);
-if (!validationResult.success) {
-  const errorMessage = formatErrors(validationResult.error);
-  console.log('Please fix the following errors:\n', errorMessage);
-}
-```
-
-## Real-World Examples
-
-### 1. Form Validation
-```typescript
-interface FormData {
-  username: string;
-  password: string;
-  confirmPassword: string;
-  terms: boolean;
-}
-
-const validateForm = (data: FormData): Result<FormData, string[]> => {
-  const errors: string[] = [];
-  
-  // Username validation
-  if (!data.username.trim()) {
-    errors.push('Username is required');
-  } else if (data.username.length < 3) {
-    errors.push('Username must be at least 3 characters');
-  }
-  
-  // Password validation
-  if (!data.password) {
-    errors.push('Password is required');
-  } else if (data.password.length < 8) {
-    errors.push('Password must be at least 8 characters');
-  } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(data.password)) {
-    errors.push('Password must contain uppercase, lowercase, and number');
-  }
-  
-  // Confirm password
-  if (data.password !== data.confirmPassword) {
-    errors.push('Passwords do not match');
-  }
-  
-  // Terms acceptance
-  if (!data.terms) {
-    errors.push('You must accept the terms and conditions');
-  }
-  
-  if (errors.length > 0) {
-    return { success: false, error: errors };
-  }
-  
-  return { success: true, value: data };
-};
-```
-
-### 2. API Response Validation
-```typescript
-interface ApiResponse<T> {
-  data: T;
-  status: number;
-  message: string;
-}
-
-const validateApiResponse = <T>(
-  response: any,
-  dataValidator?: (data: any) => Result<T, string>
-): Result<ApiResponse<T>, string> => {
-  // Check if response has required structure
-  if (!response || typeof response !== 'object') {
-    return { success: false, error: 'Invalid response format' };
-  }
-  
-  if (typeof response.status !== 'number') {
-    return { success: false, error: 'Missing or invalid status code' };
-  }
-  
-  if (typeof response.message !== 'string') {
-    return { success: false, error: 'Missing or invalid message' };
-  }
-  
-  // Validate data if validator provided
-  if (dataValidator) {
-    const dataResult = dataValidator(response.data);
-    if (!dataResult.success) {
-      return { success: false, error: `Data validation failed: ${dataResult.error}` };
-    }
-  }
-  
-  return { success: true, value: response as ApiResponse<T> };
-};
-
-// Usage
-const userValidator = (data: any): Result<User, string> => {
-  return validateUser(data);
-};
-
-const apiResult = validateApiResponse(apiResponse, userValidator);
-```
-
-## Testing Functional Error Handling
-
-### 1. Unit Testing
-```typescript
-// Test validation functions
-const testValidateName = (): boolean => {
-  const testCases = [
-    { input: '', expected: false, error: 'Name is required' },
-    { input: 'a', expected: false, error: 'Name must be at least 2 characters' },
-    { input: 'Alice', expected: true, value: 'Alice' },
-    { input: '  Bob  ', expected: true, value: 'Bob' }
-  ];
-  
-  return testCases.every(({ input, expected, error, value }) => {
-    const result = validateName(input);
-    if (expected) {
-      return result.success && result.value === value;
-    } else {
-      return !result.success && result.error === error;
-    }
-  });
-};
-
-console.log('validateName tests:', testValidateName());
-```
-
-### 2. Property-Based Testing
-```typescript
-// Property: validation should be idempotent
-const testValidationIdempotent = (): boolean => {
-  const testInputs = ['Alice', 'Bob', 'Charlie'];
-  
-  return testInputs.every(input => {
-    const result1 = validateName(input);
-    const result2 = validateName(input);
-    return JSON.stringify(result1) === JSON.stringify(result2);
-  });
-};
-
-// Property: successful validation should preserve input (after cleaning)
-const testValidationPreservesInput = (): boolean => {
-  const testInputs = ['Alice', '  Bob  ', 'Charlie'];
-  
-  return testInputs.every(input => {
-    const result = validateName(input);
-    if (result.success) {
-      return result.value === input.trim();
-    }
-    return true; // Failed validations don't need to preserve input
-  });
-};
-```
-
-## Best Practices
-
-### 1. Keep Validation Functions Pure
-```typescript
-// ✅ Pure validation function
-const validateEmail = (email: string): Result<string, string> => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    return { success: false, error: 'Invalid email format' };
-  }
-  return { success: true, value: email.toLowerCase() };
-};
-
-// ❌ Impure validation function (side effect)
-const validateEmailWithLogging = (email: string): Result<string, string> => {
-  console.log('Validating email:', email); // Side effect
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    return { success: false, error: 'Invalid email format' };
-  }
-  return { success: true, value: email.toLowerCase() };
-};
-```
-
-### 2. Use Descriptive Error Messages
-```typescript
-// ✅ Descriptive error messages
-const validateAge = (age: number): Result<number, string> => {
-  if (age < 0) {
-    return { success: false, error: 'Age cannot be negative' };
-  }
-  if (age > 150) {
-    return { success: false, error: 'Age cannot exceed 150 years' };
-  }
-  return { success: true, value: age };
-};
-
-// ❌ Vague error messages
-const validateAgeVague = (age: number): Result<number, string> => {
-  if (age < 0 || age > 150) {
-    return { success: false, error: 'Invalid age' };
-  }
-  return { success: true, value: age };
-};
-```
-
-### 3. Compose Validation Functions
-```typescript
-// Compose simple validations into complex ones
-const validateUserProfile = pipe(
-  validateName,
-  bind(validateEmail),
-  bind(validateAge)
-);
-
-// Or use railway composition
-const validateUserRailway = composeRailway(
-  validateName,
-  validateEmail,
-  validateAge
-);
-```
-
-## Exercise
-Create a functional validation system for a product catalog that validates:
-1. Product name (required, 2-100 characters)
-2. Price (positive number, max 2 decimal places)
-3. Category (must be from predefined list)
-4. Tags (array of strings, each 1-20 characters)
-5. Images (array of valid URLs)
-
-Use Result types, railway composition, and error aggregation. Include both sync and async validations (e.g., checking if product name is unique).
-
-## Resources
-- [Railway-Oriented Programming](https://fsharpforfunandprofit.com/rop/)
-- [Functional Error Handling](https://blog.logrocket.com/functional-error-handling-typescript/)
-- [Result Type Pattern](https://en.wikipedia.org/wiki/Result_type)
 
 # Monads in Functional Programming
 
