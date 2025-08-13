@@ -6,93 +6,30 @@ This series of lectures explores functional programming concepts from fundamenta
 **Key Learning Philosophy:**
 - **Functions for Everything**: Every concept is taught through the lens of pure functions
 - **Immutability First**: Learn to work with immutable data structures from day one
-- **Type Safety**: Learn to use TypeScript to its full potential
+- **Type Safety**: Learn to use types to their full potential
 - **Why side effects are bad**: Learn to avoid them at all costs
 - **Composition Over Complexity**: Build complex systems from simple, composable parts
 - **Redux Toolkit Priority**: RTK and RTK Query are the definitive choice for state management and data fetching
 - **Lean Architecture**: Focus on small, focused files with clear separation of concerns
 
-"All software design is composition: the act of breaking complex problems down into smaller problems and composing those solutions. Learn to do it well." - Eric Elliott
+> "All software design is composition: the act of breaking complex problems down into smaller problems and composing those solutions. Learn to do it well." - Eric Elliott
 
-## Programming Glossary
+## Glossary
 
-- **variable**: A named container that stores a value. In functional programming, variables are often immutable (const) to prevent side effects and ensure referential transparency.
+Skip to the bottom of this document to see the glossary of a list of basic programming terms.
 
-- **function**: A reusable block of code that takes inputs (parameters) and returns an output. In functional programming, functions should be pure - same input always produces same output with no side effects.
+## Typescript
 
-- **argument**: The actual value passed to a function when it's called. Arguments are the concrete data that functions operate on.
+TypeScript is a superset of JavaScript that adds static typing to the language.
 
-- **parameter**: The placeholder variable in a function definition that receives arguments. Parameters define the function's interface and expected input types.
-
-- **expression**: A piece of code that produces a value. Expressions can be evaluated and always return a result (e.g., `2 + 3`, `Math.max(a, b)`, `user.name`).
-
-- **statement**: A complete instruction that performs an action. Statements don't return values but execute code (e.g., `if (condition) { ... }`, `return value;`, `const x = 5;`).
-
-- **declaration**: Code that introduces a new variable, function, or type into scope. Declarations create bindings but don't necessarily execute code.
-
-- **attribute**: A property or characteristic of an object. In functional programming, object attributes should be immutable to prevent side effects.
-
-- **method**: A function that belongs to an object or class. Methods can access the object's state and modify it (though this is avoided in functional programming).
-
-- **event**: A signal that something has happened in the system (user interaction, timer completion, data arrival). Events are the foundation of reactive programming.
-
-- **listener**: A function that waits for and responds to events. Listeners are pure functions that process event data without side effects.
-
-- **handler**: A function that processes a specific event or action. Handlers should be pure functions that transform input data into output data.
-
-- **callback**: A function passed as an argument to another function, to be executed later. Callbacks enable asynchronous programming and function composition.
-
-- **promise**: An object representing the eventual completion (or failure) of an asynchronous operation. Promises provide a clean way to handle async operations functionally.
-
-- **async/await**: Syntactic sugar for working with promises. Async functions return promises, and await pauses execution until a promise resolves.
-
-- **gate**: A logical operator that controls data flow (AND, OR, NOT). Gates are pure functions that combine boolean values.
-
-- **boolean**: A data type with only two possible values: true or false. Booleans are fundamental to conditional logic and functional programming.
-
-- **number**: A numeric data type for mathematical operations. In functional programming, numbers are immutable and operations return new values.
-
-- **string**: A sequence of characters representing text. Strings are immutable in most functional programming contexts.
-
-- **symbol**: A unique, immutable primitive value used as object property keys. Symbols provide a way to create truly private properties.
-
-- **null**: A special value representing the intentional absence of any object value. In functional programming, null is often replaced with Maybe/Option types.
-
-- **undefined**: A value assigned to variables that have been declared but not initialized. Undefined represents an unassigned value.
-
-- **NaN**: "Not a Number" - a special numeric value representing an undefined or unrepresentable mathematical result.
-
-- **assignment**: The process of storing a value in a variable. In functional programming, assignments are often avoided in favor of immutable declarations.
-
-- **type**: A classification of data that defines what operations can be performed on it. Types provide compile-time safety and documentation.
-
-- **interface**: A TypeScript construct that defines the shape of an object. Interfaces describe contracts that objects must fulfill.
-
-- **class**: A blueprint for creating objects with shared properties and methods. Classes are less common in functional programming, which prefers plain objects and functions.
-
-- **object**: A collection of key-value pairs representing a real-world entity. In functional programming, objects should be immutable.
-
-- **array**: An ordered collection of elements. Arrays are fundamental to functional programming for data transformation operations.
-
-- **set**: A collection of unique values with no duplicates. Sets are useful for functional programming operations like union, intersection, and difference.
-
-- **loop**: A control structure that repeats code execution. In functional programming, loops are often replaced with higher-order functions like map, filter, and reduce.
-
-- **condition**: A boolean expression that determines program flow. Conditions are used in if statements and ternary operators.
-
-- **iteration**: The process of repeating a set of instructions. In functional programming, iteration is handled through recursion or higher-order functions.
-
-- **recursion**: A function calling itself to solve a problem by breaking it into smaller subproblems. Recursion is fundamental to functional programming.
-
-- **return**: A statement that exits a function and provides a value back to the caller. Return values should be the only way functions communicate results.
-
-- **side effect**: Any change to the system outside the function (modifying global state, making API calls, logging). Pure functions avoid side effects.
+TypeScript will be the language of choice for this course.
 
 ## Learning Path
 1. **Fundamentals** (Beginner)
-   - What is a function in TypeScript?
+   - Basic TypeScript knowledge
+   - What is a function?
    - The simplest FP TS Hello World
-   - Basic Functional Programming TypeScript knowledge
+   - Basic Functional Programming knowledge
    - ES6+ Features for Functional Programming
    - TypeScript and Functional Programming
 
@@ -100,6 +37,7 @@ This series of lectures explores functional programming concepts from fundamenta
    - Redux Standard Patterns & Functional Programming
    - Redux Toolkit & Functional Programming
    - Functional Composition
+   - Functional Error Handling & Validation
 
 3. **Advanced** (Advanced)
    - Monads in Functional Programming
@@ -127,7 +65,7 @@ This series of lectures explores functional programming concepts from fundamenta
 
 ## Lectures
 
-# What is a function in TypeScript?
+# What is a function?
 
 ## Overview
 **Difficulty:** Beginner  
@@ -2561,6 +2499,575 @@ const addTodoWithMeta = pipe(addTodo, createActionWithMeta);
 
 ## Exercise
 Create a composition pipeline that processes a list of products: filters by price range, sorts by rating, and maps to display format. 
+
+# Functional Error Handling & Validation
+
+## Overview
+**Difficulty:** Intermediate  
+**Estimated Time:** 2-3 hours  
+**Prerequisites:** Functional Composition, Basic Functional Programming TypeScript knowledge
+
+This lecture explores functional approaches to error handling and validation, focusing on **pure functions** and **immutable data structures**. You'll learn how to handle errors without throwing exceptions and build robust validation pipelines that maintain functional programming principles.
+
+**Why Functional Error Handling Matters:**
+- **Predictability**: Pure functions with explicit error handling are easier to reason about
+- **Composability**: Error handling functions can be combined with other functions
+- **Type Safety**: TypeScript can enforce proper error handling at compile time
+- **Testability**: Pure error handling functions are easier to test
+- **Maintainability**: Clear error paths make debugging and maintenance easier
+
+**Key Concepts:**
+- **Railway-oriented programming** for error handling
+- **Validation pipelines** using functional composition
+- **Result types** for explicit error handling
+- **Schema validation** with functional patterns
+- **Error aggregation** and reporting
+
+## Learning Objectives
+- Understand functional error handling patterns
+- Master Result/Either types for error handling
+- Learn to build validation pipelines
+- Practice railway-oriented programming
+- Implement schema validation functionally
+
+## Functional Error Handling Patterns
+
+### 1. Result Type Pattern
+```typescript
+// Result type for explicit error handling
+type Result<T, E = string> = 
+  | { success: true; value: T }
+  | { success: false; error: E };
+
+// Pure functions that return Results
+const safeDivide = (a: number, b: number): Result<number, string> => {
+  if (b === 0) {
+    return { success: false, error: 'Division by zero' };
+  }
+  return { success: true, value: a / b };
+};
+
+const safeParseInt = (str: string): Result<number, string> => {
+  const num = parseInt(str);
+  if (isNaN(num)) {
+    return { success: false, error: `Invalid number: ${str}` };
+  }
+  return { success: true, value: num };
+};
+
+// Usage
+const result = safeDivide(10, 2);
+if (result.success) {
+  console.log('Result:', result.value); // 5
+} else {
+  console.log('Error:', result.error);
+}
+```
+
+### 2. Railway-Oriented Programming
+```typescript
+// Railway: functions that always return a Result
+type Railway<T, E = string> = (input: T) => Result<T, E>;
+
+// Helper functions for railway composition
+const bind = <T, E>(
+  fn: (value: T) => Result<T, E>
+) => (result: Result<T, E>): Result<T, E> => {
+  if (!result.success) return result;
+  return fn(result.value);
+};
+
+const map = <T, U, E>(
+  fn: (value: T) => U
+) => (result: Result<T, E>): Result<U, E> => {
+  if (!result.success) return { success: false, error: result.error };
+  return { success: true, value: fn(result.value) };
+};
+
+// Railway composition
+const composeRailway = <T, E>(
+  ...fns: Railway<T, E>[]
+) => (input: T): Result<T, E> => {
+  return fns.reduce((result, fn) => bind(fn)(result), { success: true, value: input });
+};
+```
+
+### 3. Validation Pipeline Example
+```typescript
+interface User {
+  name: string;
+  email: string;
+  age: number;
+}
+
+// Validation functions (pure)
+const validateName = (name: string): Result<string, string> => {
+  if (!name.trim()) {
+    return { success: false, error: 'Name is required' };
+  }
+  if (name.length < 2) {
+    return { success: false, error: 'Name must be at least 2 characters' };
+  }
+  return { success: true, value: name.trim() };
+};
+
+const validateEmail = (email: string): Result<string, string> => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return { success: false, error: 'Invalid email format' };
+  }
+  return { success: true, value: email.toLowerCase() };
+};
+
+const validateAge = (age: number): Result<number, string> => {
+  if (age < 0 || age > 150) {
+    return { success: false, error: 'Age must be between 0 and 150' };
+  }
+  return { success: true, value: age };
+};
+
+// Compose validation pipeline
+const validateUser = (user: Partial<User>): Result<User, string[]> => {
+  const errors: string[] = [];
+  
+  const nameResult = validateName(user.name || '');
+  const emailResult = validateEmail(user.email || '');
+  const ageResult = validateAge(user.age || 0);
+  
+  if (!nameResult.success) errors.push(nameResult.error);
+  if (!emailResult.success) errors.push(emailResult.error);
+  if (!ageResult.success) errors.push(ageResult.error);
+  
+  if (errors.length > 0) {
+    return { success: false, error: errors };
+  }
+  
+  return {
+    success: true,
+    value: {
+      name: nameResult.value,
+      email: emailResult.value,
+      age: ageResult.value
+    }
+  };
+};
+
+// Usage
+const userData = { name: 'Alice', email: 'alice@example.com', age: 25 };
+const validationResult = validateUser(userData);
+
+if (validationResult.success) {
+  console.log('Valid user:', validationResult.value);
+} else {
+  console.log('Validation errors:', validationResult.error);
+}
+```
+
+## Advanced Validation Patterns
+
+### 1. Schema Validation
+```typescript
+// Schema definition
+type Schema<T> = {
+  [K in keyof T]: (value: any) => Result<T[K], string>;
+};
+
+// Schema validator
+const validateSchema = <T>(schema: Schema<T>) => (data: any): Result<T, string[]> => {
+  const errors: string[] = [];
+  const result: Partial<T> = {};
+  
+  for (const [key, validator] of Object.entries(schema)) {
+    const validationResult = validator(data[key]);
+    if (validationResult.success) {
+      result[key as keyof T] = validationResult.value;
+    } else {
+      errors.push(`${key}: ${validationResult.error}`);
+    }
+  }
+  
+  if (errors.length > 0) {
+    return { success: false, error: errors };
+  }
+  
+  return { success: true, value: result as T };
+};
+
+// Usage
+const userSchema: Schema<User> = {
+  name: validateName,
+  email: validateEmail,
+  age: validateAge
+};
+
+const validateUserWithSchema = validateSchema(userSchema);
+const result = validateUserWithSchema({ name: 'Bob', email: 'invalid', age: -5 });
+```
+
+### 2. Conditional Validation
+```typescript
+// Conditional validation based on other fields
+const validateUserConditional = (user: Partial<User>): Result<User, string[]> => {
+  const errors: string[] = [];
+  
+  // Basic validations
+  const nameResult = validateName(user.name || '');
+  const emailResult = validateEmail(user.email || '');
+  const ageResult = validateAge(user.age || 0);
+  
+  if (!nameResult.success) errors.push(nameResult.error);
+  if (!emailResult.success) errors.push(emailResult.error);
+  if (!ageResult.success) errors.push(ageResult.error);
+  
+  // Conditional validation: if age < 18, require parent email
+  if (ageResult.success && ageResult.value < 18) {
+    if (!user.parentEmail) {
+      errors.push('Parent email required for users under 18');
+    } else {
+      const parentEmailResult = validateEmail(user.parentEmail);
+      if (!parentEmailResult.success) {
+        errors.push(`Parent email: ${parentEmailResult.error}`);
+      }
+    }
+  }
+  
+  if (errors.length > 0) {
+    return { success: false, error: errors };
+  }
+  
+  return {
+    success: true,
+    value: {
+      name: nameResult.value,
+      email: emailResult.value,
+      age: ageResult.value
+    }
+  };
+};
+```
+
+### 3. Async Validation
+```typescript
+// Async validation functions
+const checkEmailAvailability = async (email: string): Promise<Result<string, string>> => {
+  try {
+    const response = await fetch(`/api/check-email?email=${email}`);
+    const data = await response.json();
+    
+    if (data.available) {
+      return { success: true, value: email };
+    } else {
+      return { success: false, error: 'Email already taken' };
+    }
+  } catch (error) {
+    return { success: false, error: 'Failed to check email availability' };
+  }
+};
+
+const validateUserAsync = async (user: Partial<User>): Promise<Result<User, string[]>> => {
+  const errors: string[] = [];
+  
+  // Sync validations
+  const nameResult = validateName(user.name || '');
+  const emailResult = validateEmail(user.email || '');
+  const ageResult = validateAge(user.age || 0);
+  
+  if (!nameResult.success) errors.push(nameResult.error);
+  if (!emailResult.success) errors.push(emailResult.error);
+  if (!ageResult.success) errors.push(ageResult.error);
+  
+  // Async validation
+  if (emailResult.success) {
+    const availabilityResult = await checkEmailAvailability(emailResult.value);
+    if (!availabilityResult.success) {
+      errors.push(availabilityResult.error);
+    }
+  }
+  
+  if (errors.length > 0) {
+    return { success: false, error: errors };
+  }
+  
+  return {
+    success: true,
+    value: {
+      name: nameResult.value,
+      email: emailResult.value,
+      age: ageResult.value
+    }
+  };
+};
+```
+
+## Error Aggregation and Reporting
+
+### 1. Error Collection
+```typescript
+// Collect all errors, not just the first one
+const collectErrors = <T>(
+  validators: Array<(input: T) => Result<any, string>>
+) => (input: T): Result<T, string[]> => {
+  const errors: string[] = [];
+  const results: any[] = [];
+  
+  for (const validator of validators) {
+    const result = validator(input);
+    if (result.success) {
+      results.push(result.value);
+    } else {
+      errors.push(result.error);
+    }
+  }
+  
+  if (errors.length > 0) {
+    return { success: false, error: errors };
+  }
+  
+  return { success: true, value: input };
+};
+```
+
+### 2. Error Formatting
+```typescript
+// Format errors for user display
+const formatErrors = (errors: string[]): string => {
+  if (errors.length === 1) {
+    return errors[0];
+  }
+  
+  return errors.map((error, index) => `${index + 1}. ${error}`).join('\n');
+};
+
+// Usage
+const validationResult = validateUser(invalidUser);
+if (!validationResult.success) {
+  const errorMessage = formatErrors(validationResult.error);
+  console.log('Please fix the following errors:\n', errorMessage);
+}
+```
+
+## Real-World Examples
+
+### 1. Form Validation
+```typescript
+interface FormData {
+  username: string;
+  password: string;
+  confirmPassword: string;
+  terms: boolean;
+}
+
+const validateForm = (data: FormData): Result<FormData, string[]> => {
+  const errors: string[] = [];
+  
+  // Username validation
+  if (!data.username.trim()) {
+    errors.push('Username is required');
+  } else if (data.username.length < 3) {
+    errors.push('Username must be at least 3 characters');
+  }
+  
+  // Password validation
+  if (!data.password) {
+    errors.push('Password is required');
+  } else if (data.password.length < 8) {
+    errors.push('Password must be at least 8 characters');
+  } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(data.password)) {
+    errors.push('Password must contain uppercase, lowercase, and number');
+  }
+  
+  // Confirm password
+  if (data.password !== data.confirmPassword) {
+    errors.push('Passwords do not match');
+  }
+  
+  // Terms acceptance
+  if (!data.terms) {
+    errors.push('You must accept the terms and conditions');
+  }
+  
+  if (errors.length > 0) {
+    return { success: false, error: errors };
+  }
+  
+  return { success: true, value: data };
+};
+```
+
+### 2. API Response Validation
+```typescript
+interface ApiResponse<T> {
+  data: T;
+  status: number;
+  message: string;
+}
+
+const validateApiResponse = <T>(
+  response: any,
+  dataValidator?: (data: any) => Result<T, string>
+): Result<ApiResponse<T>, string> => {
+  // Check if response has required structure
+  if (!response || typeof response !== 'object') {
+    return { success: false, error: 'Invalid response format' };
+  }
+  
+  if (typeof response.status !== 'number') {
+    return { success: false, error: 'Missing or invalid status code' };
+  }
+  
+  if (typeof response.message !== 'string') {
+    return { success: false, error: 'Missing or invalid message' };
+  }
+  
+  // Validate data if validator provided
+  if (dataValidator) {
+    const dataResult = dataValidator(response.data);
+    if (!dataResult.success) {
+      return { success: false, error: `Data validation failed: ${dataResult.error}` };
+    }
+  }
+  
+  return { success: true, value: response as ApiResponse<T> };
+};
+
+// Usage
+const userValidator = (data: any): Result<User, string> => {
+  return validateUser(data);
+};
+
+const apiResult = validateApiResponse(apiResponse, userValidator);
+```
+
+## Testing Functional Error Handling
+
+### 1. Unit Testing
+```typescript
+// Test validation functions
+const testValidateName = (): boolean => {
+  const testCases = [
+    { input: '', expected: false, error: 'Name is required' },
+    { input: 'a', expected: false, error: 'Name must be at least 2 characters' },
+    { input: 'Alice', expected: true, value: 'Alice' },
+    { input: '  Bob  ', expected: true, value: 'Bob' }
+  ];
+  
+  return testCases.every(({ input, expected, error, value }) => {
+    const result = validateName(input);
+    if (expected) {
+      return result.success && result.value === value;
+    } else {
+      return !result.success && result.error === error;
+    }
+  });
+};
+
+console.log('validateName tests:', testValidateName());
+```
+
+### 2. Property-Based Testing
+```typescript
+// Property: validation should be idempotent
+const testValidationIdempotent = (): boolean => {
+  const testInputs = ['Alice', 'Bob', 'Charlie'];
+  
+  return testInputs.every(input => {
+    const result1 = validateName(input);
+    const result2 = validateName(input);
+    return JSON.stringify(result1) === JSON.stringify(result2);
+  });
+};
+
+// Property: successful validation should preserve input (after cleaning)
+const testValidationPreservesInput = (): boolean => {
+  const testInputs = ['Alice', '  Bob  ', 'Charlie'];
+  
+  return testInputs.every(input => {
+    const result = validateName(input);
+    if (result.success) {
+      return result.value === input.trim();
+    }
+    return true; // Failed validations don't need to preserve input
+  });
+};
+```
+
+## Best Practices
+
+### 1. Keep Validation Functions Pure
+```typescript
+// ✅ Pure validation function
+const validateEmail = (email: string): Result<string, string> => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return { success: false, error: 'Invalid email format' };
+  }
+  return { success: true, value: email.toLowerCase() };
+};
+
+// ❌ Impure validation function (side effect)
+const validateEmailWithLogging = (email: string): Result<string, string> => {
+  console.log('Validating email:', email); // Side effect
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return { success: false, error: 'Invalid email format' };
+  }
+  return { success: true, value: email.toLowerCase() };
+};
+```
+
+### 2. Use Descriptive Error Messages
+```typescript
+// ✅ Descriptive error messages
+const validateAge = (age: number): Result<number, string> => {
+  if (age < 0) {
+    return { success: false, error: 'Age cannot be negative' };
+  }
+  if (age > 150) {
+    return { success: false, error: 'Age cannot exceed 150 years' };
+  }
+  return { success: true, value: age };
+};
+
+// ❌ Vague error messages
+const validateAgeVague = (age: number): Result<number, string> => {
+  if (age < 0 || age > 150) {
+    return { success: false, error: 'Invalid age' };
+  }
+  return { success: true, value: age };
+};
+```
+
+### 3. Compose Validation Functions
+```typescript
+// Compose simple validations into complex ones
+const validateUserProfile = pipe(
+  validateName,
+  bind(validateEmail),
+  bind(validateAge)
+);
+
+// Or use railway composition
+const validateUserRailway = composeRailway(
+  validateName,
+  validateEmail,
+  validateAge
+);
+```
+
+## Exercise
+Create a functional validation system for a product catalog that validates:
+1. Product name (required, 2-100 characters)
+2. Price (positive number, max 2 decimal places)
+3. Category (must be from predefined list)
+4. Tags (array of strings, each 1-20 characters)
+5. Images (array of valid URLs)
+
+Use Result types, railway composition, and error aggregation. Include both sync and async validations (e.g., checking if product name is unique).
+
+## Resources
+- [Railway-Oriented Programming](https://fsharpforfunandprofit.com/rop/)
+- [Functional Error Handling](https://blog.logrocket.com/functional-error-handling-typescript/)
+- [Result Type Pattern](https://en.wikipedia.org/wiki/Result_type)
 
 # Monads in Functional Programming
 
@@ -5022,3 +5529,79 @@ Build a scalable Redux application with:
 - [Redux Toolkit Architecture](https://redux-toolkit.js.org/usage/usage-guide)
 - [RTK Query Advanced Patterns](https://redux-toolkit.js.org/rtk-query/usage/advanced-patterns)
 - [Redux Best Practices](https://redux.js.org/style-guide/)
+
+## Programming Glossary
+
+- **expression**: A piece of code that produces a value. Expressions can be evaluated and always return a result (e.g., `2 + 3`, `Math.max(a, b)`, `user.name`).
+
+- **statement**: A complete instruction that performs an action. Statements don't return values but execute code (e.g., `if (condition) { ... }`, `return value;`, `const x = 5;`).
+
+- **declaration**: Code that introduces a new variable, function, or type into scope. Declarations create bindings but don't necessarily execute code.
+
+- **assignment**: The process of storing a value in a variable. In functional programming, assignments are often avoided in favor of immutable declarations.
+
+- **variable**: A named container that stores a value. In functional programming, variables are often immutable to prevent side effects and ensure referential transparency.
+
+- **const**: A variable that is immutable. In functional programming, variables should be immutable to prevent side effects and ensure referential transparency. `const` is a better choice than `let` because it's more explicit and less error-prone.
+
+- **gate**: A logical operator that controls data flow (AND, OR, NOT). Gates are pure functions that combine boolean values.
+
+- **boolean**: A data type with only two possible values: true or false. Booleans are fundamental to conditional logic and functional programming.
+
+- **number**: A numeric data type for mathematical operations. In functional programming, numbers are immutable and operations return new values.
+
+- **string**: A sequence of characters representing text. Strings are immutable in most functional programming contexts.
+
+- **array**: An ordered collection of elements. Arrays are fundamental to functional programming for data transformation operations.
+
+- **object**: A collection of key-value pairs representing a real-world entity. In functional programming, objects should be immutable.
+
+- **method**: A function that belongs to an object or class. Methods can access the object's state and modify it (though this is avoided in functional programming).
+
+- **function**: A reusable block of code that takes inputs (parameters) and returns an output. In functional programming, functions should be pure - same input always produces same output with no side effects.
+
+- **type**: A classification of data that defines what operations can be performed on it. Types provide compile-time safety and documentation.
+
+- **argument**: The actual value passed to a function when it's called. Arguments are the concrete data that functions operate on.
+
+- **parameter**: The placeholder variable in a function definition that receives arguments. Parameters define the function's interface and expected input types.
+
+- **attribute**: A property or characteristic of an object. In functional programming, object attributes should be immutable to prevent side effects.
+
+- **return**: A statement that exits a function and provides a value back to the caller. Return values should be the only way functions communicate results.
+
+- **side effect**: Any change to the system outside the function (modifying global state, making API calls, logging). Pure functions avoid side effects.
+
+- **event**: A signal that something has happened in the system (user interaction, timer completion, data arrival). Events are the foundation of reactive programming.
+
+- **listener**: A function that waits for and responds to events. Listeners are pure functions that process event data without side effects.
+
+- **handler**: A function that processes a specific event or action. Handlers should be pure functions that transform input data into output data.
+
+- **callback**: A function passed as an argument to another function, to be executed later. Callbacks enable asynchronous programming and function composition.
+
+- **promise**: An object representing the eventual completion (or failure) of an asynchronous operation. Promises provide a clean way to handle async operations functionally.
+
+- **async/await**: Syntactic sugar for working with promises. Async functions return promises, and await pauses execution until a promise resolves.
+
+- **symbol**: A unique, immutable primitive value used as object property keys. Symbols provide a way to create truly private properties.
+
+- **null**: A special value representing the intentional absence of any object value. In functional programming, null is often replaced with Maybe/Option types.
+
+- **undefined**: A value assigned to variables that have been declared but not initialized. Undefined represents an unassigned value.
+
+- **NaN**: "Not a Number" - a special numeric value representing an undefined or unrepresentable mathematical result.
+
+- **interface**: A TypeScript construct that defines the shape of an object. Interfaces describe contracts that objects must fulfill.
+
+- **class**: A blueprint for creating objects with shared properties and methods. Classes are less common in functional programming, which prefers plain objects and functions.
+
+- **set**: A collection of unique values with no duplicates. Sets are useful for functional programming operations like union, intersection, and difference.
+
+- **loop**: A control structure that repeats code execution. In functional programming, loops are often replaced with higher-order functions like map, filter, and reduce.
+
+- **condition**: A boolean expression that determines program flow. Conditions are used in if statements and ternary operators.
+
+- **iteration**: The process of repeating a set of instructions. In functional programming, iteration is handled through recursion or higher-order functions.
+
+- **recursion**: A function calling itself to solve a problem by breaking it into smaller subproblems. Recursion is fundamental to functional programming.
