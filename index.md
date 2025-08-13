@@ -1,14 +1,18 @@
-# Functional Programming Lectures Index
+# Functional Programming Lectures
 
 ## Overview
-This series of lectures explores functional programming concepts from fundamentals to advanced applications in modern TypeScript development. The curriculum is designed with a **lean and modular approach**, emphasizing **separation of concerns** and **functional programming principles** throughout. As you progress, you'll learn how to build maintainable, scalable applications using pure functions, immutable data structures, and modern Redux architecture patterns.
+This series of lectures explores functional programming concepts from fundamentals to advanced applications in modern development. The curriculum is designed with a **lean and modular approach**, emphasizing **separation of concerns** and **functional programming principles** throughout. As you progress, you'll learn how to build maintainable, scalable applications using pure functions, immutable data structures, and modern state management (this is crucial) architecture patterns.
 
 **Key Learning Philosophy:**
 - **Functions for Everything**: Every concept is taught through the lens of pure functions
 - **Immutability First**: Learn to work with immutable data structures from day one
+- **Type Safety**: Learn to use TypeScript to its full potential
+- **Why side effects are bad**: Learn to avoid them at all costs
 - **Composition Over Complexity**: Build complex systems from simple, composable parts
 - **Redux Toolkit Priority**: RTK and RTK Query are the definitive choice for state management and data fetching
 - **Lean Architecture**: Focus on small, focused files with clear separation of concerns
+
+"All software design is composition: the act of breaking complex problems down into smaller problems and composing those solutions. Learn to do it well." - Eric Elliott
 
 ## Programming Glossary
 
