@@ -10,6 +10,80 @@ This series of lectures explores functional programming concepts from fundamenta
 - **Redux Toolkit Priority**: RTK and RTK Query are the definitive choice for state management and data fetching
 - **Lean Architecture**: Focus on small, focused files with clear separation of concerns
 
+## Programming Glossary
+
+- **variable**: A named container that stores a value. In functional programming, variables are often immutable (const) to prevent side effects and ensure referential transparency.
+
+- **function**: A reusable block of code that takes inputs (parameters) and returns an output. In functional programming, functions should be pure - same input always produces same output with no side effects.
+
+- **argument**: The actual value passed to a function when it's called. Arguments are the concrete data that functions operate on.
+
+- **parameter**: The placeholder variable in a function definition that receives arguments. Parameters define the function's interface and expected input types.
+
+- **expression**: A piece of code that produces a value. Expressions can be evaluated and always return a result (e.g., `2 + 3`, `Math.max(a, b)`, `user.name`).
+
+- **statement**: A complete instruction that performs an action. Statements don't return values but execute code (e.g., `if (condition) { ... }`, `return value;`, `const x = 5;`).
+
+- **declaration**: Code that introduces a new variable, function, or type into scope. Declarations create bindings but don't necessarily execute code.
+
+- **attribute**: A property or characteristic of an object. In functional programming, object attributes should be immutable to prevent side effects.
+
+- **method**: A function that belongs to an object or class. Methods can access the object's state and modify it (though this is avoided in functional programming).
+
+- **event**: A signal that something has happened in the system (user interaction, timer completion, data arrival). Events are the foundation of reactive programming.
+
+- **listener**: A function that waits for and responds to events. Listeners are pure functions that process event data without side effects.
+
+- **handler**: A function that processes a specific event or action. Handlers should be pure functions that transform input data into output data.
+
+- **callback**: A function passed as an argument to another function, to be executed later. Callbacks enable asynchronous programming and function composition.
+
+- **promise**: An object representing the eventual completion (or failure) of an asynchronous operation. Promises provide a clean way to handle async operations functionally.
+
+- **async/await**: Syntactic sugar for working with promises. Async functions return promises, and await pauses execution until a promise resolves.
+
+- **gate**: A logical operator that controls data flow (AND, OR, NOT). Gates are pure functions that combine boolean values.
+
+- **boolean**: A data type with only two possible values: true or false. Booleans are fundamental to conditional logic and functional programming.
+
+- **number**: A numeric data type for mathematical operations. In functional programming, numbers are immutable and operations return new values.
+
+- **string**: A sequence of characters representing text. Strings are immutable in most functional programming contexts.
+
+- **symbol**: A unique, immutable primitive value used as object property keys. Symbols provide a way to create truly private properties.
+
+- **null**: A special value representing the intentional absence of any object value. In functional programming, null is often replaced with Maybe/Option types.
+
+- **undefined**: A value assigned to variables that have been declared but not initialized. Undefined represents an unassigned value.
+
+- **NaN**: "Not a Number" - a special numeric value representing an undefined or unrepresentable mathematical result.
+
+- **assignment**: The process of storing a value in a variable. In functional programming, assignments are often avoided in favor of immutable declarations.
+
+- **type**: A classification of data that defines what operations can be performed on it. Types provide compile-time safety and documentation.
+
+- **interface**: A TypeScript construct that defines the shape of an object. Interfaces describe contracts that objects must fulfill.
+
+- **class**: A blueprint for creating objects with shared properties and methods. Classes are less common in functional programming, which prefers plain objects and functions.
+
+- **object**: A collection of key-value pairs representing a real-world entity. In functional programming, objects should be immutable.
+
+- **array**: An ordered collection of elements. Arrays are fundamental to functional programming for data transformation operations.
+
+- **set**: A collection of unique values with no duplicates. Sets are useful for functional programming operations like union, intersection, and difference.
+
+- **loop**: A control structure that repeats code execution. In functional programming, loops are often replaced with higher-order functions like map, filter, and reduce.
+
+- **condition**: A boolean expression that determines program flow. Conditions are used in if statements and ternary operators.
+
+- **iteration**: The process of repeating a set of instructions. In functional programming, iteration is handled through recursion or higher-order functions.
+
+- **recursion**: A function calling itself to solve a problem by breaking it into smaller subproblems. Recursion is fundamental to functional programming.
+
+- **return**: A statement that exits a function and provides a value back to the caller. Return values should be the only way functions communicate results.
+
+- **side effect**: Any change to the system outside the function (modifying global state, making API calls, logging). Pure functions avoid side effects.
+
 ## Learning Path
 1. **Fundamentals** (Beginner)
    - What is a function in TypeScript?
@@ -78,28 +152,94 @@ This lecture introduces the fundamental concept of functions in TypeScript and h
 function add(a: number, b: number): number {
   return a + b;
 }
+/**
+ * Calculates the sum of two numbers.
+ * @param a - The first number to add
+ * @param b - The second number to add
+ * @returns The sum of a and b
+ * 
+ * @example
+ * add(5, 7) // returns 12
+ * add(0, 0) // returns 0
+ * add(-3, 5) // returns 2
+ */
 
 // Function with optional parameters
 function greet(name: string, greeting: string = "Hello"): string {
   return `${greeting}, ${name}!`;
 }
+/**
+ * Creates a personalized greeting message.
+ * @param name - The name of the person to greet
+ * @param greeting - Optional greeting word (defaults to "Hello")
+ * @returns A formatted greeting string
+ * 
+ * @example
+ * greet("Alice") // returns "Hello, Alice!"
+ * greet("Bob", "Goodbye") // returns "Goodbye, Bob!"
+ * greet("World", "Hi") // returns "Hi, World!"
+ */
 
 // Function with rest parameters
 function sum(...numbers: number[]): number {
   return numbers.reduce((acc, num) => acc + num, 0);
 }
+/**
+ * Calculates the sum of all provided numbers.
+ * @param numbers - Variable number of numbers to sum
+ * @returns The total sum of all numbers (0 if no numbers provided)
+ * 
+ * @example
+ * sum(1, 2, 3) // returns 6
+ * sum(5) // returns 5
+ * sum() // returns 0
+ * sum(1, 2, 3, 4, 5) // returns 15
+ */
 ```
 
 ### Function Expressions
 ```typescript
 // Function expression with type annotation
 const multiply: (a: number, b: number) => number = (a, b) => a * b;
+/**
+ * Multiplies two numbers together.
+ * @param a - The first number to multiply
+ * @param b - The second number to multiply
+ * @returns The product of a and b
+ * 
+ * @example
+ * multiply(3, 4) // returns 12
+ * multiply(0, 5) // returns 0
+ * multiply(-2, 3) // returns -6
+ */
 
 // Arrow function with explicit types
 const divide = (a: number, b: number): number => a / b;
+/**
+ * Divides the first number by the second number.
+ * @param a - The dividend (number to be divided)
+ * @param b - The divisor (number to divide by)
+ * @returns The quotient of a divided by b (Infinity if b is 0)
+ * 
+ * @example
+ * divide(10, 2) // returns 5
+ * divide(15, 3) // returns 5
+ * divide(7, 2) // returns 3.5
+ * divide(5, 0) // returns Infinity
+ */
 
 // Function with generic types
 const identity = <T>(value: T): T => value;
+/**
+ * Returns the input value unchanged (identity function).
+ * @param value - Any value to return
+ * @returns The same value that was passed in
+ * 
+ * @example
+ * identity(5) // returns 5
+ * identity("hello") // returns "hello"
+ * identity([1, 2, 3]) // returns [1, 2, 3]
+ */
 ```
 
 ### Function Types
@@ -111,8 +251,35 @@ type Transformer<T, U> = (item: T) => U;
 
 // Using function types
 const add: BinaryOperation = (a, b) => a + b;
+/**
+ * Adds two numbers together.
+ * @param a - First number
+ * @param b - Second number
+ * @returns The sum of a and b
+ * 
+ * @example
+ * add(3, 7) // returns 10
+ */
 const isEven: Predicate<number> = (n) => n % 2 === 0;
+/**
+ * Checks if a number is even.
+ * @param n - The number to check
+ * @returns True if the number is even, false otherwise
+ * 
+ * @example
+ * isEven(4) // returns true
+ * isEven(7) // returns false
+ */
 const double: Transformer<number, number> = (n) => n * 2;
+/**
+ * Doubles a number by multiplying it by 2.
+ * @param n - The number to double
+ * @returns The number multiplied by 2
+ * 
+ * @example
+ * double(5) // returns 10
+ * double(0) // returns 0
+ */
 ```
 
 ## Pure Functions
@@ -121,11 +288,33 @@ const double: Transformer<number, number> = (n) => n * 2;
 ```typescript
 // ✅ Pure function - same input always produces same output
 const add = (a: number, b: number): number => a + b;
+/**
+ * Pure function that adds two numbers.
+ * Always returns the same result for the same inputs.
+ * @param a - First number to add
+ * @param b - Second number to add
+ * @returns The sum of a and b
+ * 
+ * @example
+ * add(2, 3) // returns 5
+ * add(2, 3) // returns 5 (same result every time)
+ */
 
 // ✅ Pure function - no side effects
 const formatName = (firstName: string, lastName: string): string => {
   return `${firstName} ${lastName}`.trim();
 };
+/**
+ * Formats a full name by combining first and last names.
+ * Trims whitespace and has no side effects.
+ * @param firstName - The person's first name
+ * @param lastName - The person's last name
+ * @returns The formatted full name with trimmed whitespace
+ * 
+ * @example
+ * formatName("John", "Doe") // returns "John Doe"
+ * formatName("  Jane  ", "  Smith  ") // returns "Jane Smith"
+ */
 
 // ❌ Impure function - depends on external state
 let total = 0;
@@ -179,6 +368,17 @@ const applyOperation = (
 ): number => {
   return operation(a, b);
 };
+/**
+ * Applies a binary operation function to two numbers.
+ * @param operation - The function to apply (e.g., add, multiply)
+ * @param a - First number
+ * @param b - Second number
+ * @returns The result of applying the operation to a and b
+ * 
+ * @example
+ * applyOperation(add, 5, 3) // returns 8
+ * applyOperation(multiply, 5, 3) // returns 15
+ */
 
 // Usage
 const add: BinaryOperation = (a, b) => a + b;
@@ -194,6 +394,15 @@ console.log(applyOperation(multiply, 5, 3)); // 15
 const createGreeter = (greeting: string) => {
   return (name: string): string => `${greeting}, ${name}!`;
 };
+/**
+ * Creates a greeting function with a specific greeting word.
+ * @param greeting - The greeting word to use (e.g., "Hello", "Goodbye")
+ * @returns A function that takes a name and returns a formatted greeting
+ * 
+ * @example
+ * createGreeter("Hello")("Alice") // returns "Hello, Alice!"
+ * createGreeter("Goodbye")("Bob") // returns "Goodbye, Bob!"
+ */
 
 const sayHello = createGreeter('Hello');
 const sayGoodbye = createGreeter('Goodbye');
@@ -213,6 +422,16 @@ const compose = <A, B, C>(
 ): (a: A) => C => {
   return (x: A) => f(g(x));
 };
+/**
+ * Composes two functions: f(g(x)).
+ * @param f - The outer function to apply
+ * @param g - The inner function to apply first
+ * @returns A new function that applies g then f
+ * 
+ * @example
+ * compose(multiplyByTwo, addOne)(5) // returns 12
+ * compose(toUpperCase, trim)("  hello  ") // returns "HELLO"
+ */
 
 const addOne = (x: number): number => x + 1;
 const multiplyByTwo = (x: number): number => x * 2;
@@ -227,6 +446,15 @@ console.log(addOneThenMultiply(5)); // 12
 const pipe = <T>(...fns: Array<(arg: T) => T>) => (x: T): T => {
   return fns.reduce((acc, fn) => fn(acc), x);
 };
+/**
+ * Creates a pipeline of functions that process data left to right.
+ * @param fns - Variable number of functions to compose
+ * @returns A new function that applies all functions in sequence
+ * 
+ * @example
+ * pipe(double, addOne, toString)(5) // returns "11"
+ * pipe(trim, toUpperCase)("  hello  ") // returns "HELLO"
+ */
 
 const processData = pipe(
   (x: number) => x * 2,
@@ -243,6 +471,15 @@ console.log(processData(5)); // "11"
 ```typescript
 // Manual currying
 const add = (a: number) => (b: number): number => a + b;
+/**
+ * Curried function that adds two numbers.
+ * @param a - First number to add
+ * @returns A function that takes the second number and returns the sum
+ * 
+ * @example
+ * add(5)(3) // returns 8
+ * add(10)(2) // returns 12
+ */
 const addFive = add(5);
 console.log(addFive(3)); // 8
 
@@ -374,6 +611,15 @@ This lecture demonstrates the simplest possible functional programming example i
 ```typescript
 // The simplest pure function
 const greet = (name: string): string => `Hello, ${name}!`;
+/**
+ * Simple greeting function that returns a personalized message.
+ * @param name - The name to greet
+ * @returns A greeting string with the provided name
+ * 
+ * @example
+ * greet("World") // returns "Hello, World!"
+ * greet("Alice") // returns "Hello, Alice!"
+ */
 
 // Usage
 console.log(greet('World')); // "Hello, World!"
@@ -403,12 +649,36 @@ console.log('Hello, World!'); // Same output
 ```typescript
 // Pure functions
 const toUpperCase = (str: string): string => str.toUpperCase();
+/**
+ * Converts a string to uppercase.
+ * @param str - The string to convert
+ * @returns The uppercase version of the string
+ * 
+ * @example
+ * toUpperCase("hello") // returns "HELLO"
+ */
 const addExclamation = (str: string): string => str + '!';
+/**
+ * Adds an exclamation mark to the end of a string.
+ * @param str - The string to modify
+ * @returns The string with an exclamation mark appended
+ * 
+ * @example
+ * addExclamation("Hello") // returns "Hello!"
+ */
 
 // Compose functions
 const shout = (name: string): string => {
   return addExclamation(toUpperCase(greet(name)));
 };
+/**
+ * Creates a shouted greeting by composing multiple functions.
+ * @param name - The name to shout at
+ * @returns An uppercase greeting with exclamation marks
+ * 
+ * @example
+ * shout("World") // returns "HELLO, WORLD!!"
+ */
 
 console.log(shout('World')); // "HELLO, WORLD!!"
 ```
@@ -438,13 +708,45 @@ console.log(shout('World')); // "HELLO, WORLD!!"
 ```typescript
 // Pure functions for data transformation
 const double = (n: number): number => n * 2;
+/**
+ * Multiplies a number by 2.
+ * @param n - The number to double
+ * @returns The number multiplied by 2
+ * 
+ * @example
+ * double(5) // returns 10
+ */
 const addOne = (n: number): number => n + 1;
+/**
+ * Adds 1 to a number.
+ * @param n - The number to increment
+ * @returns The number plus 1
+ * 
+ * @example
+ * addOne(10) // returns 11
+ */
 const toString = (n: number): string => n.toString();
+/**
+ * Converts a number to a string.
+ * @param n - The number to convert
+ * @returns The string representation of the number
+ * 
+ * @example
+ * toString(11) // returns "11"
+ */
 
 // Compose transformations
 const processNumber = (n: number): string => {
   return toString(addOne(double(n)));
 };
+/**
+ * Processes a number through a transformation pipeline.
+ * @param n - The number to process
+ * @returns The string result after doubling, adding one, and converting to string
+ * 
+ * @example
+ * processNumber(5) // returns "11"
+ */
 
 console.log(processNumber(5)); // "11"
 ```
@@ -460,11 +762,29 @@ console.log(doubled); // [2, 4, 6, 8, 10]
 
 // Filter even numbers
 const isEven = (n: number): boolean => n % 2 === 0;
+/**
+ * Checks if a number is even.
+ * @param n - The number to check
+ * @returns True if the number is even, false otherwise
+ * 
+ * @example
+ * isEven(2) // returns true
+ * isEven(3) // returns false
+ */
 const evens = numbers.filter(isEven);
 console.log(evens); // [2, 4]
 
 // Reduce to sum
 const sum = (acc: number, n: number): number => acc + n;
+/**
+ * Adds two numbers (used in reduce operations).
+ * @param acc - The accumulator value
+ * @param n - The current number to add
+ * @returns The sum of accumulator and current number
+ * 
+ * @example
+ * sum(10, 5) // returns 15
+ */
 const total = numbers.reduce(sum, 0);
 console.log(total); // 15
 ```
@@ -477,6 +797,16 @@ console.log(total); // 15
 const calculateArea = (width: number, height: number): number => {
   return width * height;
 };
+/**
+ * Calculates the area of a rectangle.
+ * @param width - The width of the rectangle
+ * @param height - The height of the rectangle
+ * @returns The area (width × height)
+ * 
+ * @example
+ * calculateArea(5, 3) // returns 15
+ * calculateArea(10, 2) // returns 20
+ */
 
 // ❌ Bad - Side effect (console.log)
 const calculateAreaWithLogging = (width: number, height: number): number => {
@@ -521,12 +851,38 @@ console.log('Process number tests:', testProcessNumber()); // true
 ```typescript
 // Pure functions for user name processing
 const trim = (str: string): string => str.trim();
+/**
+ * Removes whitespace from the beginning and end of a string.
+ * @param str - The string to trim
+ * @returns The string with leading and trailing whitespace removed
+ * 
+ * @example
+ * trim("  hello  ") // returns "hello"
+ */
 const capitalize = (str: string): string => 
   str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+/**
+ * Capitalizes the first letter and makes the rest lowercase.
+ * @param str - The string to capitalize
+ * @returns The string with first letter uppercase, rest lowercase
+ * 
+ * @example
+ * capitalize("hello") // returns "Hello"
+ * capitalize("WORLD") // returns "World"
+ */
 
 const formatName = (name: string): string => {
   return capitalize(trim(name));
 };
+/**
+ * Formats a name by trimming whitespace and capitalizing properly.
+ * @param name - The name to format
+ * @returns The properly formatted name
+ * 
+ * @example
+ * formatName("  alice  ") // returns "Alice"
+ * formatName("BOB") // returns "Bob"
+ */
 
 // Usage
 console.log(formatName('  alice  ')); // "Alice"
@@ -948,15 +1304,19 @@ This lecture explores how modern TypeScript features enhance functional programm
 const add = function(a: number, b: number): number {
   return a + b;
 };
+/// add(3, 4) returns 7
 
 // Arrow function
 const add = (a: number, b: number): number => a + b;
+/// add(3, 4) returns 7
 
 // Single parameter (parentheses optional)
 const double = (x: number): number => x * 2;
+/// double(5) returns 10
 
 // No parameters
 const getRandom = (): number => Math.random();
+/// getRandom() returns a random number between 0 and 1
 
 // Multiple statements
 const processUser = (user: any) => {
@@ -1115,6 +1475,9 @@ console.log(max); // 5
 const sum = (...numbers: number[]): number => {
   return numbers.reduce((sum, num) => sum + num, 0);
 };
+/// sum(1, 2, 3) returns 6
+/// sum(5) returns 5
+/// sum() returns 0
 
 console.log(sum(1, 2, 3, 4, 5)); // 15
 
@@ -1176,6 +1539,8 @@ const greet = (name: string) => {
 
 // Default parameters
 const greet = (name: string = 'Guest'): string => `Hello, ${name}!`;
+/// greet("Alice") returns "Hello, Alice!"
+/// greet() returns "Hello, Guest!"
 
 console.log(greet('Alice')); // "Hello, Alice!"
 console.log(greet()); // "Hello, Guest!"
@@ -1363,9 +1728,11 @@ This lecture explores how TypeScript enhances functional programming with type s
 ```typescript
 // Function type annotations
 const add: (a: number, b: number) => number = (a, b) => a + b;
+/// add(5, 3) returns 8
 
 // Arrow function with types
 const multiply = (a: number, b: number): number => a * b;
+/// multiply(4, 6) returns 24
 
 // Function type aliases
 type BinaryOperation = (a: number, b: number) => number;
@@ -1421,11 +1788,18 @@ const pipe: Pipe = (f, g) => (x) => g(f(x));
 ```typescript
 // Generic identity function
 const identity = <T>(value: T): T => value;
+/// identity(5) returns 5
+/// identity("hello") returns "hello"
 
 // Generic array operations
 const head = <T>(array: T[]): T | undefined => array[0];
+/// head([1, 2, 3]) returns 1
+/// head([]) returns undefined
 const tail = <T>(array: T[]): T[] => array.slice(1);
+/// tail([1, 2, 3]) returns [2, 3]
 const last = <T>(array: T[]): T | undefined => array[array.length - 1];
+/// last([1, 2, 3]) returns 3
+/// last([]) returns undefined
 
 // Usage
 const numbers = [1, 2, 3, 4, 5];
