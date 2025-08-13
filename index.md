@@ -76,7 +76,7 @@ This lecture demonstrates the simplest possible functional programming example i
 ## Learning Objectives
 - Write your first pure function in TypeScript
 - Understand function composition in practice
-- Learn to avoid side effects
+- Learn to avoid side effects - which causes bugs and can be hard to debug
 - Practice functional programming principles
 
 ## The Simplest Functional Program
