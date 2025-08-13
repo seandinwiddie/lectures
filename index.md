@@ -26,9 +26,9 @@ TypeScript will be the language of choice for this course.
 
 ## Learning Path
 1. **Fundamentals** (Beginner)
+   - The simplest FP TS Hello World
    - Basic TypeScript knowledge
    - What is a function?
-   - The simplest FP TS Hello World
    - Basic Functional Programming knowledge
    - ES6+ Features for Functional Programming
    - TypeScript and Functional Programming
@@ -63,6 +63,374 @@ TypeScript will be the language of choice for this course.
 - **No Consolidation**: Distribute business logic by feature rather than centralizing
 
 ## Lectures
+
+# The simplest FP TS Hello World
+
+## Overview
+**Difficulty:** Beginner  
+**Estimated Time:** 1 hour  
+**Prerequisites:** What is a function in TypeScript?
+
+This lecture demonstrates the simplest possible functional programming example in TypeScript - a pure function that processes data without side effects.
+
+## Learning Objectives
+- Write your first pure function in TypeScript
+- Understand function composition in practice
+- Learn to avoid side effects
+- Practice functional programming principles
+
+## The Simplest Functional Program
+
+### Pure Function Example
+```typescript
+// The simplest pure function
+const greet = (name: string): string => `Hello, ${name}!`;
+/**
+ * Simple greeting function that returns a personalized message.
+ * @param name - The name to greet
+ * @returns A greeting string with the provided name
+ * 
+ * @example
+ * greet("World") // returns "Hello, World!"
+ * greet("Alice") // returns "Hello, Alice!"
+ */
+
+// Usage
+console.log(greet('World')); // "Hello, World!"
+console.log(greet('Alice')); // "Hello, Alice!"
+```
+
+### Why This is Functional Programming
+```typescript
+// 1. Pure function - same input always produces same output
+console.log(greet('World')); // "Hello, World!"
+console.log(greet('World')); // "Hello, World!" (same result)
+
+// 2. No side effects - doesn't modify external state
+const name = 'Alice';
+const greeting = greet(name);
+console.log(name); // 'Alice' (unchanged)
+
+// 3. Referential transparency - can be replaced with its result
+const result = greet('World');
+console.log(result); // "Hello, World!"
+console.log('Hello, World!'); // Same output
+```
+
+## Function Composition Example
+
+### Simple Composition
+```typescript
+// Pure functions
+const toUpperCase = (str: string): string => str.toUpperCase();
+/**
+ * Converts a string to uppercase.
+ * @param str - The string to convert
+ * @returns The uppercase version of the string
+ * 
+ * @example
+ * toUpperCase("hello") // returns "HELLO"
+ */
+const addExclamation = (str: string): string => str + '!';
+/**
+ * Adds an exclamation mark to the end of a string.
+ * @param str - The string to modify
+ * @returns The string with an exclamation mark appended
+ * 
+ * @example
+ * addExclamation("Hello") // returns "Hello!"
+ */
+
+// Compose functions
+const shout = (name: string): string => {
+  return addExclamation(toUpperCase(greet(name)));
+};
+/**
+ * Creates a shouted greeting by composing multiple functions.
+ * @param name - The name to shout at
+ * @returns An uppercase greeting with exclamation marks
+ * 
+ * @example
+ * shout("World") // returns "HELLO, WORLD!!"
+ */
+
+console.log(shout('World')); // "HELLO, WORLD!!"
+```
+
+### Using Composition Utility
+```typescript
+// Composition utility
+const compose = <A, B, C>(
+  f: (b: B) => C, 
+  g: (a: A) => B
+): (a: A) => C => {
+  return (x: A) => f(g(x));
+};
+
+// Compose multiple functions
+const shout = compose(
+  addExclamation,
+  compose(toUpperCase, greet)
+);
+
+console.log(shout('World')); // "HELLO, WORLD!!"
+```
+
+## Data Transformation Example
+
+### Simple Data Processing
+```typescript
+// Pure functions for data transformation
+const double = (n: number): number => n * 2;
+/**
+ * Multiplies a number by 2.
+ * @param n - The number to double
+ * @returns The number multiplied by 2
+ * 
+ * @example
+ * double(5) // returns 10
+ */
+const addOne = (n: number): number => n + 1;
+/**
+ * Adds 1 to a number.
+ * @param n - The number to increment
+ * @returns The number plus 1
+ * 
+ * @example
+ * addOne(10) // returns 11
+ */
+const toString = (n: number): string => n.toString();
+/**
+ * Converts a number to a string.
+ * @param n - The number to convert
+ * @returns The string representation of the number
+ * 
+ * @example
+ * toString(11) // returns "11"
+ */
+
+// Compose transformations
+const processNumber = (n: number): string => {
+  return toString(addOne(double(n)));
+};
+/**
+ * Processes a number through a transformation pipeline.
+ * @param n - The number to process
+ * @returns The string result after doubling, adding one, and converting to string
+ * 
+ * @example
+ * processNumber(5) // returns "11"
+ */
+
+console.log(processNumber(5)); // "11"
+```
+
+### Array Processing
+```typescript
+// Pure functions for array processing
+const numbers = [1, 2, 3, 4, 5];
+
+// Transform each number
+const doubled = numbers.map(double);
+console.log(doubled); // [2, 4, 6, 8, 10]
+
+// Filter even numbers
+const isEven = (n: number): boolean => n % 2 === 0;
+/**
+ * Checks if a number is even.
+ * @param n - The number to check
+ * @returns True if the number is even, false otherwise
+ * 
+ * @example
+ * isEven(2) // returns true
+ * isEven(3) // returns false
+ */
+const evens = numbers.filter(isEven);
+console.log(evens); // [2, 4]
+
+// Reduce to sum
+const sum = (acc: number, n: number): number => acc + n;
+/**
+ * Adds two numbers (used in reduce operations).
+ * @param acc - The accumulator value
+ * @param n - The current number to add
+ * @returns The sum of accumulator and current number
+ * 
+ * @example
+ * sum(10, 5) // returns 15
+ */
+const total = numbers.reduce(sum, 0);
+console.log(total); // 15
+```
+
+## Avoiding Side Effects
+
+### Good vs Bad Examples
+```typescript
+// ✅ Good - Pure function
+const calculateArea = (width: number, height: number): number => {
+  return width * height;
+};
+/**
+ * Calculates the area of a rectangle.
+ * @param width - The width of the rectangle
+ * @param height - The height of the rectangle
+ * @returns The area (width × height)
+ * 
+ * @example
+ * calculateArea(5, 3) // returns 15
+ * calculateArea(10, 2) // returns 20
+ */
+
+// ❌ Bad - Side effect (console.log)
+const calculateAreaWithLogging = (width: number, height: number): number => {
+  const area = width * height;
+  console.log(`Area calculated: ${area}`); // Side effect
+  return area;
+};
+
+// ❌ Bad - Mutates external state
+let totalArea = 0;
+const calculateAndStoreArea = (width: number, height: number): number => {
+  const area = width * height;
+  totalArea += area; // Side effect: mutation
+  return area;
+};
+```
+
+## Testing Pure Functions
+
+### Simple Testing
+```typescript
+// Pure functions are easy to test
+const testGreet = (): boolean => {
+  return greet('World') === 'Hello, World!' &&
+         greet('Alice') === 'Hello, Alice!' &&
+         greet('') === 'Hello, !';
+};
+
+const testProcessNumber = (): boolean => {
+  return processNumber(5) === '11' &&
+         processNumber(0) === '1' &&
+         processNumber(10) === '21';
+};
+
+console.log('Greet tests:', testGreet()); // true
+console.log('Process number tests:', testProcessNumber()); // true
+```
+
+## Real-World Simple Example
+
+### User Name Processing
+```typescript
+// Pure functions for user name processing
+const trim = (str: string): string => str.trim();
+/**
+ * Removes whitespace from the beginning and end of a string.
+ * @param str - The string to trim
+ * @returns The string with leading and trailing whitespace removed
+ * 
+ * @example
+ * trim("  hello  ") // returns "hello"
+ */
+const capitalize = (str: string): string => 
+  str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+/**
+ * Capitalizes the first letter and makes the rest lowercase.
+ * @param str - The string to capitalize
+ * @returns The string with first letter uppercase, rest lowercase
+ * 
+ * @example
+ * capitalize("hello") // returns "Hello"
+ * capitalize("WORLD") // returns "World"
+ */
+
+const formatName = (name: string): string => {
+  return capitalize(trim(name));
+};
+/**
+ * Formats a name by trimming whitespace and capitalizing properly.
+ * @param name - The name to format
+ * @returns The properly formatted name
+ * 
+ * @example
+ * formatName("  alice  ") // returns "Alice"
+ * formatName("BOB") // returns "Bob"
+ */
+
+// Usage
+console.log(formatName('  alice  ')); // "Alice"
+console.log(formatName('BOB')); // "Bob"
+console.log(formatName('charlie')); // "Charlie"
+```
+
+### Configuration Builder
+```typescript
+// Pure function for building configuration
+interface AppConfig {
+  name: string;
+  version: string;
+  debug: boolean;
+}
+
+const createConfig = (
+  name: string, 
+  version: string, 
+  debug: boolean = false
+): AppConfig => {
+  return { name, version, debug };
+};
+
+const validateConfig = (config: AppConfig): AppConfig => {
+  if (!config.name) throw new Error('Name is required');
+  if (!config.version) throw new Error('Version is required');
+  return config;
+};
+
+const buildConfig = (name: string, version: string): AppConfig => {
+  return validateConfig(createConfig(name, version));
+};
+
+// Usage
+const config = buildConfig('MyApp', '1.0.0');
+console.log(config); // { name: 'MyApp', version: '1.0.0', debug: false }
+```
+
+## Key Takeaways
+
+### 1. Start Simple
+- Begin with pure functions that have no side effects
+- Focus on input → output transformations
+- Keep functions small and focused
+
+### 2. Composition Over Complexity
+- Build complex behavior from simple functions
+- Use composition to combine functions
+- Avoid deeply nested logic
+
+### 3. Immutability
+- Never modify input parameters
+- Return new values instead of modifying existing ones
+- Use const for variables that shouldn't change
+
+### 4. Testing
+- Pure functions are easy to test
+- Same input always produces same output
+- No need to mock external dependencies
+
+## Exercise
+Create a simple functional program that:
+1. Takes a list of numbers
+2. Filters out negative numbers
+3. Doubles the remaining numbers
+4. Sums the results
+5. Returns the final sum
+
+Make sure all functions are pure and compose them together.
+
+## Resources
+- [Functional Programming Fundamentals](https://www.freecodecamp.org/news/functional-programming-in-javascript/)
+- [Pure Functions](https://www.sitepoint.com/functional-programming-pure-functions/)
 
 # Basic TypeScript knowledge
 
@@ -723,374 +1091,6 @@ Create a type-safe function library that includes:
 ## Resources
 - [TypeScript Functions](https://www.typescriptlang.org/docs/handbook/functions.html)
 - [Functional Programming in TypeScript](https://github.com/gcanti/fp-ts)
-
-# The simplest FP TS Hello World
-
-## Overview
-**Difficulty:** Beginner  
-**Estimated Time:** 1 hour  
-**Prerequisites:** What is a function in TypeScript?
-
-This lecture demonstrates the simplest possible functional programming example in TypeScript - a pure function that processes data without side effects.
-
-## Learning Objectives
-- Write your first pure function in TypeScript
-- Understand function composition in practice
-- Learn to avoid side effects
-- Practice functional programming principles
-
-## The Simplest Functional Program
-
-### Pure Function Example
-```typescript
-// The simplest pure function
-const greet = (name: string): string => `Hello, ${name}!`;
-/**
- * Simple greeting function that returns a personalized message.
- * @param name - The name to greet
- * @returns A greeting string with the provided name
- * 
- * @example
- * greet("World") // returns "Hello, World!"
- * greet("Alice") // returns "Hello, Alice!"
- */
-
-// Usage
-console.log(greet('World')); // "Hello, World!"
-console.log(greet('Alice')); // "Hello, Alice!"
-```
-
-### Why This is Functional Programming
-```typescript
-// 1. Pure function - same input always produces same output
-console.log(greet('World')); // "Hello, World!"
-console.log(greet('World')); // "Hello, World!" (same result)
-
-// 2. No side effects - doesn't modify external state
-const name = 'Alice';
-const greeting = greet(name);
-console.log(name); // 'Alice' (unchanged)
-
-// 3. Referential transparency - can be replaced with its result
-const result = greet('World');
-console.log(result); // "Hello, World!"
-console.log('Hello, World!'); // Same output
-```
-
-## Function Composition Example
-
-### Simple Composition
-```typescript
-// Pure functions
-const toUpperCase = (str: string): string => str.toUpperCase();
-/**
- * Converts a string to uppercase.
- * @param str - The string to convert
- * @returns The uppercase version of the string
- * 
- * @example
- * toUpperCase("hello") // returns "HELLO"
- */
-const addExclamation = (str: string): string => str + '!';
-/**
- * Adds an exclamation mark to the end of a string.
- * @param str - The string to modify
- * @returns The string with an exclamation mark appended
- * 
- * @example
- * addExclamation("Hello") // returns "Hello!"
- */
-
-// Compose functions
-const shout = (name: string): string => {
-  return addExclamation(toUpperCase(greet(name)));
-};
-/**
- * Creates a shouted greeting by composing multiple functions.
- * @param name - The name to shout at
- * @returns An uppercase greeting with exclamation marks
- * 
- * @example
- * shout("World") // returns "HELLO, WORLD!!"
- */
-
-console.log(shout('World')); // "HELLO, WORLD!!"
-```
-
-### Using Composition Utility
-```typescript
-// Composition utility
-const compose = <A, B, C>(
-  f: (b: B) => C, 
-  g: (a: A) => B
-): (a: A) => C => {
-  return (x: A) => f(g(x));
-};
-
-// Compose multiple functions
-const shout = compose(
-  addExclamation,
-  compose(toUpperCase, greet)
-);
-
-console.log(shout('World')); // "HELLO, WORLD!!"
-```
-
-## Data Transformation Example
-
-### Simple Data Processing
-```typescript
-// Pure functions for data transformation
-const double = (n: number): number => n * 2;
-/**
- * Multiplies a number by 2.
- * @param n - The number to double
- * @returns The number multiplied by 2
- * 
- * @example
- * double(5) // returns 10
- */
-const addOne = (n: number): number => n + 1;
-/**
- * Adds 1 to a number.
- * @param n - The number to increment
- * @returns The number plus 1
- * 
- * @example
- * addOne(10) // returns 11
- */
-const toString = (n: number): string => n.toString();
-/**
- * Converts a number to a string.
- * @param n - The number to convert
- * @returns The string representation of the number
- * 
- * @example
- * toString(11) // returns "11"
- */
-
-// Compose transformations
-const processNumber = (n: number): string => {
-  return toString(addOne(double(n)));
-};
-/**
- * Processes a number through a transformation pipeline.
- * @param n - The number to process
- * @returns The string result after doubling, adding one, and converting to string
- * 
- * @example
- * processNumber(5) // returns "11"
- */
-
-console.log(processNumber(5)); // "11"
-```
-
-### Array Processing
-```typescript
-// Pure functions for array processing
-const numbers = [1, 2, 3, 4, 5];
-
-// Transform each number
-const doubled = numbers.map(double);
-console.log(doubled); // [2, 4, 6, 8, 10]
-
-// Filter even numbers
-const isEven = (n: number): boolean => n % 2 === 0;
-/**
- * Checks if a number is even.
- * @param n - The number to check
- * @returns True if the number is even, false otherwise
- * 
- * @example
- * isEven(2) // returns true
- * isEven(3) // returns false
- */
-const evens = numbers.filter(isEven);
-console.log(evens); // [2, 4]
-
-// Reduce to sum
-const sum = (acc: number, n: number): number => acc + n;
-/**
- * Adds two numbers (used in reduce operations).
- * @param acc - The accumulator value
- * @param n - The current number to add
- * @returns The sum of accumulator and current number
- * 
- * @example
- * sum(10, 5) // returns 15
- */
-const total = numbers.reduce(sum, 0);
-console.log(total); // 15
-```
-
-## Avoiding Side Effects
-
-### Good vs Bad Examples
-```typescript
-// ✅ Good - Pure function
-const calculateArea = (width: number, height: number): number => {
-  return width * height;
-};
-/**
- * Calculates the area of a rectangle.
- * @param width - The width of the rectangle
- * @param height - The height of the rectangle
- * @returns The area (width × height)
- * 
- * @example
- * calculateArea(5, 3) // returns 15
- * calculateArea(10, 2) // returns 20
- */
-
-// ❌ Bad - Side effect (console.log)
-const calculateAreaWithLogging = (width: number, height: number): number => {
-  const area = width * height;
-  console.log(`Area calculated: ${area}`); // Side effect
-  return area;
-};
-
-// ❌ Bad - Mutates external state
-let totalArea = 0;
-const calculateAndStoreArea = (width: number, height: number): number => {
-  const area = width * height;
-  totalArea += area; // Side effect: mutation
-  return area;
-};
-```
-
-## Testing Pure Functions
-
-### Simple Testing
-```typescript
-// Pure functions are easy to test
-const testGreet = (): boolean => {
-  return greet('World') === 'Hello, World!' &&
-         greet('Alice') === 'Hello, Alice!' &&
-         greet('') === 'Hello, !';
-};
-
-const testProcessNumber = (): boolean => {
-  return processNumber(5) === '11' &&
-         processNumber(0) === '1' &&
-         processNumber(10) === '21';
-};
-
-console.log('Greet tests:', testGreet()); // true
-console.log('Process number tests:', testProcessNumber()); // true
-```
-
-## Real-World Simple Example
-
-### User Name Processing
-```typescript
-// Pure functions for user name processing
-const trim = (str: string): string => str.trim();
-/**
- * Removes whitespace from the beginning and end of a string.
- * @param str - The string to trim
- * @returns The string with leading and trailing whitespace removed
- * 
- * @example
- * trim("  hello  ") // returns "hello"
- */
-const capitalize = (str: string): string => 
-  str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-/**
- * Capitalizes the first letter and makes the rest lowercase.
- * @param str - The string to capitalize
- * @returns The string with first letter uppercase, rest lowercase
- * 
- * @example
- * capitalize("hello") // returns "Hello"
- * capitalize("WORLD") // returns "World"
- */
-
-const formatName = (name: string): string => {
-  return capitalize(trim(name));
-};
-/**
- * Formats a name by trimming whitespace and capitalizing properly.
- * @param name - The name to format
- * @returns The properly formatted name
- * 
- * @example
- * formatName("  alice  ") // returns "Alice"
- * formatName("BOB") // returns "Bob"
- */
-
-// Usage
-console.log(formatName('  alice  ')); // "Alice"
-console.log(formatName('BOB')); // "Bob"
-console.log(formatName('charlie')); // "Charlie"
-```
-
-### Configuration Builder
-```typescript
-// Pure function for building configuration
-interface AppConfig {
-  name: string;
-  version: string;
-  debug: boolean;
-}
-
-const createConfig = (
-  name: string, 
-  version: string, 
-  debug: boolean = false
-): AppConfig => {
-  return { name, version, debug };
-};
-
-const validateConfig = (config: AppConfig): AppConfig => {
-  if (!config.name) throw new Error('Name is required');
-  if (!config.version) throw new Error('Version is required');
-  return config;
-};
-
-const buildConfig = (name: string, version: string): AppConfig => {
-  return validateConfig(createConfig(name, version));
-};
-
-// Usage
-const config = buildConfig('MyApp', '1.0.0');
-console.log(config); // { name: 'MyApp', version: '1.0.0', debug: false }
-```
-
-## Key Takeaways
-
-### 1. Start Simple
-- Begin with pure functions that have no side effects
-- Focus on input → output transformations
-- Keep functions small and focused
-
-### 2. Composition Over Complexity
-- Build complex behavior from simple functions
-- Use composition to combine functions
-- Avoid deeply nested logic
-
-### 3. Immutability
-- Never modify input parameters
-- Return new values instead of modifying existing ones
-- Use const for variables that shouldn't change
-
-### 4. Testing
-- Pure functions are easy to test
-- Same input always produces same output
-- No need to mock external dependencies
-
-## Exercise
-Create a simple functional program that:
-1. Takes a list of numbers
-2. Filters out negative numbers
-3. Doubles the remaining numbers
-4. Sums the results
-5. Returns the final sum
-
-Make sure all functions are pure and compose them together.
-
-## Resources
-- [Functional Programming Fundamentals](https://www.freecodecamp.org/news/functional-programming-in-javascript/)
-- [Pure Functions](https://www.sitepoint.com/functional-programming-pure-functions/)
 
 # Basic Functional Programming TypeScript Knowledge
 
