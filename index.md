@@ -75,7 +75,7 @@ This lecture gives you just enough TypeScript to move comfortably through the re
 
 ## Why This Matters for Functional Programming
 - **Type safety enables refactoring**: Strong types make it safe to compose many small functions.
-- **Purity and immutability**: Types help prevent accidental mutation and side effects.
+- **Purity and immutability**: Types help prevent accidental mutation and side effects - the leading cause of bugs.
 - **Precise function signatures**: Communicate intent and make composition predictable.
 
 ## Learning Objectives
