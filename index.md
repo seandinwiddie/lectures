@@ -104,6 +104,8 @@ This lecture gives you just enough TypeScript to move comfortably through the re
 ## Core Concepts
 
 ### Types and Annotations
+
+Think of types as labels that tell TypeScript what kind of data something is. You can be explicit about types (like `const name: string = "Alice"`) or let TypeScript figure it out automatically. In functional programming, we often use `readonly` to make sure data doesn't get changed accidentally. Literal types (like `"light" | "dark"`) are great for things that can only have a few specific values.
 ```typescript
 // Basic type annotations for variables
 const appName: string = "FP Lectures";
@@ -116,6 +118,8 @@ const defaultMode: Mode = "light";
 ```
 
 ### Type Inference
+
+TypeScript is smart! It can often figure out what type something should be without you telling it. For example, if you write `const count = 5`, TypeScript knows it's a number. This keeps your code shorter and cleaner. You only need to add type annotations when TypeScript can't figure it out or when you want to be extra clear about what something should be.
 ```typescript
 // TypeScript automatically infers types from initializers
 const maxRetries = 3; // TypeScript infers this as number
@@ -135,6 +139,8 @@ function toUpper(message: string) {
 ```
 
 ### Interfaces and Type Aliases
+
+Both `interface` and `type` let you define what an object should look like. Think of them as blueprints. `interface` is good when you might want to add more properties later (like in libraries), while `type` is great for combining different types together. The cool thing about TypeScript is that it cares about the shape of your data, not what you call it - so if two objects have the same properties, they're compatible!
 ```typescript
 // Interface defines the shape of an object
 interface User {
@@ -153,6 +159,8 @@ const point: Coordinates = { x: 10, y: 20 };
 ```
 
 ### Unions, Intersections, and Narrowing
+
+A union type means "this could be one of several different things" - like a result that could be loading, success, or an error. Before you can use the specific properties of each type, you need to check which one you have (this is called "narrowing"). Intersections let you combine different types together, like mixing in extra properties to an existing type.
 ```typescript
 // Union types represent one of several possible types
 type Loading = { status: "loading" };
@@ -184,6 +192,8 @@ type Identified<T> = T & { id: string };
 ```
 
 ### Type Guards and Predicates
+
+Sometimes you need to check what type something is at runtime (when your code is actually running). Type guards are special functions that help TypeScript understand what type something is after you check it. They're like giving TypeScript a hint: "Hey, I just checked this, and now I know it's definitely a cat, not just any animal."
 ```typescript
 // Union type with different animal kinds - each has specific properties
 type Animal = { kind: "cat"; meow: () => string } | { kind: "dog"; bark: () => string };
@@ -218,6 +228,8 @@ function speak(animal: Animal): string {
 ```
 
 ### Function Types and Higher-Order Functions
+
+In functional programming, functions are treated just like any other data - you can pass them around, store them in variables, and return them from other functions. `ReadonlyArray` is a special type that tells TypeScript "this array shouldn't be changed" - it helps prevent bugs by making sure you don't accidentally modify your data. Functions like `map` and `filter` let you transform data without changing the original.
 ```typescript
 // Function type alias for binary operations
 type Binary = (a: number, b: number) => number;
@@ -244,6 +256,8 @@ function map<A, B>(items: ReadonlyArray<A>, f: (a: A) => B): B[] {
 ```
 
 ### Generics Basics
+
+Generics are like templates that work with different types. Instead of writing the same function multiple times for different types (like one for numbers, one for strings), you write it once and it works with whatever type you give it. The `extends` keyword lets you say "this generic type must have certain properties" - like saying "this function works with any object that has an `id` property."
 ```typescript
 /**
  * Generic function that returns the first element of an array.
@@ -280,6 +294,8 @@ function indexById<T extends HasId>(items: ReadonlyArray<T>): Record<string, T> 
 ```
 
 ### Arrays, Tuples, and Readonly
+
+Arrays are lists of things, and `ReadonlyArray` is a special kind that can't be changed - this helps prevent bugs! Tuples are like arrays but with a fixed number of items, each with a specific type (like RGB colors: red, green, blue). For most things, regular objects with named properties are easier to read than long tuples.
 ```typescript
 // Array syntax variations - both are equivalent
 const xs: number[] = [1, 2, 3];
@@ -305,6 +321,8 @@ function total(values: ReadonlyArray<number>): number {
 ```
 
 ### Enums vs. `as const`
+
+Instead of using enums (which create extra objects in your code), you can use `as const` with regular objects. This gives you the same benefits - a set of specific values you can choose from - but without the extra overhead. When you use these with `switch` statements, TypeScript can make sure you've handled all the possible cases.
 ```typescript
 // Prefer union literals via as const for portability/tree-shaking
 // This creates a readonly object with literal types
@@ -338,6 +356,8 @@ function next(s: Status): Status {
 ```
 
 ### Modules and Imports
+
+Modules help you organize your code by splitting it into separate files. Each file can export functions, types, or other things that other files can import and use. It's good practice to keep each file focused on one main idea. When you only need to import types (not actual code), you can use `import type` to keep your final code smaller.
 ```typescript
 // utils/math.ts - Export a function from a module
 export const multiply = (a: number, b: number): number => a * b;
@@ -348,6 +368,8 @@ const area = multiply(3, 4);
 ```
 
 ### Strictness Essentials (`tsconfig.json`)
+
+TypeScript has different levels of strictness you can turn on. The stricter you make it, the more bugs it can catch before your code even runs! Start with `strict: true` and add more options as you get comfortable. These settings help TypeScript find problems like accessing properties that might not exist or forgetting to handle certain cases.
 ```json
 {
   "compilerOptions": {
@@ -364,6 +386,8 @@ const area = multiply(3, 4);
 }
 ```
 
+If you're adding strictness to an existing project, turn on options one at a time and fix any problems that come up. Start with the basic `strict` setting, then add more specific ones as you get used to them.
+
 ## Practice
 - Type a `map` and `filter` pair operating on `ReadonlyArray<number>` without mutation
 - Define a `Result<T>` union for a fetch operation and write a function to render it
@@ -373,6 +397,8 @@ const area = multiply(3, 4);
 - Can you choose between `interface` and `type` and explain why?
 - Can you write a user-defined type guard and use it to narrow a union?
 - Can you write a generic function with a constraint and explain its benefit?
+- Can you explain why `ReadonlyArray` parameters help prevent bugs?
+- Can you show a `switch` statement that handles all possible cases of a union type?
 
 # What is a function?
 
