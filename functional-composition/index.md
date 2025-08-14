@@ -5,6 +5,8 @@ This lecture explores advanced function composition techniques in functional pro
 ## Composition Fundamentals
 
 ### Mathematical Composition
+
+Function composition is like connecting pipes - you take the output of one function and feed it into another function. The `compose` function does this automatically. Think of it like a math problem: if you have f(x) and g(x), composition gives you f(g(x)). The functions are applied from right to left, so in the example, we add one first, then multiply by two.
 ```typescript
 // Mathematical composition: f ∘ g (f composed with g)
 const compose = <A, B, C>(f: (b: B) => C, g: (a: A) => B) => (x: A): C => f(g(x));
@@ -17,6 +19,8 @@ console.log(addOneThenMultiply(5)); // 12
 ```
 
 ### Pipeline Composition
+
+Pipeline composition does the same thing as mathematical composition, but it reads more naturally from left to right, like reading English. Instead of right-to-left like `compose`, `pipe` applies functions in the order you write them. This makes complex data processing easier to read and understand, especially when you have many steps in your pipeline.
 ```typescript
 // Pipeline: data flows left to right
 const pipe = <A, B, C>(f: (a: A) => B, g: (b: B) => C) => (x: A): C => g(f(x));
@@ -33,6 +37,8 @@ console.log(processData(5)); // "11"
 ## Advanced Composition Patterns
 
 ### Point-Free Style
+
+Point-free style means writing functions without explicitly mentioning their parameters. Instead of writing `(users) => users.filter(...)`, you can write just `filter(...)`. This makes your code more concise and focuses on what the functions do rather than what they're called. It's like writing poetry - you focus on the meaning, not the mechanics.
 ```typescript
 // Point-free: functions without explicit parameters
 const map = <A, B>(f: (a: A) => B) => (xs: A[]) => xs.map(f);
@@ -45,6 +51,8 @@ const getActiveUserNames = pipe(
 ```
 
 ### Composition with Error Handling
+
+When you're composing functions, sometimes one of them might fail or return null. Safe composition handles these cases gracefully by checking if the intermediate result is valid before passing it to the next function. This prevents your pipeline from crashing when something goes wrong, making your code more robust and reliable.
 ```typescript
 // Safe composition with error handling
 const safeCompose = <A, B, C>(
@@ -59,6 +67,8 @@ const safeCompose = <A, B, C>(
 ## Real-World Applications
 
 ### Data Processing Pipeline
+
+This example shows how function composition works in real applications. We start with a list of users, filter out the inactive ones, extract just their names, and then sort them alphabetically. Each step is a simple function, but when we compose them together, we get a powerful data processing pipeline. This is a common pattern in functional programming for transforming data step by step.
 ```typescript
 interface User {
   name: string;
