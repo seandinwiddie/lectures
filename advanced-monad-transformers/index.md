@@ -4,9 +4,11 @@ This lecture explores monad transformers for combining multiple monadic effects.
 
 ## What are Monad Transformers?
 
-Monad transformers allow you to stack multiple monadic effects together, providing a way to handle complex scenarios with multiple types of side effects.
+Monad transformers are like stacking boxes inside other boxes - they let you combine different types of monadic effects together. For example, you might want to handle both async operations (like API calls) and optional values (like Maybe) at the same time. Transformers give you a way to work with multiple effects in a clean, predictable way.
 
 ### MaybeT Transformer
+
+The MaybeT transformer combines the Maybe monad (for optional values) with another monad. It's like putting a Maybe box inside another type of box. This is useful when you have operations that are both async (like API calls) and might fail (returning nothing). The transformer handles both effects together, so you don't have to nest them manually.
 ```typescript
 class MaybeT<M, T> {
   constructor(private runMaybeT: M) {}
@@ -28,6 +30,8 @@ class MaybeT<M, T> {
 ```
 
 ### EitherT Transformer
+
+The EitherT transformer combines the Either monad (for success/error handling) with another monad. It's like putting an Either box inside another type of box. This is perfect for async operations that might fail with specific error messages. Instead of handling async errors and Either errors separately, the transformer handles both together in a unified way.
 ```typescript
 class EitherT<M, L, R> {
   constructor(private runEitherT: M) {}
@@ -51,6 +55,8 @@ class EitherT<M, L, R> {
 ## Combining Effects
 
 ### Async + Maybe
+
+This example shows how to combine async operations with optional values. The `fetchUser` function makes an API call that might fail (returning nothing), and the `processUser` function safely extracts the user's name if the user exists. This pattern is common when working with APIs where data might not exist or the request might fail.
 ```typescript
 // Combining async operations with optional values
 const fetchUser = async (id: number): Promise<Maybe<User>> => {
@@ -74,6 +80,8 @@ const processUser = async (id: number): Promise<Maybe<string>> => {
 ```
 
 ### Async + Either
+
+This example shows how to combine async operations with error handling. The `fetchUser` function makes an API call and returns either a user or a specific error message, and the `processUser` function safely extracts the user's name if the operation succeeds. This gives you detailed error information instead of just knowing that something failed.
 ```typescript
 // Combining async operations with error handling
 const fetchUser = async (id: number): Promise<Either<string, User>> => {
@@ -99,6 +107,8 @@ const processUser = async (id: number): Promise<Either<string, string>> => {
 ## Real-World Applications
 
 ### Database Operations with Error Handling
+
+This example shows how monad transformers work in real applications with database operations. Each function (`findUser`, `updateUser`) handles both async operations and potential errors, returning detailed error information when things go wrong. The `processUserUpdate` function chains these operations together safely, handling errors at each step and providing meaningful error messages for debugging.
 ```typescript
 interface DatabaseError {
   code: string;
