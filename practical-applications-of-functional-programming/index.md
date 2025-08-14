@@ -5,6 +5,8 @@ This lecture explores real-world applications of functional programming principl
 ## Web Development
 
 ### React with Functional Components
+
+React's functional components are perfect for functional programming because they're pure functions that take props and return JSX. Higher-order components (HOCs) are functions that take a component and return a new component with additional functionality. This pattern lets you add features like data fetching without changing the original component, keeping your code modular and testable.
 ```typescript
 import React from 'react';
 
@@ -37,6 +39,8 @@ const UserCardWithData = withUserData(UserCard);
 ```
 
 ### State Management with Redux Toolkit
+
+Redux Toolkit makes state management much simpler while maintaining functional programming principles. The `createSlice` function automatically generates action creators and reducers, reducing boilerplate code. Even though the code looks like it's mutating state, Redux Toolkit uses Immer behind the scenes to ensure immutability, giving you the safety of functional programming with the simplicity of "mutable" syntax.
 ```typescript
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
@@ -69,6 +73,8 @@ export default todoSlice.reducer;
 ## Data Processing
 
 ### ETL Pipeline
+
+ETL (Extract, Transform, Load) pipelines are perfect for functional programming because they're just a series of data transformations. Each step is a pure function that takes data and returns transformed data. The `pipe` function chains these transformations together, and the `Either` type handles errors gracefully without throwing exceptions. This makes data processing predictable and easy to test.
 ```typescript
 interface RawData {
   id: string;
@@ -116,6 +122,8 @@ const processBatch = (rawData: RawData[]): ProcessedData[] => {
 ```
 
 ### API Client with Error Handling
+
+API clients benefit greatly from functional programming because they deal with uncertainty - network requests can fail, servers can be down, or data might be malformed. The `Either` type lets you handle these cases explicitly instead of throwing exceptions. Each method returns either a success value or an error message, making error handling predictable and forcing you to consider both cases.
 ```typescript
 class ApiClient {
   private async request<T>(url: string, options?: RequestInit): Promise<Either<string, T>> {
@@ -148,6 +156,8 @@ class ApiClient {
 ## Testing
 
 ### Property-Based Testing
+
+Property-based testing is perfect for functional programming because it tests the mathematical properties of your functions rather than specific examples. Instead of testing individual cases, you test properties like commutativity (order doesn't matter) or associativity (grouping doesn't matter). This is especially powerful for pure functions because their behavior is predictable and mathematical.
 ```typescript
 import { property, forAll, integer, string } from 'fast-check';
 
@@ -175,6 +185,8 @@ const testStringReversal = property(
 ```
 
 ### Unit Testing with Pure Functions
+
+Pure functions are incredibly easy to test because they always give the same result for the same inputs and have no side effects. You don't need to set up complex test environments or mock external dependencies. Each test is isolated and predictable, making your test suite fast, reliable, and easy to understand.
 ```typescript
 describe('User validation', () => {
   it('should validate correct user data', () => {
@@ -199,6 +211,8 @@ describe('User validation', () => {
 ## Performance Optimization
 
 ### Memoization
+
+Memoization is like remembering the results of expensive calculations. Since pure functions always return the same result for the same inputs, you can safely cache their results. The first time you call the function, it computes the result and stores it. The next time you call it with the same input, it returns the cached result instead of recomputing. This is especially useful for expensive operations like API calls or complex calculations.
 ```typescript
 const memoize = <T, U>(fn: (arg: T) => U) => {
   const cache = new Map<T, U>();
@@ -224,6 +238,8 @@ console.log(expensiveCalculation(5)); // Cached: 125
 ```
 
 ### Lazy Evaluation
+
+Lazy evaluation means "don't compute until you need it." Instead of computing a value immediately, you create a promise to compute it later. This is useful for expensive operations that might not be needed. The `Lazy` class wraps a computation and only executes it when you actually request the result. This can save significant time and resources in applications with complex, conditional logic.
 ```typescript
 class Lazy<T> {
   private constructor(private thunk: () => T) {}
@@ -260,6 +276,8 @@ console.log(result.get()); // "Computing..." then 84
 ## Configuration Management
 
 ### Immutable Configuration
+
+Configuration management benefits from functional programming because configurations should be predictable and consistent. The `createConfig` function creates immutable configuration objects with sensible defaults, and you can override specific values without changing the original. This prevents configuration drift and makes it easy to create environment-specific configurations (like development vs production) while maintaining consistency.
 ```typescript
 interface Config {
   apiUrl: string;
