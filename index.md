@@ -1956,6 +1956,8 @@ This lecture explores how TypeScript enhances functional programming with type s
 ## Type Annotations for Functions
 
 ### Basic Function Types
+
+TypeScript lets you be very specific about what types your functions accept and return. This is like giving your functions a clear contract - you're telling TypeScript exactly what kind of data goes in and what kind comes out. This helps catch mistakes before your code even runs and makes your functions easier to understand and use.
 ```typescript
 // Function type annotations
 const add: (a: number, b: number) => number = (a, b) => a + b;
@@ -1972,6 +1974,8 @@ const subtract: BinaryOperation = (a, b) => a - b;
 ```
 
 ### Higher-Order Functions
+
+Higher-order functions are functions that work with other functions. TypeScript lets you create special types for these function parameters, making your code more readable and safer. A `Predicate` is a function that tests something and returns true or false, while a `Transformer` is a function that changes one type of data into another.
 ```typescript
 // Function that takes a function as parameter
 type Predicate<T> = (item: T) => boolean; // Type for functions that test a condition
@@ -1995,6 +1999,8 @@ const doubledNumbers = map(numbers, double);
 ```
 
 ### Function Composition Types
+
+Function composition is when you connect functions together like pipes. TypeScript lets you create types that ensure your composition functions are used correctly. The `compose` function works like math composition (f(g(x))), while `pipe` reads more naturally from left to right. Both do the same thing, but `pipe` is often easier to read.
 ```typescript
 // Type-safe composition - define the type for function composition
 type Compose = <A, B, C>(f: (b: B) => C, g: (a: A) => B) => (a: A) => C;
@@ -2016,6 +2022,8 @@ const pipe: Pipe = (f, g) => (x) => g(f(x)); // Pipeline: g(f(x))
 ## Generic Types
 
 ### Generic Functions
+
+Generics are like templates that work with different types. Instead of writing the same function multiple times for different types, you write it once and it works with whatever type you give it. TypeScript is smart enough to figure out what type you're using and make sure everything matches up correctly.
 ```typescript
 // Generic identity function - works with any type
 const identity = <T>(value: T): T => value;
@@ -2040,6 +2048,8 @@ const lastNum = last(numbers); // number | undefined
 ```
 
 ### Generic Data Structures
+
+Generic data structures let you create containers that can hold different types of data. The `Maybe` type represents something that might or might not have a value (like a box that could be empty), while the `Either` type represents something that could succeed or fail with an error message. These are really useful for handling situations where things might go wrong.
 ```typescript
 // Generic Maybe type - represents optional values (success or nothing)
 type Maybe<T> = T | null;
@@ -2064,6 +2074,8 @@ const parseNumber = (str: string): Either<string, number> => {
 ```
 
 ### Generic Constraints
+
+Sometimes you want your generic functions to work with any type, but only if that type has certain properties. Constraints let you say "this generic type must have these specific features." For example, you might want a function that works with anything that has a `length` property, or anything that can be compared with `>`.
 ```typescript
 // Constraint: T must have a length property (works with strings, arrays, etc.)
 const getLength = <T extends { length: number }>(value: T): number => {
@@ -2085,6 +2097,8 @@ console.log(max('abc', 'def')); // 'def'
 ## Advanced Type Patterns
 
 ### Conditional Types
+
+Conditional types are like smart types that change based on conditions. They let you create types that are different depending on what you give them. For example, you can create a type that extracts the return type from a function, or the element type from an array. TypeScript can figure out these types automatically from your existing code.
 ```typescript
 // Conditional type for function return - extracts return type from function type
 type ReturnType<T> = T extends (...args: any[]) => infer R ? R : never;
@@ -2101,6 +2115,8 @@ type NumberElement = ArrayElement<typeof numbers>; // number
 ```
 
 ### Mapped Types
+
+Mapped types let you transform existing types by changing their properties. You can make all properties optional, make them all required, or make them all read-only. This is really useful when you want to create variations of existing types without writing them all out by hand. Think of it like a factory that can modify types automatically.
 ```typescript
 // Make all properties optional - useful for partial updates
 type Partial<T> = {
@@ -2130,6 +2146,10 @@ type ReadonlyUser = Readonly<User>; // All properties readonly
 ```
 
 ### Utility Types
+
+Utility types are pre-built tools that help you work with types. They let you pick specific properties from a type, remove properties, or extract information from functions. These are like Swiss Army knives for types - they give you common operations you'll need when working with complex type systems.
+
+Utility types are pre-built tools that help you work with types. They let you pick specific properties from a type, remove properties, or extract information from functions. These are like Swiss Army knives for types - they give you common operations you'll need when working with complex type systems.
 ```typescript
 // Pick specific properties - create new type with only selected properties
 type UserName = Pick<User, 'name'>; // { name: string }
@@ -2148,6 +2168,8 @@ type CreateUserParams = Parameters<typeof createUser>; // [string, number]
 ## Type-Safe Functional Libraries
 
 ### Maybe Implementation
+
+The `Maybe` type is like a smart box that might or might not contain a value. It's really useful for handling situations where something could fail or be missing. Instead of using `null` or `undefined` (which can cause errors), `Maybe` forces you to handle both the success and failure cases explicitly, making your code safer.
 ```typescript
 class Maybe<T> {
   private constructor(private value: T | null) {}
@@ -2206,6 +2228,10 @@ console.log(result); // 1
 ```
 
 ### Either Implementation
+
+The `Either` type is like a smart box that can contain either a success value or an error message. It's perfect for operations that might fail, like parsing numbers or making API calls. Instead of throwing errors or returning `null`, `Either` makes you handle both success and error cases explicitly, which makes your code more predictable and easier to debug.
+
+The `Either` type is like a smart box that can contain either a success value or an error message. It's perfect for operations that might fail, like parsing numbers or making API calls. Instead of throwing errors or returning `null`, `Either` makes you handle both success and error cases explicitly, which makes your code more predictable and easier to debug.
 ```typescript
 class Either<L, R> {
   private constructor(
@@ -2270,6 +2296,8 @@ console.log(result); // "Result: 246"
 ## Real-World Examples
 
 ### Type-Safe API Client
+
+When you're working with APIs, TypeScript can help ensure that you're using the data correctly. By defining the shape of your API responses, TypeScript can catch mistakes like trying to access properties that don't exist or using the wrong data types. This is especially helpful when the API data structure is complex or when you're working with multiple different API endpoints.
 ```typescript
 // API response types - define the shape of data from API
 interface User {
@@ -2321,6 +2349,8 @@ const processUserPosts = async (userId: number): Promise<string[]> => {
 ```
 
 ### Type-Safe Redux Actions
+
+Redux is a popular way to manage state in applications, and TypeScript makes it much safer. By defining specific types for your actions and their payloads, TypeScript can ensure that you're creating the right kind of actions and handling them correctly in your reducers. This prevents bugs like typos in action types or accessing the wrong properties from action payloads.
 ```typescript
 // Action types - generic type for all Redux actions
 type Action<T extends string, P = any> = {
