@@ -1481,6 +1481,8 @@ This lecture explores how modern TypeScript features enhance functional programm
 ## Arrow Functions
 
 ### Basic Syntax
+
+Arrow functions are a shorter, cleaner way to write functions in JavaScript and TypeScript. They're especially useful for simple functions that just return a value. Think of them as a more compact way to write the same thing - like using shorthand instead of writing out the full words.
 ```typescript
 // Traditional function expression
 const add = function(a: number, b: number): number {
@@ -1509,6 +1511,8 @@ const processUser = (user: any) => {
 ```
 
 ### Lexical `this` Binding
+
+The `this` keyword in JavaScript can be tricky - it changes depending on how a function is called. Arrow functions fix this problem by "remembering" what `this` should be from where they were created. This is especially helpful when you're using functions inside other functions, like with timers or event handlers.
 ```typescript
 // Traditional function - `this` context issues
 const user = {
@@ -1532,6 +1536,8 @@ const user = {
 ```
 
 ### Functional Programming Benefits
+
+Arrow functions make functional programming much cleaner and easier to read. When you're working with arrays and using functions like `map`, `filter`, and `reduce`, arrow functions let you write the transformation logic right inline without all the extra syntax. This makes your code more concise and easier to understand.
 ```typescript
 // Cleaner higher-order functions
 const numbers = [1, 2, 3, 4, 5];
@@ -1554,6 +1560,8 @@ const result = numbers
 ## Destructuring
 
 ### Array Destructuring
+
+Destructuring is like unpacking a box - you can take items out of arrays and objects and put them into separate variables all at once. It's much cleaner than writing multiple lines to extract each value. The `...rest` syntax lets you collect all the remaining items into a new array.
 ```typescript
 // Basic destructuring - extract values from array into variables
 const numbers = [1, 2, 3, 4, 5];
@@ -1578,6 +1586,8 @@ console.log(a, b); // 2, 1
 ```
 
 ### Object Destructuring
+
+Object destructuring works the same way as array destructuring, but for objects. You can extract properties by name, give them new variable names, provide default values for missing properties, and even extract nested properties. This is especially useful when working with function parameters or API responses.
 ```typescript
 // Basic object destructuring - extract properties into variables
 const user = { name: 'Alice', age: 25, city: 'NYC' };
@@ -1606,6 +1616,8 @@ console.log(name, city, zip); // Alice NYC 10001
 ```
 
 ### Function Parameters
+
+Destructuring in function parameters is really powerful - you can extract exactly the properties you need from an object right in the function signature. This makes your functions more flexible and self-documenting. You can also provide default values for optional properties, making your functions easier to use.
 ```typescript
 // Destructuring in function parameters
 const createUser = ({ name, age, email = null }: { name: string; age: number; email?: string }) => {
@@ -1628,6 +1640,8 @@ const getUserStats = (user: any) => {
 ## Spread and Rest Operators
 
 ### Spread Operator
+
+The spread operator (`...`) is like opening a box and spreading its contents out. For arrays, it takes all the items and puts them in a new array. For objects, it takes all the properties and puts them in a new object. This is perfect for creating copies or combining things without changing the originals - exactly what functional programming is all about!
 ```typescript
 // Array spreading
 const numbers = [1, 2, 3];
@@ -1652,6 +1666,8 @@ console.log(max); // 5
 ```
 
 ### Rest Operator
+
+The rest operator (also `...`) is the opposite of spread - instead of spreading things out, it collects things together. It's like gathering scattered items into a basket. In function parameters, it collects all the arguments into an array. In destructuring, it collects all the remaining items into a new array or object.
 ```typescript
 // Collecting arguments
 const sum = (...numbers: number[]): number => {
@@ -1674,6 +1690,8 @@ console.log(otherProps); // { age: 25, city: 'NYC' }
 ## Template Literals
 
 ### Basic Usage
+
+Template literals are a much nicer way to create strings that include variables. Instead of using `+` to concatenate strings and variables, you can use backticks (`) and `${}` to embed expressions directly in your strings. This makes your code much more readable and less error-prone.
 ```typescript
 const name = 'Alice';
 const age = 25;
@@ -1694,6 +1712,8 @@ const html = `
 ```
 
 ### Tagged Templates
+
+Tagged templates are an advanced feature that lets you process template literals with a function before they become strings. The function receives the string parts and the interpolated values separately, allowing you to transform them however you want. This is useful for things like HTML escaping, internationalization, or custom formatting.
 ```typescript
 // Tagged template function
 const highlight = (strings: TemplateStringsArray, ...values: any[]) => {
@@ -1712,6 +1732,8 @@ console.log(result); // "Hello, <span class="highlight">Alice</span>. You are <s
 ## Default Parameters
 
 ### Basic Defaults
+
+Default parameters let you provide fallback values for function arguments. If someone calls your function without providing a value for a parameter, it will use the default instead. This makes your functions more flexible and reduces the need for checking if parameters are undefined inside your function.
 ```typescript
 // Traditional approach
 const greet = (name: string) => {
@@ -1734,6 +1756,8 @@ const createUser = (name: string = 'Anonymous', age: number = 18, email: string 
 ```
 
 ### Function Defaults
+
+You can even use functions as default parameters! This is useful when you want to provide a default behavior that can be overridden. The default function is only created when needed, which can be more efficient than creating it every time the function is called.
 ```typescript
 // Default function parameter
 const processData = <T>(data: T, processor: (x: T) => T = (x: T) => x): T => {
@@ -1747,6 +1771,8 @@ console.log(processData([1, 2, 3], arr => arr.map(x => x * 2))); // [2, 4, 6]
 ## Modules and Functional Programming
 
 ### Named Exports
+
+Modules help you organize your code by splitting it into separate files. Named exports let you export multiple functions from a single file, making your code more modular and reusable. This is perfect for functional programming because you can group related functions together and import only what you need.
 ```typescript
 // math.ts
 export const add = (a: number, b: number): number => a + b;
@@ -1764,6 +1790,10 @@ export function pipe(...fns: Array<(arg: unknown) => unknown>) {
 ```
 
 ### Default Exports
+
+Default exports are useful when a module has one main function or class that it's primarily about. You can only have one default export per file, but you can have as many named exports as you want. Default exports are imported differently - without curly braces.
+
+Default exports are useful when a module has one main function or class that it's primarily about. You can only have one default export per file, but you can have as many named exports as you want. Default exports are imported differently - without curly braces.
 ```typescript
 // userService.ts - Export a single main function as default
 const validateUser = (user: any) => {
@@ -1785,6 +1815,8 @@ export default processUser; // Default export - only one per module
 ```
 
 ### Importing
+
+Importing is how you bring functions and other things from other files into your current file. Named imports use curly braces to specify exactly what you want, while default imports don't need them. This lets you build your application by combining functions from different modules.
 ```typescript
 // main.ts - Import functions from different modules
 import { add, multiply } from './math.js'; // Named imports
@@ -1799,6 +1831,8 @@ const processedUser = processUser({ name: 'alice', age: 25 });
 ## Enhanced Functional Patterns
 
 ### Partial Application
+
+Partial application is a technique where you "fix" some of the arguments of a function to create a new, more specialized function. This is really useful when you have a general function but need a specific version of it. Default parameters make this even easier by letting you provide some arguments now and the rest later.
 ```typescript
 // Using default parameters for partial application
 const add = (a: number, b: number): number => a + b;
