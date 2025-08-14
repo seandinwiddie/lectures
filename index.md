@@ -120,7 +120,15 @@ const defaultMode: Mode = "light";
 // TypeScript automatically infers types from initializers
 const maxRetries = 3; // TypeScript infers this as number
 
-// Functions can infer return types when the return value is obvious
+/**
+ * Converts a string to uppercase using TypeScript's type inference.
+ * @param message - The string to convert to uppercase
+ * @returns The uppercase version of the input string
+ * 
+ * @example
+ * toUpper("hello") // returns "HELLO"
+ * toUpper("TypeScript") // returns "TYPESCRIPT"
+ */
 function toUpper(message: string) {
   return message.toUpperCase(); // TypeScript infers return type as string
 }
@@ -154,7 +162,17 @@ type Failure = { status: "failure"; error: string };
 // Result can be Loading, Success, or Failure
 type Result<T> = Loading | Success<T> | Failure;
 
-// Type narrowing with if statements
+/**
+ * Handles different result states and returns appropriate string representations.
+ * Demonstrates type narrowing with if statements in TypeScript.
+ * @param result - The result object that can be Loading, Success, or Failure
+ * @returns A string representation of the result state
+ * 
+ * @example
+ * handleResult({ status: "loading" }) // returns "Loading..."
+ * handleResult({ status: "success", data: "hello" }) // returns "Data: \"hello\""
+ * handleResult({ status: "failure", error: "Network error" }) // returns "Error: Network error"
+ */
 function handleResult<T>(result: Result<T>): string {
   if (result.status === "loading") return "Loading...";
   if (result.status === "failure") return `Error: ${result.error}`;
@@ -170,14 +188,30 @@ type Identified<T> = T & { id: string };
 // Union type with different animal kinds - each has specific properties
 type Animal = { kind: "cat"; meow: () => string } | { kind: "dog"; bark: () => string };
 
-// Type guard function - narrows the type when it returns true
-// The return type 'animal is { kind: "cat"; meow: () => string }' tells TypeScript this is a type guard
+/**
+ * Type guard function that checks if an animal is a cat.
+ * The return type 'animal is { kind: "cat"; meow: () => string }' tells TypeScript this is a type guard.
+ * @param animal - The animal to check
+ * @returns True if the animal is a cat, false otherwise
+ * 
+ * @example
+ * isCat({ kind: "cat", meow: () => "meow" }) // returns true
+ * isCat({ kind: "dog", bark: () => "woof" }) // returns false
+ */
 function isCat(animal: Animal): animal is { kind: "cat"; meow: () => string } {
   return animal.kind === "cat";
 }
 
-// Function that uses type guard for safe property access
-// After the type guard check, TypeScript knows the exact type
+/**
+ * Makes an animal speak using type guard for safe property access.
+ * After the type guard check, TypeScript knows the exact type.
+ * @param animal - The animal that should speak
+ * @returns The sound the animal makes
+ * 
+ * @example
+ * speak({ kind: "cat", meow: () => "meow" }) // returns "meow"
+ * speak({ kind: "dog", bark: () => "woof" }) // returns "woof"
+ */
 function speak(animal: Animal): string {
   return isCat(animal) ? animal.meow() : animal.bark();
 }
@@ -191,8 +225,17 @@ type Binary = (a: number, b: number) => number;
 // Function that matches the Binary type
 const add: Binary = (a, b) => a + b;
 
-// Higher-order function: takes a function as a parameter
-// This is a pure functional implementation of map
+/**
+ * Higher-order function that transforms each element in an array using a provided function.
+ * This is a pure functional implementation of map.
+ * @param items - The array of items to transform
+ * @param f - The transformation function to apply to each item
+ * @returns A new array with transformed items
+ * 
+ * @example
+ * map([1, 2, 3], x => x * 2) // returns [2, 4, 6]
+ * map(["hello", "world"], s => s.toUpperCase()) // returns ["HELLO", "WORLD"]
+ */
 function map<A, B>(items: ReadonlyArray<A>, f: (a: A) => B): B[] {
   const result: B[] = [];
   for (const item of items) result.push(f(item));
@@ -202,12 +245,31 @@ function map<A, B>(items: ReadonlyArray<A>, f: (a: A) => B): B[] {
 
 ### Generics Basics
 ```typescript
-// Generic function that works with any array type
+/**
+ * Generic function that returns the first element of an array.
+ * Works with any array type and returns undefined if the array is empty.
+ * @param items - The array to get the first element from
+ * @returns The first element or undefined if the array is empty
+ * 
+ * @example
+ * first([1, 2, 3]) // returns 1
+ * first(["hello", "world"]) // returns "hello"
+ * first([]) // returns undefined
+ */
 function first<T>(items: ReadonlyArray<T>): T | undefined {
   return items[0];
 }
 
-// Generic constraint: T must have an 'id' property of type string
+/**
+ * Creates an index object from an array of items with string IDs.
+ * Generic constraint ensures T must have an 'id' property of type string.
+ * @param items - The array of items to index
+ * @returns An object where keys are item IDs and values are the items
+ * 
+ * @example
+ * const users = [{ id: "1", name: "Alice" }, { id: "2", name: "Bob" }];
+ * indexById(users) // returns { "1": { id: "1", name: "Alice" }, "2": { id: "2", name: "Bob" } }
+ */
 interface HasId { id: string }
 function indexById<T extends HasId>(items: ReadonlyArray<T>): Record<string, T> {
   return items.reduce<Record<string, T>>((acc, item) => {
@@ -226,8 +288,17 @@ const ys: Array<number> = [4, 5, 6];
 // Tuple: fixed-length array with specific types for each position
 const rgb: [number, number, number] = [255, 255, 0];
 
-// Prefer ReadonlyArray to discourage mutation in functional programming
-// This prevents accidental array modifications
+/**
+ * Calculates the sum of all numbers in an array.
+ * Uses ReadonlyArray to discourage mutation in functional programming.
+ * @param values - The array of numbers to sum
+ * @returns The sum of all numbers in the array
+ * 
+ * @example
+ * total([1, 2, 3, 4, 5]) // returns 15
+ * total([10, 20, 30]) // returns 60
+ * total([]) // returns 0
+ */
 function total(values: ReadonlyArray<number>): number {
   return values.reduce((sum, n) => sum + n, 0);
 }
@@ -246,7 +317,17 @@ const Status = {
 // Extract the union type from the const object
 type Status = typeof Status[keyof typeof Status];
 
-// Function that transitions between states
+/**
+ * Transitions a status to the next state in the cycle.
+ * Demonstrates exhaustive switch statements with union types.
+ * @param s - The current status state
+ * @returns The next status in the cycle
+ * 
+ * @example
+ * next("idle") // returns "running"
+ * next("running") // returns "done"
+ * next("done") // returns "idle"
+ */
 function next(s: Status): Status {
   switch (s) {
     case "idle": return "running";
@@ -307,7 +388,17 @@ This lecture introduces the fundamental concept of functions in TypeScript and h
 
 ### Function Declarations
 ```typescript
-// Basic function declaration
+/**
+ * Calculates the sum of two numbers.
+ * @param a - The first number to add
+ * @param b - The second number to add
+ * @returns The sum of a and b
+ * 
+ * @example
+ * add(2, 3) // returns 5
+ * add(-1, 1) // returns 0
+ * add(10, 20) // returns 30
+ */
 function add(a: number, b: number): number {
   return a + b;
 }
@@ -446,10 +537,9 @@ const double: Transformer<number, number> = (n) => n * 2;
 ### Characteristics of Pure Functions
 ```typescript
 // ✅ Pure function - same input always produces same output
-const add = (a: number, b: number): number => a + b;
 /**
- * Pure function that adds two numbers.
- * Always returns the same result for the same inputs.
+ * Pure function that adds two numbers together.
+ * Always returns the same result for the same inputs with no side effects.
  * @param a - First number to add
  * @param b - Second number to add
  * @returns The sum of a and b
@@ -457,7 +547,9 @@ const add = (a: number, b: number): number => a + b;
  * @example
  * add(2, 3) // returns 5
  * add(2, 3) // returns 5 (same result every time)
+ * add(0, 0) // returns 0
  */
+const add = (a: number, b: number): number => a + b;
 
 // ✅ Pure function - no side effects
 const formatName = (firstName: string, lastName: string): string => {
@@ -477,14 +569,35 @@ const formatName = (firstName: string, lastName: string): string => {
 
 // ❌ Impure function - depends on external state
 let total = 0;
+/**
+ * Impure function that adds a number to a global total.
+ * WARNING: This function mutates external state and is not pure.
+ * @param num - The number to add to the total
+ * @returns The new total after adding the number
+ * 
+ * @example
+ * addToTotal(5) // returns 5 (first call)
+ * addToTotal(3) // returns 8 (second call, depends on previous state)
+ * addToTotal(2) // returns 10 (third call, depends on previous state)
+ */
 const addToTotal = (num: number): number => {
-  total += num; // Side effect: mutates external state
+  total += num; // Mutates external state - makes function unpredictable
   return total;
 };
 
-// ❌ Impure function - side effect (console.log)
+/**
+ * Impure function that adds two numbers with console logging.
+ * WARNING: This function has side effects and is not pure.
+ * @param a - First number to add
+ * @param b - Second number to add
+ * @returns The sum of a and b
+ * 
+ * @example
+ * addWithLogging(2, 3) // logs "Adding numbers", returns 5
+ * addWithLogging(10, 5) // logs "Adding numbers", returns 15
+ */
 const addWithLogging = (a: number, b: number): number => {
-  console.log(`Adding ${a} and ${b}`); // Side effect
+  console.log('Adding numbers'); // Side effect: interacts with external system
   return a + b;
 };
 ```
@@ -492,11 +605,30 @@ const addWithLogging = (a: number, b: number): number => {
 ### Benefits of Pure Functions
 ```typescript
 // 1. Predictable and testable
+/**
+ * Tests the add function to ensure it works correctly.
+ * Demonstrates how pure functions are easy to test.
+ * @returns True if all test cases pass, false otherwise
+ * 
+ * @example
+ * testAdd() // returns true (if add function works correctly)
+ */
 const testAdd = (): boolean => {
   return add(2, 3) === 5 && add(0, 0) === 0;
 };
 
 // 2. Memoizable
+/**
+ * Creates a memoized version of a function that caches results.
+ * Pure functions can be safely memoized since same input always produces same output.
+ * @param fn - The function to memoize
+ * @returns A memoized version of the function that caches results
+ * 
+ * @example
+ * const memoizedAdd = memoize((a: number) => a + 1);
+ * memoizedAdd(5) // returns 6 (computed)
+ * memoizedAdd(5) // returns 6 (cached)
+ */
 const memoize = <T, U>(fn: (arg: T) => U) => {
   const cache = new Map<T, U>();
   return (arg: T): U => {
@@ -509,6 +641,17 @@ const memoize = <T, U>(fn: (arg: T) => U) => {
   };
 };
 
+/**
+ * Expensive calculation function that computes the cube of a number.
+ * This function is memoized to avoid recalculating the same values.
+ * @param n - The number to cube
+ * @returns The cube of the input number (n³)
+ * 
+ * @example
+ * expensiveCalculation(3) // returns 27 (computed)
+ * expensiveCalculation(3) // returns 27 (cached)
+ * expensiveCalculation(5) // returns 125 (computed)
+ */
 const expensiveCalculation = memoize((n: number): number => {
   // Simulate expensive computation
   return n * n * n;
@@ -550,18 +693,22 @@ console.log(applyOperation(multiply, 5, 3)); // 15
 ### Functions that Return Functions
 ```typescript
 // Function that returns a function
-const createGreeter = (greeting: string) => {
-  return (name: string): string => `${greeting}, ${name}!`;
-};
 /**
  * Creates a greeting function with a specific greeting word.
+ * This is a function factory that returns a new function.
  * @param greeting - The greeting word to use (e.g., "Hello", "Goodbye")
  * @returns A function that takes a name and returns a formatted greeting
  * 
  * @example
- * createGreeter("Hello")("Alice") // returns "Hello, Alice!"
- * createGreeter("Goodbye")("Bob") // returns "Goodbye, Bob!"
+ * const sayHello = createGreeter('Hello');
+ * sayHello('Alice') // returns "Hello, Alice!"
+ * 
+ * const sayGoodbye = createGreeter('Goodbye');
+ * sayGoodbye('Bob') // returns "Goodbye, Bob!"
  */
+const createGreeter = (greeting: string) => {
+  return (name: string): string => `${greeting}, ${name}!`;
+};
 
 const sayHello = createGreeter('Hello');
 const sayGoodbye = createGreeter('Goodbye');
@@ -575,6 +722,19 @@ console.log(sayGoodbye('Bob')); // "Goodbye, Bob!"
 ### Basic Composition
 ```typescript
 // Compose two functions - mathematical composition: f(g(x))
+/**
+ * Composes two functions together (f ∘ g).
+ * The result is a function that applies g first, then f to the result.
+ * @param f - The outer function to apply
+ * @param g - The inner function to apply first
+ * @returns A new function that applies g then f
+ * 
+ * @example
+ * const addOne = (x: number) => x + 1;
+ * const multiplyByTwo = (x: number) => x * 2;
+ * const addOneThenMultiply = compose(multiplyByTwo, addOne);
+ * addOneThenMultiply(5) // returns 12 (addOne(5) = 6, then multiplyByTwo(6) = 12)
+ */
 const compose = <A, B, C>(f: (b: B) => C, g: (a: A) => B) => (x: A): C => f(g(x));
 
 const addOne = (x: number): number => x + 1;
@@ -647,6 +807,18 @@ const addFive = add(5);
 console.log(addFive(3)); // 8
 
 // Auto-currying utility
+/**
+ * Creates a curried version of a function.
+ * Currying transforms a multi-argument function into a series of single-argument functions.
+ * @param fn - The function to curry
+ * @returns A curried version of the function
+ * 
+ * @example
+ * const add = curry((a: number, b: number) => a + b);
+ * add(5)(3) // returns 8
+ * const addFive = add(5);
+ * addFive(3) // returns 8
+ */
 const curry = <T extends any[], R>(
   fn: (...args: T) => R
 ) => {
@@ -715,6 +887,17 @@ interface User {
   email: string;
 }
 
+/**
+ * Validates a user object and throws an error if validation fails.
+ * @param user - The user object to validate
+ * @returns The validated user object if all checks pass
+ * @throws {Error} If name is missing, email is missing, or age is negative
+ * 
+ * @example
+ * validateUser({ name: "Alice", age: 25, email: "alice@example.com" }) // returns the user object
+ * validateUser({ name: "", age: 25, email: "alice@example.com" }) // throws "Name is required"
+ * validateUser({ name: "Alice", age: -1, email: "alice@example.com" }) // throws "Age must be positive"
+ */
 const validateUser = (user: User): User => {
   if (!user.name) throw new Error('Name is required');
   if (!user.email) throw new Error('Email is required');
@@ -722,6 +905,15 @@ const validateUser = (user: User): User => {
   return user;
 };
 
+/**
+ * Formats a user object into a readable string representation.
+ * @param user - The user object to format
+ * @returns A formatted string with name, age, and email
+ * 
+ * @example
+ * formatUser({ name: "Alice", age: 25, email: "alice@example.com" }) // returns "Alice (25) - alice@example.com"
+ * formatUser({ name: "Bob", age: 30, email: "bob@example.com" }) // returns "Bob (30) - bob@example.com"
+ */
 const formatUser = (user: User): string => {
   return `${user.name} (${user.age}) - ${user.email}`;
 };
@@ -742,6 +934,17 @@ interface Config {
   retries: number;
 }
 
+/**
+ * Creates a configuration object with default values for optional parameters.
+ * @param apiUrl - The API URL (required)
+ * @param timeout - Request timeout in milliseconds (defaults to 5000)
+ * @param retries - Number of retry attempts (defaults to 3)
+ * @returns A configuration object with the specified values
+ * 
+ * @example
+ * createConfig("https://api.example.com") // returns { apiUrl: "https://api.example.com", timeout: 5000, retries: 3 }
+ * createConfig("https://api.example.com", 10000, 5) // returns { apiUrl: "https://api.example.com", timeout: 10000, retries: 5 }
+ */
 const createConfig = (
   apiUrl: string, 
   timeout: number = 5000, 
@@ -750,6 +953,17 @@ const createConfig = (
   return { apiUrl, timeout, retries };
 };
 
+/**
+ * Validates a configuration object and throws an error if validation fails.
+ * @param config - The configuration object to validate
+ * @returns The validated configuration object if all checks pass
+ * @throws {Error} If API URL is missing, timeout is negative, or retries is negative
+ * 
+ * @example
+ * validateConfig({ apiUrl: "https://api.example.com", timeout: 5000, retries: 3 }) // returns the config object
+ * validateConfig({ apiUrl: "", timeout: 5000, retries: 3 }) // throws "API URL is required"
+ * validateConfig({ apiUrl: "https://api.example.com", timeout: -1, retries: 3 }) // throws "Timeout must be positive"
+ */
 const validateConfig = (config: Config): Config => {
   if (!config.apiUrl) throw new Error('API URL is required');
   if (config.timeout < 0) throw new Error('Timeout must be positive');
@@ -757,6 +971,20 @@ const validateConfig = (config: Config): Config => {
   return config;
 };
 
+/**
+ * Creates and validates a configuration object in one step.
+ * Combines createConfig and validateConfig functions.
+ * @param apiUrl - The API URL (required)
+ * @param timeout - Request timeout in milliseconds (optional, defaults to 5000)
+ * @param retries - Number of retry attempts (optional, defaults to 3)
+ * @returns A validated configuration object
+ * @throws {Error} If validation fails
+ * 
+ * @example
+ * createValidConfig("https://api.example.com") // returns validated config with defaults
+ * createValidConfig("https://api.example.com", 10000, 5) // returns validated config with custom values
+ * createValidConfig("") // throws "API URL is required"
+ */
 const createValidConfig = (apiUrl: string, timeout?: number, retries?: number): Config =>
   validateConfig(createConfig(apiUrl, timeout, retries));
 ```
@@ -843,6 +1071,18 @@ Functions that take other functions as arguments or return functions.
 
 ```typescript
 // Function that takes a function as argument (higher-order function)
+/**
+ * Higher-order function that applies a binary operation to two numbers.
+ * @param operation - The function to apply (e.g., add, multiply)
+ * @param a - First number
+ * @param b - Second number
+ * @returns The result of applying the operation to a and b
+ * 
+ * @example
+ * applyOperation(add, 5, 3) // returns 8
+ * applyOperation(multiply, 5, 3) // returns 15
+ * applyOperation((a, b) => a - b, 10, 4) // returns 6
+ */
 const applyOperation = (operation: (a: number, b: number) => number, a: number, b: number): number => 
   operation(a, b);
 
@@ -853,6 +1093,19 @@ console.log(applyOperation(add, 5, 3)); // 8
 console.log(applyOperation(multiply, 5, 3)); // 15
 
 // Function that returns a function (function factory)
+/**
+ * Creates a greeting function with a specific greeting word.
+ * This is a function factory that returns a new function.
+ * @param greeting - The greeting word to use (e.g., "Hello", "Goodbye")
+ * @returns A function that takes a name and returns a formatted greeting
+ * 
+ * @example
+ * const sayHello = createGreeter('Hello');
+ * sayHello('Alice') // returns "Hello, Alice!"
+ * 
+ * const sayGoodbye = createGreeter('Goodbye');
+ * sayGoodbye('Bob') // returns "Goodbye, Bob!"
+ */
 const createGreeter = (greeting: string) => {
   return (name: string): string => `${greeting}, ${name}!`;
 };
@@ -976,6 +1229,19 @@ console.log(result); // ['Charlie']
 ### Simple Composition
 ```typescript
 // Compose two functions - mathematical composition: f(g(x))
+/**
+ * Composes two functions together (f ∘ g).
+ * The result is a function that applies g first, then f to the result.
+ * @param f - The outer function to apply
+ * @param g - The inner function to apply first
+ * @returns A new function that applies g then f
+ * 
+ * @example
+ * const addOne = (x: number) => x + 1;
+ * const multiplyByTwo = (x: number) => x * 2;
+ * const addOneThenMultiply = compose(multiplyByTwo, addOne);
+ * addOneThenMultiply(5) // returns 12 (addOne(5) = 6, then multiplyByTwo(6) = 12)
+ */
 const compose = <A, B, C>(f: (b: B) => C, g: (a: A) => B) => (x: A): C => f(g(x));
 
 const addOne = (x: number): number => x + 1;
@@ -4965,3 +5231,27 @@ describe('selectIncomplete', () => {
 - **iteration**: The process of repeating a set of instructions. In functional programming, iteration is handled through recursion or higher-order functions.
 
 - **recursion**: A function calling itself to solve a problem by breaking it into smaller subproblems. Recursion is fundamental to functional programming.
+
+/**
+ * Adds one to a number.
+ * @param x - The number to increment
+ * @returns The number plus one
+ * 
+ * @example
+ * addOne(5) // returns 6
+ * addOne(0) // returns 1
+ * addOne(-1) // returns 0
+ */
+const addOne = (x: number): number => x + 1;
+
+/**
+ * Multiplies a number by two.
+ * @param x - The number to double
+ * @returns The number multiplied by two
+ * 
+ * @example
+ * multiplyByTwo(3) // returns 6
+ * multiplyByTwo(0) // returns 0
+ * multiplyByTwo(-2) // returns -4
+ */
+const multiplyByTwo = (x: number): number => x * 2;
