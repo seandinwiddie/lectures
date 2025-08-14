@@ -32,52 +32,32 @@ TypeScript is a superset of JavaScript that adds static typing to the language.
 
 TypeScript will be the language of choice for this course.
 
-## Learning Path
-1. **Fundamentals** (Beginner)
-   - The simplest FP TS Hello World
-   - Basic TypeScript knowledge
-   - What is a function?
-   - Basic Functional Programming knowledge
-   - ES6+ Features for Functional Programming
-   - TypeScript and Functional Programming
+## Learning Path & Lectures
 
-2. **Intermediate** (Intermediate)
-   - Redux Standard Patterns & Functional Programming
-   - Redux Toolkit & Functional Programming
-   - Functional Composition
-
-3. **Advanced** (Advanced)
-   - Monads in Functional Programming
-   - Advanced monad transformers
-   - Category theory fundamentals
-
-4. **Applications** (Advanced)
-   - Practical Applications of Functional Programming
-   - Performance optimization techniques
-   - Functional programming in other languages (Haskell, Elm, Clojure)
-
-5. **Maintenance & Architecture** (Advanced)
-   - Functional Programming Maintenance Strategy
-   - Redux Toolkit & RTK Query Best Practices
-   - Modern Redux Architecture Patterns
-
-## Lectures
-
+### 1. **Fundamentals** (Beginner)
 1. **[The Simplest FP TS Hello World](./the-simplest-fp-ts-hello-world/index.md)** - Basic pure function example
 2. **[Basic TypeScript Knowledge](./basic-typescript-knowledge/index.md)** - Core TypeScript concepts for FP
 3. **[What is a Function?](./what-is-a-function/index.md)** - Function fundamentals and pure functions
 4. **[Basic Functional Programming Knowledge](./basic-functional-programming-knowledge/index.md)** - Core FP concepts
 5. **[ES6+ Features for Functional Programming](./es6+-features-for-functional-programming/index.md)** - Modern JS/TS features
 6. **[TypeScript and Functional Programming](./typescript-and-functional-programming/index.md)** - Type safety in FP
+
+### 2. **Intermediate** (Intermediate)
 7. **[Redux Standard Patterns & Functional Programming](./redux-standard-patterns-&-functional-programming/index.md)** - Traditional Redux patterns
 8. **[Redux Toolkit & Functional Programming](./redux-toolkit-&-functional-programming/index.md)** - Modern Redux with RTK
 9. **[Functional Composition](./functional-composition/index.md)** - Advanced composition techniques
+
+### 3. **Advanced** (Advanced)
 10. **[Monads in Functional Programming](./monads-in-functional-programming/index.md)** - Monadic programming
 11. **[Advanced Monad Transformers](./advanced-monad-transformers/index.md)** - Combining monadic effects
 12. **[Category Theory Fundamentals](./category-theory-fundamentals/index.md)** - Mathematical foundations
+
+### 4. **Applications** (Advanced)
 13. **[Practical Applications of Functional Programming](./practical-applications-of-functional-programming/index.md)** - Real-world FP
 14. **[Performance Optimization Techniques](./performance-optimization-techniques/index.md)** - FP performance
 15. **[Functional Programming in Other Languages](./functional-programming-in-other-languages/index.md)** - FP across languages
+
+### 5. **Maintenance & Architecture** (Advanced)
 16. **[Functional Programming Maintenance Strategy](./functional-programming-maintenance-strategy/index.md)** - Maintaining FP codebases
 17. **[Redux Toolkit & RTK Query Best Practices](./redux-toolkit-&-rtk-query-best-practices/index.md)** - RTK and RTK Query
 18. **[Modern Redux Architecture Patterns](./modern-redux-architecture-patterns/index.md)** - Scalable Redux patterns
