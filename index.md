@@ -66,18 +66,7 @@ TypeScript will be the language of choice for this course.
 
 # The simplest FP TS Hello World
 
-## Overview
-**Difficulty:** Beginner  
-**Estimated Time:** 1 hour  
-**Prerequisites:** What is a function in TypeScript?
-
 This lecture demonstrates the simplest possible functional programming example in TypeScript - a pure function that processes data without side effects.
-
-## Learning Objectives
-- Write your first pure function in TypeScript
-- Understand function composition in practice
-- Learn to avoid side effects - which causes bugs and can be hard to debug
-- Practice functional programming principles
 
 ## The Simplest Functional Program
 
@@ -102,344 +91,9 @@ console.log(greet('Alice')); // "Hello, Alice!"
 
 [Run this example in the TypeScript Playground](https://www.typescriptlang.org/play/?&code=//%20The%20simplest%20pure%20functionconst%20greet%20=%20(name:%20string):%20string%20=%3E%20`Hello,%20${name}!`;/**%20*%20Simple%20greeting%20function%20that%20returns%20a%20personalized%20message.%20*%20@param%20name%20-%20The%20name%20to%20greet%20*%20@returns%20A%20greeting%20string%20with%20the%20provided%20name%20*%20%20*%20@example%20*%20greet(%22World%22)%20//%20returns%20%22Hello,%20World!%22%20*%20greet(%22Alice%22)%20//%20returns%20%22Hello,%20Alice!%22%20*///%20Usageconsole.log(greet(%27World%27));%20//%20%22Hello,%20World!%22console.log(greet(%27Alice%27));%20//%20%22Hello,%20Alice!%22#code/PTAEBUAsFNQZwJYFsAOAbacAuoUFcAnWAMzwDsBjLBAezICgK7tQBzI6HAXlAAoyAhkmgAueFgIIyrAJRjsk6aC4A+UAAMAEtDRoaAGlAASAN6DhAXwCE6gNz1gAKkf1Qj0AGVk6WO2icpVlBSSmo6UCxIARwiLEIyOFABXGgCODoBNAQAL2gAE1BhODgBVmgAOld3AAEUAQIhUHNYAFoIGCahWCwaNg4sKtBq2PjEgEE+-2olBUDQAHcESIiOlAIaADcEPPzO4UHB6ugADyEfQb9OXgAiAHUaAjQ865lQEFARggTQa+1dA1A90eeSs1wu-RuYyyFGgLzeYE+31+Oj0hihCBhoKqwHoDjAAFUSmVGMwaBhynpWLxLlheAByIFPOkyGS2eE-P6owEPJ5YpgJMkVSnUiF09Ew5ms9nI-5o6HQUFAA)
 
-### Why This is Functional Programming
-```typescript
-// 1. Pure function - same input always produces same output
-console.log(greet('World')); // "Hello, World!"
-console.log(greet('World')); // "Hello, World!" (same result)
 
-// 2. No side effects - doesn't modify external state
-const name = 'Alice';
-const greeting = greet(name);
-console.log(name); // 'Alice' (unchanged)
-
-// 3. Referential transparency - can be replaced with its result
-const result = greet('World');
-console.log(result); // "Hello, World!"
-console.log('Hello, World!'); // Same output
-```
-
-## Function Composition Example
-
-### Simple Composition
-```typescript
-// Pure functions
-const toUpperCase = (str: string): string => str.toUpperCase();
-/**
- * Converts a string to uppercase.
- * @param str - The string to convert
- * @returns The uppercase version of the string
- * 
- * @example
- * toUpperCase("hello") // returns "HELLO"
- */
-const addExclamation = (str: string): string => str + '!';
-/**
- * Adds an exclamation mark to the end of a string.
- * @param str - The string to modify
- * @returns The string with an exclamation mark appended
- * 
- * @example
- * addExclamation("Hello") // returns "Hello!"
- */
-
-// Compose functions
-const shout = (name: string): string => {
-  return addExclamation(toUpperCase(greet(name)));
-};
-/**
- * Creates a shouted greeting by composing multiple functions.
- * @param name - The name to shout at
- * @returns An uppercase greeting with exclamation marks
- * 
- * @example
- * shout("World") // returns "HELLO, WORLD!!"
- */
-
-console.log(shout('World')); // "HELLO, WORLD!!"
-```
-
-### Using Composition Utility
-```typescript
-// Composition utility
-const compose = <A, B, C>(
-  f: (b: B) => C, 
-  g: (a: A) => B
-): (a: A) => C => {
-  return (x: A) => f(g(x));
-};
-
-// Compose multiple functions
-const shout = compose(
-  addExclamation,
-  compose(toUpperCase, greet)
-);
-
-console.log(shout('World')); // "HELLO, WORLD!!"
-```
-
-## Data Transformation Example
-
-### Simple Data Processing
-```typescript
-// Pure functions for data transformation
-const double = (n: number): number => n * 2;
-/**
- * Multiplies a number by 2.
- * @param n - The number to double
- * @returns The number multiplied by 2
- * 
- * @example
- * double(5) // returns 10
- */
-const addOne = (n: number): number => n + 1;
-/**
- * Adds 1 to a number.
- * @param n - The number to increment
- * @returns The number plus 1
- * 
- * @example
- * addOne(10) // returns 11
- */
-const toString = (n: number): string => n.toString();
-/**
- * Converts a number to a string.
- * @param n - The number to convert
- * @returns The string representation of the number
- * 
- * @example
- * toString(11) // returns "11"
- */
-
-// Compose transformations
-const processNumber = (n: number): string => {
-  return toString(addOne(double(n)));
-};
-/**
- * Processes a number through a transformation pipeline.
- * @param n - The number to process
- * @returns The string result after doubling, adding one, and converting to string
- * 
- * @example
- * processNumber(5) // returns "11"
- */
-
-console.log(processNumber(5)); // "11"
-```
-
-### Array Processing
-```typescript
-// Pure functions for array processing
-const numbers = [1, 2, 3, 4, 5];
-
-// Transform each number
-const doubled = numbers.map(double);
-console.log(doubled); // [2, 4, 6, 8, 10]
-
-// Filter even numbers
-const isEven = (n: number): boolean => n % 2 === 0;
-/**
- * Checks if a number is even.
- * @param n - The number to check
- * @returns True if the number is even, false otherwise
- * 
- * @example
- * isEven(2) // returns true
- * isEven(3) // returns false
- */
-const evens = numbers.filter(isEven);
-console.log(evens); // [2, 4]
-
-// Reduce to sum
-const sum = (acc: number, n: number): number => acc + n;
-/**
- * Adds two numbers (used in reduce operations).
- * @param acc - The accumulator value
- * @param n - The current number to add
- * @returns The sum of accumulator and current number
- * 
- * @example
- * sum(10, 5) // returns 15
- */
-const total = numbers.reduce(sum, 0);
-console.log(total); // 15
-```
-
-## Avoiding Side Effects
-
-### Good vs Bad Examples
-```typescript
-// ✅ Good - Pure function
-const calculateArea = (width: number, height: number): number => {
-  return width * height;
-};
-/**
- * Calculates the area of a rectangle.
- * @param width - The width of the rectangle
- * @param height - The height of the rectangle
- * @returns The area (width × height)
- * 
- * @example
- * calculateArea(5, 3) // returns 15
- * calculateArea(10, 2) // returns 20
- */
-
-// ❌ Bad - Side effect (console.log)
-const calculateAreaWithLogging = (width: number, height: number): number => {
-  const area = width * height;
-  console.log(`Area calculated: ${area}`); // Side effect
-  return area;
-};
-
-// ❌ Bad - Mutates external state
-let totalArea = 0;
-const calculateAndStoreArea = (width: number, height: number): number => {
-  const area = width * height;
-  totalArea += area; // Side effect: mutation
-  return area;
-};
-```
-
-## Testing Pure Functions
-
-### Simple Testing
-```typescript
-// Pure functions are easy to test
-const testGreet = (): boolean => {
-  return greet('World') === 'Hello, World!' &&
-         greet('Alice') === 'Hello, Alice!' &&
-         greet('') === 'Hello, !';
-};
-
-const testProcessNumber = (): boolean => {
-  return processNumber(5) === '11' &&
-         processNumber(0) === '1' &&
-         processNumber(10) === '21';
-};
-
-console.log('Greet tests:', testGreet()); // true
-console.log('Process number tests:', testProcessNumber()); // true
-```
-
-## Real-World Simple Example
-
-### User Name Processing
-```typescript
-// Pure functions for user name processing
-const trim = (str: string): string => str.trim();
-/**
- * Removes whitespace from the beginning and end of a string.
- * @param str - The string to trim
- * @returns The string with leading and trailing whitespace removed
- * 
- * @example
- * trim("  hello  ") // returns "hello"
- */
-const capitalize = (str: string): string => 
-  str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-/**
- * Capitalizes the first letter and makes the rest lowercase.
- * @param str - The string to capitalize
- * @returns The string with first letter uppercase, rest lowercase
- * 
- * @example
- * capitalize("hello") // returns "Hello"
- * capitalize("WORLD") // returns "World"
- */
-
-const formatName = (name: string): string => {
-  return capitalize(trim(name));
-};
-/**
- * Formats a name by trimming whitespace and capitalizing properly.
- * @param name - The name to format
- * @returns The properly formatted name
- * 
- * @example
- * formatName("  alice  ") // returns "Alice"
- * formatName("BOB") // returns "Bob"
- */
-
-// Usage
-console.log(formatName('  alice  ')); // "Alice"
-console.log(formatName('BOB')); // "Bob"
-console.log(formatName('charlie')); // "Charlie"
-```
-
-### Configuration Builder
-```typescript
-// Pure function for building configuration
-interface AppConfig {
-  name: string;
-  version: string;
-  debug: boolean;
-}
-
-const createConfig = (
-  name: string, 
-  version: string, 
-  debug: boolean = false
-): AppConfig => {
-  return { name, version, debug };
-};
-
-const validateConfig = (config: AppConfig): AppConfig => {
-  if (!config.name) throw new Error('Name is required');
-  if (!config.version) throw new Error('Version is required');
-  return config;
-};
-
-const buildConfig = (name: string, version: string): AppConfig => {
-  return validateConfig(createConfig(name, version));
-};
-
-// Usage
-const config = buildConfig('MyApp', '1.0.0');
-console.log(config); // { name: 'MyApp', version: '1.0.0', debug: false }
-```
-
-## Key Takeaways
-
-### 1. Start Simple
-- Begin with pure functions that have no side effects
-- Focus on input → output transformations
-- Keep functions small and focused
-
-### 2. Composition Over Complexity
-- Build complex behavior from simple functions
-- Use composition to combine functions
-- Avoid deeply nested logic
-
-### 3. Immutability
-- Never modify input parameters
-- Return new values instead of modifying existing ones
-- Use const for variables that shouldn't change
-
-### 4. Testing
-- Pure functions are easy to test
-- Same input always produces same output
-- No need to mock external dependencies
-
-## Exercise
-Create a simple functional program that:
-1. Takes a list of numbers
-2. Filters out negative numbers
-3. Doubles the remaining numbers
-4. Sums the results
-5. Returns the final sum
-
-Make sure all functions are pure and compose them together.
-
-## Resources
-- [Functional Programming Fundamentals](https://www.freecodecamp.org/news/functional-programming-in-javascript/)
-- [Pure Functions](https://www.sitepoint.com/functional-programming-pure-functions/)
 
 # Basic TypeScript knowledge
-
-## Overview
-**Difficulty:** Beginner  
-**Estimated Time:** 1–2 hours  
-**Prerequisites:** None
 
 This lecture gives you just enough TypeScript to move comfortably through the rest of the functional programming curriculum. You will learn the core of the type system, how to type functions precisely, and how strict typing reinforces immutability and pure functions.
 
@@ -447,16 +101,6 @@ This lecture gives you just enough TypeScript to move comfortably through the re
 - **Type safety enables refactoring**: Strong types make it safe to compose many small functions.
 - **Purity and immutability**: Types help prevent accidental mutation and side effects - the leading cause of bugs.
 - **Precise function signatures**: Communicate intent and make composition predictable.
-
-## Learning Objectives
-- Understand primitive types, literals, and type inference
-- Use `interface` and `type` effectively
-- Model alternatives with union and intersection types
-- Narrow types with control-flow analysis (`typeof`, `in`, user-defined type predicates)
-- Type functions, higher-order functions, and basic generics
-- Work with arrays, tuples, and readonly types
-- Know when to use `enum` vs `as const`
-- Import/export modules; know key `tsconfig` flags for strictness
 
 ## Core Concepts
 
@@ -629,11 +273,6 @@ const area = multiply(3, 4);
 
 # What is a function?
 
-## Overview
-**Difficulty:** Beginner  
-**Estimated Time:** 1-2 hours  
-**Prerequisites:** Basic TypeScript knowledge
-
 This lecture introduces the fundamental concept of functions in TypeScript and how they form the basis of functional programming. This is where your journey into **lean, modular functional programming** begins. You'll learn to write functions that are **pure, testable, and composable** - the building blocks of maintainable codebases.
 
 **Why This Matters for Maintenance:**
@@ -641,12 +280,6 @@ This lecture introduces the fundamental concept of functions in TypeScript and h
 - **Type safety** prevents runtime errors and makes refactoring safer
 - **Function composition** enables building complex systems from simple parts
 - **Immutability** ensures your functions don't have hidden side effects
-
-## Learning Objectives
-- Understand function types and signatures in TypeScript
-- Learn about pure functions and their characteristics
-- Master function declarations and expressions
-- Practice type-safe function composition
 
 ## Function Fundamentals in TypeScript
 
@@ -1096,18 +729,7 @@ Create a type-safe function library that includes:
 
 # Basic Functional Programming TypeScript Knowledge
 
-## Overview
-**Difficulty:** Beginner  
-**Estimated Time:** 2-3 hours  
-**Prerequisites:** Basic TypeScript knowledge
-
 This lecture introduces the fundamental concepts of functional programming using TypeScript.
-
-## Learning Objectives
-- Understand pure functions and their benefits
-- Learn about immutability and why it matters
-- Master higher-order functions
-- Practice functional programming patterns
 
 ## Core Concepts
 
@@ -1419,18 +1041,7 @@ Create a pure function that processes a list of products and returns the total p
 
 # ES6+ Features for Functional Programming
 
-## Overview
-**Difficulty:** Beginner-Intermediate  
-**Estimated Time:** 2-3 hours  
-**Prerequisites:** Basic Functional Programming TypeScript knowledge
-
 This lecture explores how modern TypeScript features enhance functional programming capabilities.
-
-## Learning Objectives
-- Master arrow functions and their benefits
-- Understand destructuring and spread operators
-- Learn template literals and default parameters
-- Explore modules and their impact on FP
 
 ## Arrow Functions
 
@@ -1845,18 +1456,7 @@ Create a functional utility library using ES6+ features that includes:
 
 # TypeScript and Functional Programming
 
-## Overview
-**Difficulty:** Intermediate  
-**Estimated Time:** 3-4 hours  
-**Prerequisites:** ES6+ Features for Functional Programming, Basic TypeScript knowledge
-
 This lecture explores how TypeScript enhances functional programming with type safety and better developer experience.
-
-## Learning Objectives
-- Understand type annotations for functional programming
-- Master generic types and their applications
-- Learn advanced TypeScript patterns for FP
-- Explore type-safe functional libraries
 
 ## Type Annotations for Functions
 
@@ -2304,20 +1904,9 @@ Create a type-safe functional utility library that includes:
 
 # Redux Standard Patterns & Functional Programming
 
-## Overview
-**Difficulty:** Intermediate  
-**Estimated Time:** 2-3 hours  
-**Prerequisites:** Basic Functional Programming TypeScript knowledge
-
 Redux follows functional programming principles at its core. This lecture explores how Redux patterns align with functional programming concepts. While this covers traditional Redux patterns, **Redux Toolkit (RTK) and RTK Query are the modern, official approach** that supersedes these patterns in production applications.
 
 **Important Note:** This lecture provides foundational understanding, but **RTK and RTK Query take absolute priority** in modern applications. They eliminate the need for most hand-written data fetching logic and provide better developer experience while maintaining functional programming principles.
-
-## Learning Objectives
-- Understand how Redux implements functional programming principles
-- Learn to write pure reducers and action creators
-- Master immutable state updates
-- Practice functional composition with Redux
 
 ## Key Functional Programming Concepts in Redux
 
@@ -2399,11 +1988,6 @@ Create a pure reducer function that handles a shopping cart with add/remove/clea
 
 # Redux Toolkit & Functional Programming
 
-## Overview
-**Difficulty:** Intermediate  
-**Estimated Time:** 2-3 hours  
-**Prerequisites:** Redux Standard Patterns & Functional Programming
-
 Redux Toolkit (RTK) simplifies Redux while maintaining functional programming principles. It provides utilities that make functional patterns more accessible. **This is the definitive modern Redux approach** that should be used in all new applications.
 
 **Why RTK is Essential:**
@@ -2413,12 +1997,6 @@ Redux Toolkit (RTK) simplifies Redux while maintaining functional programming pr
 - **TypeScript-first design** with excellent inference and type safety
 - **Seamless Redux DevTools integration** for debugging and time-travel
 - **RTK Query integration** for data fetching and caching (covered in advanced lectures)
-
-## Learning Objectives
-- Understand how RTK maintains functional programming principles
-- Learn to use createSlice for pure function generation
-- Master async thunks for functional side effects
-- Explore RTK Query for pure data fetching
 
 ## Functional Programming in RTK
 
@@ -2530,11 +2108,6 @@ Create a Redux Toolkit slice for a user profile with async thunk for fetching us
 
 # Functional Composition
 
-## Overview
-**Difficulty:** Intermediate  
-**Estimated Time:** 2-3 hours  
-**Prerequisites:** Basic Functional Programming TypeScript knowledge, ES6+ Features for Functional Programming
-
 Functional composition is a core principle where complex functions are built by combining simpler functions. This lecture explores composition patterns from James Sinclair and Eric Elliott's work. **Composition is the key to building lean, modular codebases** that are easy to maintain and extend.
 
 **Composition in Practice:**
@@ -2549,12 +2122,6 @@ Functional composition is a core principle where complex functions are built by 
 - **Reusability**: Functions can be combined in many different ways
 - **Readability**: Complex operations become clear, linear pipelines
 - **Maintainability**: Changes to one function don't affect others
-
-## Learning Objectives
-- Master mathematical function composition
-- Learn pipeline composition patterns
-- Understand point-free programming
-- Practice composition with currying
 
 ## Function Composition Basics
 
@@ -2696,18 +2263,7 @@ Create a composition pipeline that processes a list of products: filters by pric
 
 # Monads in Functional Programming
 
-## Overview
-**Difficulty:** Advanced  
-**Estimated Time:** 3-4 hours  
-**Prerequisites:** Functional Composition, TypeScript and Functional Programming
-
 Monads are a fundamental concept in functional programming that handle side effects and complex computations. This lecture explores monads based on Philip Wadler's work and their practical applications.
-
-## Learning Objectives
-- Understand monad theory and laws
-- Implement common monad types (Maybe, Either, List)
-- Learn to use monads for error handling
-- Practice monad composition patterns
 
 ## What is a Monad?
 
@@ -2936,18 +2492,7 @@ Implement a Result monad that can handle both success and error cases, then use 
 
 # Reactive Programming with Cycle.js
 
-## Overview
-**Difficulty:** Advanced  
-**Estimated Time:** 3-4 hours  
-**Prerequisites:** Functional Composition, Monads in Functional Programming
-
 Reactive programming is a paradigm focused on data streams and propagation of change. This lecture explores reactive programming concepts through Andre Staltz's Cycle.js framework.
-
-## Learning Objectives
-- Understand reactive programming principles
-- Learn to work with data streams
-- Master MVI pattern implementation
-- Practice functional reactive programming
 
 ## What is Reactive Programming?
 
@@ -3238,18 +2783,8 @@ Create a reactive counter component that can increment, decrement, and reset, us
 
 # Practical Applications of Functional Programming
 
-## Overview
-**Difficulty:** Advanced  
-**Estimated Time:** 4-5 hours  
-**Prerequisites:** All previous lectures
-
 This lecture combines all the functional programming concepts we've learned into practical, real-world applications. We'll see how Redux, composition, monads, and reactive programming work together.
 
-## Learning Objectives
-- Integrate all functional programming concepts
-- Build complete functional applications
-- Implement advanced patterns and optimizations
-- Practice real-world functional programming
 
 ## Building a Functional Todo Application
 
@@ -3732,11 +3267,6 @@ Build a complete todo application that combines all these patterns: Redux for st
 
 # Functional Programming Maintenance Strategy
 
-## Overview
-**Difficulty:** Advanced  
-**Estimated Time:** 3-4 hours  
-**Prerequisites:** Redux Toolkit & Functional Programming, Practical Applications of Functional Programming
-
 This lecture explores strategies for maintaining a codebase in pure functional programming style, focusing on lean architecture, separation of concerns, and Redux Toolkit best practices. **This is where theory meets practice** - you'll learn how to apply all the functional programming concepts you've learned to build maintainable, scalable applications.
 
 **Core Maintenance Philosophy:**
@@ -3753,11 +3283,6 @@ This lecture explores strategies for maintaining a codebase in pure functional p
 - **Scalability**: Adding new features or domains is straightforward
 - **Team Collaboration**: Clear boundaries make code ownership obvious
 
-## Learning Objectives
-- Understand lean and modular codebase principles
-- Master separation of concerns in functional architecture
-- Learn Redux Toolkit maintenance patterns
-- Practice functional programming maintenance strategies
 
 ## Core Maintenance Principles
 
@@ -4130,11 +3655,6 @@ Refactor a monolithic user management component into a functional architecture w
 
 # Redux Toolkit & RTK Query Best Practices
 
-## Overview
-**Difficulty:** Advanced  
-**Estimated Time:** 3-4 hours  
-**Prerequisites:** Redux Toolkit & Functional Programming, Functional Programming Maintenance Strategy
-
 This lecture explores advanced Redux Toolkit and RTK Query patterns for maintaining functional programming principles in modern React applications. **RTK Query eliminates the need for most hand-written data fetching logic**, replacing complex thunk/saga patterns with purpose-built data fetching and caching solutions.
 
 **RTK Query Advantages Over Alternatives:**
@@ -4150,12 +3670,6 @@ This lecture explores advanced Redux Toolkit and RTK Query patterns for maintain
 - **Immutable cache management** with automatic updates
 - **Composable query patterns** for complex data requirements
 - **Predictable state updates** through Redux store integration
-
-## Learning Objectives
-- Master RTK Query for data fetching and caching
-- Understand Redux Toolkit's functional architecture
-- Learn advanced patterns for state management
-- Practice functional programming with RTK
 
 ## Redux Toolkit's Functional Foundation
 
@@ -4567,11 +4081,6 @@ Create a complete todo application using RTK Query with:
 
 # Modern Redux Architecture Patterns
 
-## Overview
-**Difficulty:** Advanced  
-**Estimated Time:** 4-5 hours  
-**Prerequisites:** Redux Toolkit & RTK Query Best Practices, Functional Programming Maintenance Strategy
-
 This lecture explores modern Redux architecture patterns that prioritize functional programming principles, RTK Query for data management, and scalable application design. **This represents the culmination of all functional programming concepts** applied to real-world application architecture.
 
 **Modern Redux Architecture Priorities:**
@@ -4586,12 +4095,6 @@ This lecture explores modern Redux architecture patterns that prioritize functio
 - **Testable**: Pure functions and isolated components are easy to test
 - **Performant**: Automatic optimizations through RTK Query caching and Redux Toolkit
 - **Developer Experience**: Excellent tooling and debugging capabilities
-
-## Learning Objectives
-- Understand modern Redux architecture priorities
-- Master RTK Query-first data management
-- Learn functional state machine patterns
-- Practice scalable Redux application design
 
 ## Modern Redux Architecture Priorities
 
