@@ -7,10 +7,18 @@ This series of lectures explores functional programming concepts from fundamenta
 - **Functions for Everything**: Every concept is taught through the lens of pure functions
 - **Immutability First**: Learn to work with immutable data structures from day one
 - **Type Safety**: Learn to use types to their full potential
-- **Why side effects are bad**: Learn to avoid them at all costs
+- **Side Effects at the Edges**: Learn to isolate effects at boundaries and keep core logic pure
 - **Composition Over Complexity**: Build complex systems from simple, composable parts
 - **Redux Toolkit Priority**: RTK and RTK Query are the definitive choice for state management and data fetching
 - **Lean Architecture**: Focus on small, focused files with clear separation of concerns
+
+**Architecture Principles You'll Learn:**
+- **Lean and Modular Codebase**: Avoid unnecessary code, duplication, or bloat
+- **Separation of Concerns**: UI components focus on rendering, Redux slices handle business logic
+- **Multiple Command Dispatchers**: Different handlers for different domains
+- **Small, Focused Files**: Preferably one function per file for clarity and testability
+- **Boilerplate vs. Business Logic**: Keep setup code separate from core application rules
+- **Avoid Over-Centralization**: Distribute feature business logic; centralize only cross-cutting infrastructure
 
 > "All software design is composition: the act of breaking complex problems down into smaller problems and composing those solutions. Learn to do it well." - Eric Elliott
 
@@ -40,7 +48,6 @@ TypeScript will be the language of choice for this course.
 
 3. **Advanced** (Advanced)
    - Monads in Functional Programming
-   - Reactive Programming with Cycle.js
    - Advanced monad transformers
    - Category theory fundamentals
 
@@ -53,14 +60,6 @@ TypeScript will be the language of choice for this course.
    - Functional Programming Maintenance Strategy
    - Redux Toolkit & RTK Query Best Practices
    - Modern Redux Architecture Patterns
-
-**Architecture Principles You'll Learn:**
-- **Lean and Modular Codebase**: Avoid unnecessary code, duplication, or bloat
-- **Separation of Concerns**: UI components focus on rendering, Redux slices handle business logic
-- **Multiple Command Dispatchers**: Different handlers for different domains
-- **Small, Focused Files**: Preferably one function per file for clarity and testability
-- **Boilerplate vs. Business Logic**: Keep setup code separate from core application rules
-- **No Consolidation**: Distribute business logic by feature rather than centralizing
 
 ## Lectures
 
@@ -106,68 +105,79 @@ This lecture gives you just enough TypeScript to move comfortably through the re
 
 ### Types and Annotations
 ```typescript
+// Basic type annotations for variables
 const appName: string = "FP Lectures";
 const initialCount: number = 0;
 const isReady: boolean = true;
 
-// Literal types capture exact values
+// Literal types capture exact values - only these specific strings are allowed
 type Mode = "light" | "dark";
 const defaultMode: Mode = "light";
 ```
 
 ### Type Inference
 ```typescript
-// TS infers types from initializers
-const maxRetries = 3; // number
+// TypeScript automatically infers types from initializers
+const maxRetries = 3; // TypeScript infers this as number
 
-// Functions infer return types when obvious
+// Functions can infer return types when the return value is obvious
 function toUpper(message: string) {
-  return message.toUpperCase();
+  return message.toUpperCase(); // TypeScript infers return type as string
 }
 ```
 
 ### Interfaces and Type Aliases
 ```typescript
+// Interface defines the shape of an object
 interface User {
   id: string;
   name: string;
 }
 
+// Type alias with readonly properties for immutability
 type Coordinates = {
-  readonly x: number;
+  readonly x: number; // readonly prevents mutation
   readonly y: number;
 };
 
-// Structural typing: compatible if it has the required shape
+// Structural typing: objects are compatible if they have the required shape
 const point: Coordinates = { x: 10, y: 20 };
 ```
 
 ### Unions, Intersections, and Narrowing
 ```typescript
+// Union types represent one of several possible types
 type Loading = { status: "loading" };
 type Success<T> = { status: "success"; data: T };
 type Failure = { status: "failure"; error: string };
 
+// Result can be Loading, Success, or Failure
 type Result<T> = Loading | Success<T> | Failure;
 
+// Type narrowing with if statements
 function handleResult<T>(result: Result<T>): string {
   if (result.status === "loading") return "Loading...";
   if (result.status === "failure") return `Error: ${result.error}`;
   return `Data: ${JSON.stringify(result.data)}`;
 }
 
-// Intersection: combine shapes
+// Intersection types combine multiple types
 type Identified<T> = T & { id: string };
 ```
 
 ### Type Guards and Predicates
 ```typescript
+// Union type with different animal kinds - each has specific properties
 type Animal = { kind: "cat"; meow: () => string } | { kind: "dog"; bark: () => string };
 
+// Type guard function - narrows the type when it returns true
+// The return type 'animal is { kind: "cat"; meow: () => string }' tells TypeScript this is a type guard
 function isCat(animal: Animal): animal is { kind: "cat"; meow: () => string } {
   return animal.kind === "cat";
 }
 
+// Function that uses type guard for safe property access
+// After the type guard check, TypeScript knows the exact type
 function speak(animal: Animal): string {
   return isCat(animal) ? animal.meow() : animal.bark();
 }
@@ -175,10 +185,14 @@ function speak(animal: Animal): string {
 
 ### Function Types and Higher-Order Functions
 ```typescript
+// Function type alias for binary operations
 type Binary = (a: number, b: number) => number;
 
+// Function that matches the Binary type
 const add: Binary = (a, b) => a + b;
 
+// Higher-order function: takes a function as a parameter
+// This is a pure functional implementation of map
 function map<A, B>(items: ReadonlyArray<A>, f: (a: A) => B): B[] {
   const result: B[] = [];
   for (const item of items) result.push(f(item));
@@ -188,15 +202,16 @@ function map<A, B>(items: ReadonlyArray<A>, f: (a: A) => B): B[] {
 
 ### Generics Basics
 ```typescript
+// Generic function that works with any array type
 function first<T>(items: ReadonlyArray<T>): T | undefined {
   return items[0];
 }
 
-// Constrain with extends
+// Generic constraint: T must have an 'id' property of type string
 interface HasId { id: string }
 function indexById<T extends HasId>(items: ReadonlyArray<T>): Record<string, T> {
   return items.reduce<Record<string, T>>((acc, item) => {
-    acc[item.id] = item;
+    acc[item.id] = item; // Safe to access item.id because of the constraint
     return acc;
   }, {});
 }
@@ -204,12 +219,15 @@ function indexById<T extends HasId>(items: ReadonlyArray<T>): Record<string, T> 
 
 ### Arrays, Tuples, and Readonly
 ```typescript
+// Array syntax variations - both are equivalent
 const xs: number[] = [1, 2, 3];
 const ys: Array<number> = [4, 5, 6];
 
+// Tuple: fixed-length array with specific types for each position
 const rgb: [number, number, number] = [255, 255, 0];
 
-// Prefer ReadonlyArray to discourage mutation in FP
+// Prefer ReadonlyArray to discourage mutation in functional programming
+// This prevents accidental array modifications
 function total(values: ReadonlyArray<number>): number {
   return values.reduce((sum, n) => sum + n, 0);
 }
@@ -218,13 +236,17 @@ function total(values: ReadonlyArray<number>): number {
 ### Enums vs. `as const`
 ```typescript
 // Prefer union literals via as const for portability/tree-shaking
+// This creates a readonly object with literal types
 const Status = {
   Idle: "idle",
   Running: "running",
   Done: "done",
 } as const;
+
+// Extract the union type from the const object
 type Status = typeof Status[keyof typeof Status];
 
+// Function that transitions between states
 function next(s: Status): Status {
   switch (s) {
     case "idle": return "running";
@@ -236,10 +258,10 @@ function next(s: Status): Status {
 
 ### Modules and Imports
 ```typescript
-// utils/math.ts
+// utils/math.ts - Export a function from a module
 export const multiply = (a: number, b: number): number => a * b;
 
-// app.ts
+// app.ts - Import and use the exported function
 import { multiply } from "./utils/math";
 const area = multiply(3, 4);
 ```
@@ -552,37 +574,41 @@ console.log(sayGoodbye('Bob')); // "Goodbye, Bob!"
 
 ### Basic Composition
 ```typescript
-// Compose two functions
-const compose = <A, B, C>(
-  f: (b: B) => C, 
-  g: (a: A) => B
-): (a: A) => C => {
-  return (x: A) => f(g(x));
-};
-/**
- * Composes two functions: f(g(x)).
- * @param f - The outer function to apply
- * @param g - The inner function to apply first
- * @returns A new function that applies g then f
- * 
- * @example
- * compose(multiplyByTwo, addOne)(5) // returns 12
- * compose(toUpperCase, trim)("  hello  ") // returns "HELLO"
- */
+// Compose two functions - mathematical composition: f(g(x))
+const compose = <A, B, C>(f: (b: B) => C, g: (a: A) => B) => (x: A): C => f(g(x));
 
 const addOne = (x: number): number => x + 1;
 const multiplyByTwo = (x: number): number => x * 2;
 
 const addOneThenMultiply = compose(multiplyByTwo, addOne);
 console.log(addOneThenMultiply(5)); // 12
+
+// Compose multiple functions - pipeline composition for better readability
+export function pipe<A, B>(ab: (a: A) => B): (a: A) => B;
+export function pipe<A, B, C>(ab: (a: A) => B, bc: (b: B) => C): (a: A) => C;
+export function pipe<A, B, C, D>(ab: (a: A) => B, bc: (b: B) => C, cd: (c: C) => D): (a: A) => D;
+export function pipe(...fns: Array<(arg: unknown) => unknown>) {
+  return (x: unknown) => fns.reduce((acc, fn) => fn(acc), x);
+}
+
+const processData = pipe(
+  (x: number) => x * 2,    // First: double the number
+  (x: number) => x + 1,    // Second: add one
+  (x: number) => x.toString() // Third: convert to string
+);
+
+console.log(processData(5)); // "11"
 ```
 
 ### Pipeline Composition
 ```typescript
 // Pipeline: data flows through functions left to right
-const pipe = <T>(...fns: Array<(arg: T) => T>) => (x: T): T => {
-  return fns.reduce((acc, fn) => fn(acc), x);
-};
+export function pipe<A, B>(ab: (a: A) => B): (a: A) => B;
+export function pipe<A, B, C>(ab: (a: A) => B, bc: (b: B) => C): (a: A) => C;
+export function pipe<A, B, C, D>(ab: (a: A) => B, bc: (b: B) => C, cd: (c: C) => D): (a: A) => D;
+export function pipe(...fns: Array<(arg: unknown) => unknown>) {
+  return (x: unknown) => fns.reduce((acc, fn) => fn(acc), x);
+}
 /**
  * Creates a pipeline of functions that process data left to right.
  * @param fns - Variable number of functions to compose
@@ -643,21 +669,39 @@ console.log(multiplyByTwo(5)); // 10
 
 ### Partial Application
 ```typescript
-// Partial application utility
-const partial = <T extends any[], R>(
-  fn: (...args: T) => R, 
-  ...args: Partial<T>
-) => {
-  return (...moreArgs: any[]): R => {
-    return fn(...args, ...moreArgs);
+// Using default parameters for partial application
+const add = (a: number, b: number): number => a + b;
+const addFive = (b: number): number => add(5, b); // Partially apply first argument
+
+console.log(addFive(3)); // 8
+
+// More flexible partial application utility
+const partial = <T extends any[], R>(fn: (...args: T) => R, ...args: Partial<T>) => (...moreArgs: any[]): R => fn(...args, ...moreArgs);
+const addFive = partial(add, 5); // Partially apply with utility function
+console.log(addFive(3)); // 8
+```
+
+### Currying with Arrow Functions
+```typescript
+// Manual currying - transform multi-argument function into series of single-argument functions
+const add = (a: number) => (b: number): number => a + b;
+const addFive = add(5); // Returns a function that adds 5 to its argument
+console.log(addFive(3)); // 8
+
+// Auto-currying utility - automatically curry any function
+const curry = <T extends any[], R>(fn: (...args: T) => R) => {
+  const arity = fn.length; // Number of arguments the function expects
+  return function curried(...args: any[]): any {
+    if (args.length >= arity) {
+      return fn(...args); // If we have enough arguments, call the function
+    }
+    return (...moreArgs: any[]) => curried(...args, ...moreArgs); // Otherwise, return a function that takes more arguments
   };
 };
 
-const greet = (greeting: string, name: string): string => 
-  `${greeting}, ${name}!`;
-
-const sayHello = partial(greet, 'Hello');
-console.log(sayHello('Alice')); // "Hello, Alice!"
+const add = curry((a: number, b: number): number => a + b);
+const addFive = add(5);
+console.log(addFive(3)); // 8
 ```
 
 ## Real-World Examples
@@ -713,15 +757,33 @@ const validateConfig = (config: Config): Config => {
   return config;
 };
 
-const createValidConfig = pipe(createConfig, validateConfig);
+const createValidConfig = (apiUrl: string, timeout?: number, retries?: number): Config =>
+  validateConfig(createConfig(apiUrl, timeout, retries));
 ```
 
 ## Exercise
-Create a type-safe function library that includes:
-- A `map` function that works with arrays and objects
-- A `filter` function with predicate support
-- A `reduce` function for both arrays and objects
-- A `compose` function that can handle multiple arguments
+Implement a small user-processing pipeline using only pure functions:
+
+1. `sanitizeUser(u: { name: string; age: number; email: string }): { name: string; age: number; email: string }` that trims `name`, lowercases `email`, and throws for negative `age` or empty `name`/`email`.
+2. `formatUser(u): string` that returns `"<Name> (<age>) - <email>"` with name capitalized.
+3. `processUser = pipe(sanitizeUser, formatUser)`.
+
+### Unit tests
+```typescript
+// Exercise: user-processing pipeline
+describe('processUser pipeline', () => {
+  it('sanitizes and formats valid users', () => {
+    const input = { name: ' alice ', age: 30, email: 'ALICE@EXAMPLE.COM' };
+    const result = processUser(input as any);
+    expect(result).toBe('Alice (30) - alice@example.com');
+  });
+
+  it('throws on invalid users', () => {
+    const bad = { name: ' ', age: -1, email: '' };
+    expect(() => sanitizeUser(bad as any)).toThrow();
+  });
+});
+```
 
 ## Resources
 - [TypeScript Functions](https://www.typescriptlang.org/docs/handbook/functions.html)
@@ -737,19 +799,19 @@ This lecture introduces the fundamental concepts of functional programming using
 A pure function always returns the same output for the same input and has no side effects.
 
 ```typescript
-// ✅ Pure function
+// ✅ Pure function - same input always produces same output, no side effects
 const add = (a: number, b: number): number => a + b;
 
-// ❌ Impure function (side effect)
+// ❌ Impure function (side effect) - console.log is a side effect
 const addWithLogging = (a: number, b: number): number => {
-  console.log('Adding numbers'); // Side effect
+  console.log('Adding numbers'); // Side effect: interacts with external system
   return a + b;
 };
 
-// ❌ Impure function (depends on external state)
+// ❌ Impure function (depends on external state) - mutates global variable
 let total = 0;
 const addToTotal = (num: number): number => {
-  total += num; // Mutates external state
+  total += num; // Mutates external state - makes function unpredictable
   return total;
 };
 ```
@@ -758,29 +820,29 @@ const addToTotal = (num: number): number => {
 Never modify existing data structures; create new ones instead.
 
 ```typescript
-// ❌ Mutating arrays
+// ❌ Mutating arrays - this breaks functional programming principles
 const numbers = [1, 2, 3];
-numbers.push(4); // Mutation!
+numbers.push(4); // Mutation! Changes the original array
 
-// ✅ Immutable array operations
+// ✅ Immutable array operations - create new arrays instead
 const numbers = [1, 2, 3];
-const newNumbers = [...numbers, 4]; // Spread operator
+const newNumbers = [...numbers, 4]; // Spread operator creates new array
 const doubledNumbers = numbers.map(n => n * 2); // Map creates new array
 
-// ❌ Mutating objects
+// ❌ Mutating objects - this breaks functional programming principles
 const user = { name: 'Alice', age: 25 };
-user.age = 26; // Mutation!
+user.age = 26; // Mutation! Changes the original object
 
-// ✅ Immutable object updates
+// ✅ Immutable object updates - create new objects instead
 const user = { name: 'Alice', age: 25 };
-const updatedUser = { ...user, age: 26 }; // Spread operator
+const updatedUser = { ...user, age: 26 }; // Spread operator creates new object
 ```
 
 ### 3. Higher-Order Functions
 Functions that take other functions as arguments or return functions.
 
 ```typescript
-// Function that takes a function as argument
+// Function that takes a function as argument (higher-order function)
 const applyOperation = (operation: (a: number, b: number) => number, a: number, b: number): number => 
   operation(a, b);
 
@@ -790,7 +852,7 @@ const multiply = (a: number, b: number): number => a * b;
 console.log(applyOperation(add, 5, 3)); // 8
 console.log(applyOperation(multiply, 5, 3)); // 15
 
-// Function that returns a function
+// Function that returns a function (function factory)
 const createGreeter = (greeting: string) => {
   return (name: string): string => `${greeting}, ${name}!`;
 };
@@ -856,11 +918,11 @@ console.log(activeUsers); // [{ name: 'Alice', age: 25, active: true }, { name: 
 ```typescript
 const numbers = [1, 2, 3, 4, 5];
 
-// Sum all numbers
+// Sum all numbers - reduce accumulates values into a single result
 const sum = numbers.reduce((acc, num) => acc + num, 0);
 console.log(sum); // 15
 
-// Group by property
+// Group by property - reduce can create complex data structures
 interface User {
   name: string;
   age: number;
@@ -900,11 +962,11 @@ const users: User[] = [
   { name: 'David', age: 20, active: true }
 ];
 
-// Get names of active users over 25
+// Get names of active users over 25 - chain multiple operations
 const result = users
-  .filter(user => user.active)
-  .filter(user => user.age > 25)
-  .map(user => user.name);
+  .filter(user => user.active)     // First filter: only active users
+  .filter(user => user.age > 25)   // Second filter: only users over 25
+  .map(user => user.name);         // Finally: extract just the names
 
 console.log(result); // ['Charlie']
 ```
@@ -913,7 +975,7 @@ console.log(result); // ['Charlie']
 
 ### Simple Composition
 ```typescript
-// Compose two functions
+// Compose two functions - mathematical composition: f(g(x))
 const compose = <A, B, C>(f: (b: B) => C, g: (a: A) => B) => (x: A): C => f(g(x));
 
 const addOne = (x: number): number => x + 1;
@@ -922,13 +984,18 @@ const multiplyByTwo = (x: number): number => x * 2;
 const addOneThenMultiply = compose(multiplyByTwo, addOne);
 console.log(addOneThenMultiply(5)); // 12
 
-// Compose multiple functions
-const pipe = <T>(...fns: Array<(arg: T) => T>) => (x: T): T => fns.reduce((acc, fn) => fn(acc), x);
+// Compose multiple functions - pipeline composition for better readability
+export function pipe<A, B>(ab: (a: A) => B): (a: A) => B;
+export function pipe<A, B, C>(ab: (a: A) => B, bc: (b: B) => C): (a: A) => C;
+export function pipe<A, B, C, D>(ab: (a: A) => B, bc: (b: B) => C, cd: (c: C) => D): (a: A) => D;
+export function pipe(...fns: Array<(arg: unknown) => unknown>) {
+  return (x: unknown) => fns.reduce((acc, fn) => fn(acc), x);
+}
 
 const processData = pipe(
-  (x: number) => x * 2,
-  (x: number) => x + 1,
-  (x: number) => x.toString()
+  (x: number) => x * 2,    // First: double the number
+  (x: number) => x + 1,    // Second: add one
+  (x: number) => x.toString() // Third: convert to string
 );
 
 console.log(processData(5)); // "11"
@@ -950,29 +1017,25 @@ const orders: Order[] = [
   { id: 3, amount: 150, status: 'completed' },
   { id: 4, amount: 300, status: 'cancelled' }
 ];
-
-// Calculate total revenue from completed orders
-const totalRevenue = orders
-  .filter(order => order.status === 'completed')
-  .map(order => order.amount)
-  .reduce((sum, amount) => sum + amount, 0);
-
-console.log(totalRevenue); // 250
 ```
 
 ### Validation Pipeline
 ```typescript
+// Step 1: Validate email format using regex
 const validateEmail = (email: string): string | null => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email) ? email : null;
 };
 
+// Step 2: Validate email length (must be longer than 5 characters)
 const validateLength = (email: string | null): string | null => 
   email && email.length > 5 ? email : null;
 
+// Step 3: Normalize email to lowercase
 const normalizeEmail = (email: string | null): string | null => 
   email && email.toLowerCase();
 
+// Compose all validation steps into a single pipeline
 const validateAndNormalize = pipe(validateEmail, validateLength, normalizeEmail);
 
 console.log(validateAndNormalize('test@example.com')); // "test@example.com"
@@ -983,16 +1046,16 @@ console.log(validateAndNormalize('invalid')); // null
 
 ### 1. Keep Functions Small and Focused
 ```typescript
-// ❌ Too many responsibilities
+// ❌ Too many responsibilities - violates single responsibility principle
 const processUser = (user: any) => {
   // Validation, transformation, and side effects all mixed together
   if (!user.name) throw new Error('Name required');
   const processed = { ...user, name: user.name.toUpperCase() };
-  saveToDatabase(processed);
+  saveToDatabase(processed); // Side effect mixed with business logic
   return processed;
 };
 
-// ✅ Separated concerns
+// ✅ Separated concerns - each function has one responsibility
 const validateUser = (user: any) => {
   if (!user.name) throw new Error('Name required');
   return user;
@@ -1008,14 +1071,14 @@ const processUser = pipe(validateUser, transformUser);
 
 ### 2. Avoid Side Effects
 ```typescript
-// ❌ Side effects in pure functions
+// ❌ Side effects in pure functions - makes testing and debugging harder
 const calculateTotal = (items: any[]): number => {
   const total = items.reduce((sum, item) => sum + item.price, 0);
-  console.log(`Total: ${total}`); // Side effect
+  console.log(`Total: ${total}`); // Side effect: interacts with external system
   return total;
 };
 
-// ✅ Pure function
+// ✅ Pure function - same input always produces same output
 const calculateTotal = (items: any[]): number => {
   return items.reduce((sum, item) => sum + item.price, 0);
 };
@@ -1023,10 +1086,10 @@ const calculateTotal = (items: any[]): number => {
 
 ### 3. Use Descriptive Names
 ```typescript
-// ❌ Unclear names
+// ❌ Unclear names - hard to understand what the function does
 const fn = (arr: number[]): number[] => arr.filter(x => x > 0).map(x => x * 2);
 
-// ✅ Descriptive names
+// ✅ Descriptive names - clear intent and purpose
 const getPositiveNumbers = (numbers: number[]): number[] => numbers.filter(num => num > 0);
 const doubleNumbers = (numbers: number[]): number[] => numbers.map(num => num * 2);
 const processNumbers = pipe(getPositiveNumbers, doubleNumbers);
@@ -1034,6 +1097,35 @@ const processNumbers = pipe(getPositiveNumbers, doubleNumbers);
 
 ## Exercise
 Create a pure function that processes a list of products and returns the total price of items that are in stock and cost less than $100.
+
+Define:
+```ts
+type Product = { id: number; name: string; price: number; inStock: boolean };
+```
+Implement `totalAffordableInStock(products: Product[]): number`.
+
+### Unit tests
+```typescript
+// Exercise: totalAffordableInStock
+describe('totalAffordableInStock', () => {
+  const products: Product[] = [
+    { id: 1, name: 'A', price: 25, inStock: true },
+    { id: 2, name: 'B', price: 150, inStock: true },
+    { id: 3, name: 'C', price: 75, inStock: false },
+    { id: 4, name: 'D', price: 60, inStock: true }
+  ];
+
+  it('sums only in-stock items under $100', () => {
+    expect(totalAffordableInStock(products)).toBe(85);
+  });
+
+  it('is pure and does not mutate input', () => {
+    const copy = products.map(p => ({ ...p }));
+    totalAffordableInStock(products);
+    expect(products).toEqual(copy);
+  });
+});
+```
 
 ## Resources
 - [Eloquent JavaScript - Chapter 5: Higher-Order Functions](https://eloquentjavascript.net/05_higher_order.html)
@@ -1047,25 +1139,25 @@ This lecture explores how modern TypeScript features enhance functional programm
 
 ### Basic Syntax
 ```typescript
-// Traditional function
+// Traditional function expression
 const add = function(a: number, b: number): number {
   return a + b;
 };
 /// add(3, 4) returns 7
 
-// Arrow function
-const add = (a: number, b: number): number => a + b;
+// Arrow function - more concise syntax
+const addArrow = (a: number, b: number): number => a + b;
 /// add(3, 4) returns 7
 
-// Single parameter (parentheses optional)
+// Single parameter (parentheses optional for single parameter)
 const double = (x: number): number => x * 2;
 /// double(5) returns 10
 
-// No parameters
+// No parameters - parentheses required
 const getRandom = (): number => Math.random();
 /// getRandom() returns a random number between 0 and 1
 
-// Multiple statements
+// Multiple statements - use curly braces and explicit return
 const processUser = (user: any) => {
   const validated = validateUser(user);
   const transformed = transformUser(validated);
@@ -1120,14 +1212,14 @@ const result = numbers
 
 ### Array Destructuring
 ```typescript
-// Basic destructuring
+// Basic destructuring - extract values from array into variables
 const numbers = [1, 2, 3, 4, 5];
 const [first, second, ...rest] = numbers;
 console.log(first); // 1
 console.log(second); // 2
 console.log(rest); // [3, 4, 5]
 
-// Function parameters
+// Function parameters - destructure array parameters directly
 const processUser = ([name, age, city]: [string, number, string]) => {
   return { name, age, city };
 };
@@ -1136,7 +1228,7 @@ const userData: [string, number, string] = ['Alice', 25, 'NYC'];
 const user = processUser(userData);
 console.log(user); // { name: 'Alice', age: 25, city: 'NYC' }
 
-// Swapping variables
+// Swapping variables - elegant way to swap without temporary variable
 let a = 1, b = 2;
 [a, b] = [b, a];
 console.log(a, b); // 2, 1
@@ -1144,20 +1236,20 @@ console.log(a, b); // 2, 1
 
 ### Object Destructuring
 ```typescript
-// Basic object destructuring
+// Basic object destructuring - extract properties into variables
 const user = { name: 'Alice', age: 25, city: 'NYC' };
 const { name, age, city } = user;
 console.log(name, age, city); // Alice 25 NYC
 
-// Renaming variables
+// Renaming variables - use different variable names for properties
 const { name: userName, age: userAge } = user;
 console.log(userName, userAge); // Alice 25
 
-// Default values
+// Default values - provide fallback values for missing properties
 const { name, age, country = 'USA' } = user;
 console.log(country); // USA
 
-// Nested destructuring
+// Nested destructuring - extract properties from nested objects
 const user = {
   name: 'Alice',
   address: {
@@ -1319,13 +1411,18 @@ export const subtract = (a: number, b: number): number => a - b;
 export const multiply = (a: number, b: number): number => a * b;
 
 // utils.ts
-export const compose = <A, B, C>(...fns: Array<(arg: A) => A>) => (x: A): A => fns.reduce((acc, fn) => fn(acc), x);
-export const pipe = <A, B, C>(...fns: Array<(arg: A) => A>) => (x: A): A => fns.reduceRight((acc, fn) => fn(acc), x);
+export const compose = <A, B, C>(f: (b: B) => C, g: (a: A) => B) => (x: A): C => f(g(x));
+export function pipe<A, B>(ab: (a: A) => B): (a: A) => B;
+export function pipe<A, B, C>(ab: (a: A) => B, bc: (b: B) => C): (a: A) => C;
+export function pipe<A, B, C, D>(ab: (a: A) => B, bc: (b: B) => C, cd: (c: C) => D): (a: A) => D;
+export function pipe(...fns: Array<(arg: unknown) => unknown>) {
+  return (x: unknown) => fns.reduce((acc, fn) => fn(acc), x);
+}
 ```
 
 ### Default Exports
 ```typescript
-// userService.ts
+// userService.ts - Export a single main function as default
 const validateUser = (user: any) => {
   if (!user.name) throw new Error('Name required');
   return user;
@@ -1341,15 +1438,15 @@ const processUser = (user: any) => {
   return transformUser(validated);
 };
 
-export default processUser;
+export default processUser; // Default export - only one per module
 ```
 
 ### Importing
 ```typescript
-// main.ts
-import { add, multiply } from './math.js';
-import { compose, pipe } from './utils.js';
-import processUser from './userService.js';
+// main.ts - Import functions from different modules
+import { add, multiply } from './math.js'; // Named imports
+import { compose, pipe } from './utils.js'; // Named imports
+import processUser from './userService.js'; // Default import
 
 // Using imported functions
 const result = add(5, 3);
@@ -1362,31 +1459,31 @@ const processedUser = processUser({ name: 'alice', age: 25 });
 ```typescript
 // Using default parameters for partial application
 const add = (a: number, b: number): number => a + b;
-const addFive = (b: number): number => add(5, b);
+const addFive = (b: number): number => add(5, b); // Partially apply first argument
 
 console.log(addFive(3)); // 8
 
-// More flexible partial application
+// More flexible partial application utility
 const partial = <T extends any[], R>(fn: (...args: T) => R, ...args: Partial<T>) => (...moreArgs: any[]): R => fn(...args, ...moreArgs);
-const addFive = partial(add, 5);
+const addFive = partial(add, 5); // Partially apply with utility function
 console.log(addFive(3)); // 8
 ```
 
 ### Currying with Arrow Functions
 ```typescript
-// Manual currying
+// Manual currying - transform multi-argument function into series of single-argument functions
 const add = (a: number) => (b: number): number => a + b;
-const addFive = add(5);
+const addFive = add(5); // Returns a function that adds 5 to its argument
 console.log(addFive(3)); // 8
 
-// Auto-currying utility
+// Auto-currying utility - automatically curry any function
 const curry = <T extends any[], R>(fn: (...args: T) => R) => {
-  const arity = fn.length;
+  const arity = fn.length; // Number of arguments the function expects
   return function curried(...args: any[]): any {
     if (args.length >= arity) {
-      return fn(...args);
+      return fn(...args); // If we have enough arguments, call the function
     }
-    return (...moreArgs: any[]) => curried(...args, ...moreArgs);
+    return (...moreArgs: any[]) => curried(...args, ...moreArgs); // Otherwise, return a function that takes more arguments
   };
 };
 
@@ -1411,43 +1508,64 @@ const users: User[] = [
   { name: 'Charlie', age: 35, active: true }
 ];
 
-// Using ES6+ features for clean functional code
-const getActiveUserNames = users
-  .filter(({ active }) => active)
-  .map(({ name }) => name)
-  .sort();
+// Pure functions for data transformation - each does one thing well
+const filterActive = (users: User[]) => users.filter(user => user.active); // Filter active users
+const mapNames = (users: User[]) => users.map(user => user.name); // Extract names
+const sortNames = (names: string[]) => names.sort(); // Sort alphabetically
 
-console.log(getActiveUserNames); // ['Alice', 'Charlie']
+// Compose the pipeline - combine simple functions into complex behavior
+const getActiveUserNames = pipe(filterActive, mapNames, sortNames);
+console.log(getActiveUserNames(users)); // ["Alice", "Charlie"]
 ```
 
-### Configuration Management
+### Validation Pipeline
 ```typescript
-interface Config {
-  theme: string;
-  language: string;
-  notifications: boolean;
-}
+// Step 1: Validate email format
+const validateEmail = (email: string): string | null => email.includes('@') ? email : null;
+// Step 2: Validate email length
+const validateLength = (email: string | null): string | null => email && email.length > 5 ? email : null;
+// Step 3: Normalize email to lowercase
+const normalizeEmail = (email: string | null): string | null => email && email.toLowerCase();
 
-const createConfig = (userConfig: Partial<Config> = {}) => {
-  const defaults: Config = {
-    theme: 'dark',
-    language: 'en',
-    notifications: true
-  };
-  
-  return { ...defaults, ...userConfig };
-};
+// Compose validation steps into a single pipeline
+const validateAndNormalize = pipe(validateEmail, validateLength, normalizeEmail);
 
-const config = createConfig({ theme: 'light' });
-console.log(config); // { theme: 'light', language: 'en', notifications: true }
+console.log(validateAndNormalize('test@example.com')); // "test@example.com"
+console.log(validateAndNormalize('invalid')); // null
 ```
 
 ## Exercise
-Create a functional utility library using ES6+ features that includes:
-- A `map` function that works with objects and arrays
-- A `filter` function with predicate support
-- A `reduce` function for both arrays and objects
-- A `compose` function that can handle multiple arguments
+Using ES6+/TypeScript features, implement immutable configuration merging and user selection utilities:
+
+1. `mergeConfig(defaults: Config, overrides?: Partial<Config>): Config` using spread and default params.
+2. `getActiveUserNames(users: User[]): string[]` that filters `active` users, maps their `name`, and returns them sorted.
+
+### Unit tests
+```typescript
+// Exercise: ES6+ utilities
+describe('mergeConfig', () => {
+  const defaults: Config = { theme: 'dark', language: 'en', notifications: true };
+
+  it('merges overrides immutably', () => {
+    const overrides: Partial<Config> = { theme: 'light' };
+    const merged = mergeConfig(defaults, overrides);
+    expect(merged).toEqual({ theme: 'light', language: 'en', notifications: true });
+    expect(merged).not.toBe(defaults);
+  });
+});
+
+describe('getActiveUserNames', () => {
+  const users: User[] = [
+    { name: 'Alice', age: 25, email: 'a@a.com', active: true } as any,
+    { name: 'Bob', age: 30, email: 'b@b.com', active: false } as any,
+    { name: 'Charlie', age: 35, email: 'c@c.com', active: true } as any
+  ];
+
+  it('filters active users and sorts names', () => {
+    expect(getActiveUserNames(users)).toEqual(['Alice', 'Charlie']);
+  });
+});
+```
 
 ## Resources
 - [ES6 Features](https://github.com/lukehoban/es6features)
@@ -1479,8 +1597,8 @@ const subtract: BinaryOperation = (a, b) => a - b;
 ### Higher-Order Functions
 ```typescript
 // Function that takes a function as parameter
-type Predicate<T> = (item: T) => boolean;
-type Transformer<T, U> = (item: T) => U;
+type Predicate<T> = (item: T) => boolean; // Type for functions that test a condition
+type Transformer<T, U> = (item: T) => U; // Type for functions that transform data
 
 const filter = <T>(array: T[], predicate: Predicate<T>): T[] => {
   return array.filter(predicate);
@@ -1490,10 +1608,10 @@ const map = <T, U>(array: T[], transformer: Transformer<T, U>): U[] => {
   return array.map(transformer);
 };
 
-// Usage
+// Usage - create specific functions that match the type signatures
 const numbers = [1, 2, 3, 4, 5];
-const isEven: Predicate<number> = (n) => n % 2 === 0;
-const double: Transformer<number, number> = (n) => n * 2;
+const isEven: Predicate<number> = (n) => n % 2 === 0; // Predicate function
+const double: Transformer<number, number> = (n) => n * 2; // Transformer function
 
 const evenNumbers = filter(numbers, isEven);
 const doubledNumbers = map(numbers, double);
@@ -1501,10 +1619,10 @@ const doubledNumbers = map(numbers, double);
 
 ### Function Composition Types
 ```typescript
-// Type-safe composition
+// Type-safe composition - define the type for function composition
 type Compose = <A, B, C>(f: (b: B) => C, g: (a: A) => B) => (a: A) => C;
 
-const compose: Compose = (f, g) => (x) => f(g(x));
+const compose: Compose = (f, g) => (x) => f(g(x)); // Mathematical composition: f(g(x))
 
 const addOne = (x: number): number => x + 1;
 const multiplyByTwo = (x: number): number => x * 2;
@@ -1512,32 +1630,32 @@ const multiplyByTwo = (x: number): number => x * 2;
 const addOneThenMultiply = compose(multiplyByTwo, addOne);
 console.log(addOneThenMultiply(5)); // 12
 
-// Pipeline composition
+// Pipeline composition - alternative to compose, reads left to right
 type Pipe = <A, B, C>(f: (a: A) => B, g: (b: B) => C) => (a: A) => C;
 
-const pipe: Pipe = (f, g) => (x) => g(f(x));
+const pipe: Pipe = (f, g) => (x) => g(f(x)); // Pipeline: g(f(x))
 ```
 
 ## Generic Types
 
 ### Generic Functions
 ```typescript
-// Generic identity function
+// Generic identity function - works with any type
 const identity = <T>(value: T): T => value;
 /// identity(5) returns 5
 /// identity("hello") returns "hello"
 
-// Generic array operations
-const head = <T>(array: T[]): T | undefined => array[0];
+// Generic array operations - work with arrays of any type
+const head = <T>(array: T[]): T | undefined => array[0]; // Get first element
 /// head([1, 2, 3]) returns 1
 /// head([]) returns undefined
-const tail = <T>(array: T[]): T[] => array.slice(1);
+const tail = <T>(array: T[]): T[] => array.slice(1); // Get all elements except first
 /// tail([1, 2, 3]) returns [2, 3]
-const last = <T>(array: T[]): T | undefined => array[array.length - 1];
+const last = <T>(array: T[]): T | undefined => array[array.length - 1]; // Get last element
 /// last([1, 2, 3]) returns 3
 /// last([]) returns undefined
 
-// Usage
+// Usage - TypeScript infers the generic types automatically
 const numbers = [1, 2, 3, 4, 5];
 const first = head(numbers); // number | undefined
 const rest = tail(numbers); // number[]
@@ -1546,31 +1664,31 @@ const lastNum = last(numbers); // number | undefined
 
 ### Generic Data Structures
 ```typescript
-// Generic Maybe type
+// Generic Maybe type - represents optional values (success or nothing)
 type Maybe<T> = T | null;
 
 const safeDivide = (a: number, b: number): Maybe<number> => {
-  return b === 0 ? null : a / b;
+  return b === 0 ? null : a / b; // Return null for division by zero
 };
 
 const safeHead = <T>(array: T[]): Maybe<T> => {
-  return array.length > 0 ? array[0] : null;
+  return array.length > 0 ? array[0] : null; // Return null for empty array
 };
 
-// Generic Either type
+// Generic Either type - represents success or failure with error information
 type Either<L, R> = { left: L } | { right: R };
 
 const parseNumber = (str: string): Either<string, number> => {
   const num = parseInt(str);
   return isNaN(num) 
-    ? { left: 'Invalid number' }
-    : { right: num };
+    ? { left: 'Invalid number' } // Left represents error
+    : { right: num }; // Right represents success
 };
 ```
 
 ### Generic Constraints
 ```typescript
-// Constraint: T must have a length property
+// Constraint: T must have a length property (works with strings, arrays, etc.)
 const getLength = <T extends { length: number }>(value: T): number => {
   return value.length;
 };
@@ -1578,7 +1696,7 @@ const getLength = <T extends { length: number }>(value: T): number => {
 console.log(getLength('hello')); // 5
 console.log(getLength([1, 2, 3])); // 3
 
-// Constraint: T must be comparable
+// Constraint: T must be comparable (works with numbers and strings)
 const max = <T extends number | string>(a: T, b: T): T => {
   return a > b ? a : b;
 };
@@ -1591,13 +1709,13 @@ console.log(max('abc', 'def')); // 'def'
 
 ### Conditional Types
 ```typescript
-// Conditional type for function return
+// Conditional type for function return - extracts return type from function type
 type ReturnType<T> = T extends (...args: any[]) => infer R ? R : never;
 
-// Conditional type for array element
+// Conditional type for array element - extracts element type from array type
 type ArrayElement<T> = T extends (infer U)[] ? U : never;
 
-// Usage
+// Usage - TypeScript can infer types from existing functions
 const add = (a: number, b: number): number => a + b;
 type AddReturn = ReturnType<typeof add>; // number
 
@@ -1607,22 +1725,22 @@ type NumberElement = ArrayElement<typeof numbers>; // number
 
 ### Mapped Types
 ```typescript
-// Make all properties optional
+// Make all properties optional - useful for partial updates
 type Partial<T> = {
   [P in keyof T]?: T[P];
 };
 
-// Make all properties required
+// Make all properties required - removes optional modifiers
 type Required<T> = {
   [P in keyof T]-?: T[P];
 };
 
-// Make all properties readonly
+// Make all properties readonly - prevents mutation
 type Readonly<T> = {
   readonly [P in keyof T]: T[P];
 };
 
-// Usage
+// Usage - transform existing interfaces
 interface User {
   name: string;
   age: number;
@@ -1636,16 +1754,16 @@ type ReadonlyUser = Readonly<User>; // All properties readonly
 
 ### Utility Types
 ```typescript
-// Pick specific properties
+// Pick specific properties - create new type with only selected properties
 type UserName = Pick<User, 'name'>; // { name: string }
 
-// Omit specific properties
+// Omit specific properties - create new type without selected properties
 type UserWithoutEmail = Omit<User, 'email'>; // { name: string; age: number }
 
-// Extract function parameters
+// Extract function parameters - get parameter types from function type
 type Parameters<T> = T extends (...args: infer P) => any ? P : never;
 
-// Usage
+// Usage - extract types from existing functions
 const createUser = (name: string, age: number): User => ({ name, age, email: null });
 type CreateUserParams = Parameters<typeof createUser>; // [string, number]
 ```
@@ -1657,48 +1775,55 @@ type CreateUserParams = Parameters<typeof createUser>; // [string, number]
 class Maybe<T> {
   private constructor(private value: T | null) {}
 
+  // Factory method to create a Maybe with a value
   static just<T>(value: T): Maybe<T> {
     return new Maybe(value);
   }
 
+  // Factory method to create an empty Maybe
   static nothing<T>(): Maybe<T> {
     return new Maybe<T>(null);
   }
 
+  // Transform the value if it exists, otherwise return nothing
   map<U>(fn: (value: T) => U): Maybe<U> {
     return this.value === null 
       ? Maybe.nothing<U>()
       : Maybe.just(fn(this.value));
   }
 
+  // Chain operations that return Maybe values
   bind<U>(fn: (value: T) => Maybe<U>): Maybe<U> {
     return this.value === null 
       ? Maybe.nothing<U>()
       : fn(this.value);
   }
 
+  // Extract value with fallback for empty Maybe
   getOrElse(defaultValue: T): T {
     return this.value === null ? defaultValue : this.value;
   }
 
+  // Check if Maybe contains a value
   isJust(): boolean {
     return this.value !== null;
   }
 
+  // Check if Maybe is empty
   isNothing(): boolean {
     return this.value === null;
   }
 }
 
-// Usage
+// Usage - safe division that handles division by zero
 const safeDivide = (a: number, b: number): Maybe<number> => {
   return b === 0 ? Maybe.nothing() : Maybe.just(a / b);
 };
 
 const result = Maybe.just(10)
-  .bind(x => safeDivide(x, 2))
-  .bind(x => safeDivide(x, 5))
-  .getOrElse(0);
+  .bind(x => safeDivide(x, 2))  // 10 / 2 = 5
+  .bind(x => safeDivide(x, 5))  // 5 / 5 = 1
+  .getOrElse(0);                // Extract result or use 0 as fallback
 
 console.log(result); // 1
 ```
@@ -1712,29 +1837,34 @@ class Either<L, R> {
     private isLeft: boolean
   ) {}
 
+  // Factory method for error case (left)
   static left<L, R>(value: L): Either<L, R> {
     return new Either(value, null, true);
   }
 
+  // Factory method for success case (right)
   static right<L, R>(value: R): Either<L, R> {
     return new Either(null, value, false);
   }
 
+  // Transform success value, preserve error
   map<U>(fn: (value: R) => U): Either<L, U> {
     return this.isLeft 
       ? Either.left<L, U>(this.leftValue!)
       : Either.right<L, U>(fn(this.rightValue!));
   }
 
+  // Chain operations that return Either values
   bind<U>(fn: (value: R) => Either<L, U>): Either<L, U> {
     return this.isLeft 
       ? Either.left<L, U>(this.leftValue!)
       : fn(this.rightValue!);
   }
 
+  // Handle both success and error cases
   fold<U>(
-    leftFn: (value: L) => U,
-    rightFn: (value: R) => U
+    leftFn: (value: L) => U,   // Function to handle error
+    rightFn: (value: R) => U   // Function to handle success
   ): U {
     return this.isLeft 
       ? leftFn(this.leftValue!)
@@ -1742,7 +1872,7 @@ class Either<L, R> {
   }
 }
 
-// Usage
+// Usage - safe number parsing with error handling
 const parseNumber = (str: string): Either<string, number> => {
   const num = parseInt(str);
   return isNaN(num) 
@@ -1751,10 +1881,10 @@ const parseNumber = (str: string): Either<string, number> => {
 };
 
 const result = parseNumber('123')
-  .map(x => x * 2)
+  .map(x => x * 2)  // Transform success value
   .fold(
-    error => `Error: ${error}`,
-    value => `Result: ${value}`
+    error => `Error: ${error}`,     // Handle error case
+    value => `Result: ${value}`     // Handle success case
   );
 
 console.log(result); // "Result: 246"
@@ -1764,7 +1894,7 @@ console.log(result); // "Result: 246"
 
 ### Type-Safe API Client
 ```typescript
-// API response types
+// API response types - define the shape of data from API
 interface User {
   id: number;
   name: string;
@@ -1778,7 +1908,7 @@ interface Post {
   userId: number;
 }
 
-// API client with type safety
+// API client with type safety - generic methods ensure type safety
 class ApiClient {
   async get<T>(url: string): Promise<T> {
     const response = await fetch(url);
@@ -1789,23 +1919,23 @@ class ApiClient {
   }
 
   async getUser(id: number): Promise<User> {
-    return this.get<User>(`/api/users/${id}`);
+    return this.get<User>(`/api/users/${id}`); // Type parameter ensures return type
   }
 
   async getPosts(userId: number): Promise<Post[]> {
-    return this.get<Post[]>(`/api/users/${userId}/posts`);
+    return this.get<Post[]>(`/api/users/${userId}/posts`); // Type parameter ensures return type
   }
 }
 
-// Type-safe data processing
+// Type-safe data processing - TypeScript ensures correct property access
 const processUserPosts = async (userId: number): Promise<string[]> => {
   const client = new ApiClient();
   
   try {
-    const user = await client.getUser(userId);
-    const posts = await client.getPosts(userId);
+    const user = await client.getUser(userId); // TypeScript knows this returns User
+    const posts = await client.getPosts(userId); // TypeScript knows this returns Post[]
     
-    return posts.map(post => `${user.name}: ${post.title}`);
+    return posts.map(post => `${user.name}: ${post.title}`); // Safe property access
   } catch (error) {
     console.error('Error processing user posts:', error);
     return [];
@@ -1815,19 +1945,21 @@ const processUserPosts = async (userId: number): Promise<string[]> => {
 
 ### Type-Safe Redux Actions
 ```typescript
-// Action types
+// Action types - generic type for all Redux actions
 type Action<T extends string, P = any> = {
   type: T;
   payload: P;
 };
 
+// Specific action types with their payloads
 type AddTodoAction = Action<'ADD_TODO', { text: string; completed: boolean }>;
 type ToggleTodoAction = Action<'TOGGLE_TODO', number>;
 type DeleteTodoAction = Action<'DELETE_TODO', number>;
 
+// Union type of all possible todo actions
 type TodoAction = AddTodoAction | ToggleTodoAction | DeleteTodoAction;
 
-// Action creators
+// Action creators - pure functions that create actions
 const addTodo = (text: string): AddTodoAction => ({
   type: 'ADD_TODO',
   payload: { text, completed: false }
@@ -1843,7 +1975,7 @@ const deleteTodo = (id: number): DeleteTodoAction => ({
   payload: id
 });
 
-// Type-safe reducer
+// Type-safe reducer - TypeScript ensures all action types are handled
 interface Todo {
   id: number;
   text: string;
@@ -1891,11 +2023,33 @@ const todoReducer = (state: TodoState, action: TodoAction): TodoState => {
 ```
 
 ## Exercise
-Create a type-safe functional utility library that includes:
-- A generic `Result<T, E>` type for error handling
-- A generic `Option<T>` type for nullable values
-- Type-safe composition functions
-- Generic data transformation pipelines
+Create a lightweight `Maybe<T>` type with `of`, `map`, `chain`, and `getOrElse`. Also implement `safeHead<T>(xs: T[]): Maybe<T>`.
+
+### Unit tests
+```typescript
+// Exercise: Maybe type
+describe('Maybe', () => {
+  it('maps over present values', () => {
+    const value = Maybe.of(2).map(x => x * 3).getOrElse(0);
+    expect(value).toBe(6);
+  });
+
+  it('does not map over empty', () => {
+    const value = Maybe.of<number | null>(null).map(x => (x as number) * 3).getOrElse(10);
+    expect(value).toBe(10);
+  });
+});
+
+describe('safeHead', () => {
+  it('returns first element wrapped in Maybe', () => {
+    expect(safeHead([1, 2, 3]).getOrElse(-1)).toBe(1);
+  });
+
+  it('returns empty for empty array', () => {
+    expect(safeHead<number>([]).getOrElse(42)).toBe(42);
+  });
+});
+```
 
 ## Resources
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/)
@@ -1913,11 +2067,11 @@ Redux follows functional programming principles at its core. This lecture explor
 ### 1. Pure Functions
 Redux reducers must be pure functions:
 ```typescript
-// Pure function - same input always produces same output
+// Pure function - same input always produces same output, no side effects
 const counterReducer = (state = 0, action: any) => {
   switch (action.type) {
     case 'INCREMENT':
-      return state + 1; // No side effects, immutable
+      return state + 1; // No side effects, immutable update
     case 'DECREMENT':
       return state - 1;
     default:
@@ -1929,17 +2083,17 @@ const counterReducer = (state = 0, action: any) => {
 ### 2. Immutability
 State updates must be immutable:
 ```typescript
-// ❌ Wrong - mutating state
+// ❌ Wrong - mutating state breaks Redux principles
 const wrongReducer = (state: any, action: any) => {
-  state.count += 1; // Mutation!
+  state.count += 1; // Mutation! This will cause bugs
   return state;
 };
 
-// ✅ Correct - immutable update
+// ✅ Correct - immutable update creates new state object
 const correctReducer = (state: any, action: any) => {
   return {
     ...state,
-    count: state.count + 1
+    count: state.count + 1 // Create new object with updated count
   };
 };
 ```
@@ -1947,10 +2101,11 @@ const correctReducer = (state: any, action: any) => {
 ### 3. Composition
 Redux combines multiple reducers functionally:
 ```typescript
+// Compose multiple domain-specific reducers into a single root reducer
 const rootReducer = combineReducers({
-  users: usersReducer,
-  posts: postsReducer,
-  comments: commentsReducer
+  users: usersReducer,    // Handles user-related state
+  posts: postsReducer,    // Handles post-related state
+  comments: commentsReducer // Handles comment-related state
 });
 ```
 
@@ -1958,7 +2113,7 @@ const rootReducer = combineReducers({
 
 ### Action Creators as Pure Functions
 ```typescript
-// Pure function that creates actions
+// Pure function that creates actions - same input always produces same action
 const addTodo = (text: string) => ({
   type: 'ADD_TODO',
   payload: { text, completed: false }
@@ -1967,7 +2122,7 @@ const addTodo = (text: string) => ({
 
 ### Selectors as Pure Functions
 ```typescript
-// Pure function for data selection
+// Pure function for data selection - extracts specific data from state
 const selectCompletedTodos = (state: any) => 
   state.todos.filter((todo: any) => todo.completed);
 
@@ -1985,6 +2140,36 @@ const selectTodoCount = (state: any) =>
 
 ## Exercise
 Create a pure reducer function that handles a shopping cart with add/remove/clear actions. 
+
+### Unit tests
+```typescript
+// Exercise: shopping cart reducer
+type CartItem = { id: string; name: string; price: number; qty: number };
+type CartState = { items: CartItem[] };
+
+describe('cartReducer', () => {
+  const initial: CartState = { items: [] };
+
+  it('adds items', () => {
+    const next = cartReducer(initial, { type: 'ADD', payload: { id: '1', name: 'A', price: 10, qty: 2 } });
+    expect(next.items).toHaveLength(1);
+    expect(next.items[0]).toEqual({ id: '1', name: 'A', price: 10, qty: 2 });
+    expect(next).not.toBe(initial);
+  });
+
+  it('removes items by id', () => {
+    const state: CartState = { items: [{ id: '1', name: 'A', price: 10, qty: 2 }] };
+    const next = cartReducer(state, { type: 'REMOVE', payload: '1' });
+    expect(next.items).toHaveLength(0);
+  });
+
+  it('clears all items', () => {
+    const state: CartState = { items: [{ id: '1', name: 'A', price: 10, qty: 2 }] };
+    const next = cartReducer(state, { type: 'CLEAR' });
+    expect(next.items).toEqual([]);
+  });
+});
+```
 
 # Redux Toolkit & Functional Programming
 
@@ -2011,11 +2196,11 @@ const todoSlice = createSlice({
     // Each reducer is a pure function
     // RTK uses Immer under the hood, so this appears mutable but is actually immutable
     addTodo: (state, action) => {
-      state.push(action.payload); // Immer handles immutability
+      state.push(action.payload); // Immer handles immutability behind the scenes
     },
     toggleTodo: (state, action) => {
       const todo = state.find(t => t.id === action.payload);
-      if (todo) todo.completed = !todo.completed;
+      if (todo) todo.completed = !todo.completed; // Immer ensures this is immutable
     }
   }
 });
@@ -2023,10 +2208,10 @@ const todoSlice = createSlice({
 
 ### 2. Functional Action Creators
 ```typescript
-// RTK automatically generates pure action creators
+// RTK automatically generates pure action creators from your reducers
 const { addTodo, toggleTodo } = todoSlice.actions;
 
-// These are pure functions
+// These are pure functions - same input always produces same action
 const newTodo = addTodo({ id: 1, text: 'Learn FP', completed: false });
 const toggleAction = toggleTodo(1);
 ```
@@ -2036,6 +2221,7 @@ const toggleAction = toggleTodo(1);
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
 // Pure function that returns a thunk (function returning function)
+// This separates side effects from pure logic
 const fetchTodos = createAsyncThunk(
   'todos/fetchTodos',
   async (userId: number) => {
@@ -2049,7 +2235,7 @@ const fetchTodos = createAsyncThunk(
 
 ### Immutability Made Easy
 ```typescript
-// RTK uses Immer under the hood
+// RTK uses Immer under the hood to handle immutable updates
 const counterSlice = createSlice({
   name: 'counter',
   initialState: { value: 0 },
@@ -2067,9 +2253,9 @@ import { configureStore } from '@reduxjs/toolkit';
 
 const store = configureStore({
   reducer: {
-    todos: todoSlice.reducer,
+    todos: todoSlice.reducer,    // Compose domain-specific reducers
     counter: counterSlice.reducer,
-    // Composition of pure reducers
+    // Composition of pure reducers - each handles its own domain
   }
 });
 ```
@@ -2083,28 +2269,311 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 const api = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: '/api' }),
   endpoints: (builder) => ({
-    // Pure function that defines data fetching
+    // Pure function that defines data fetching - no side effects in the definition
     getTodos: builder.query({
-      query: (userId: number) => `users/${userId}/todos`,
-      // Transform is a pure function
+      query: (userId: number) => `users/${userId}/todos`, // Pure function for URL generation
+      // Transform is a pure function - transforms response data
       transformResponse: (response: any) => response.data
     })
   })
 });
 ```
 
-## Key Takeaways
-- RTK maintains functional programming principles
-- Immer provides immutable updates with mutable syntax
-- Async operations are handled functionally
-- Composition remains a core pattern
+### 2. Functional Caching Strategy
+```typescript
+// Pure cache key generation
+const generateCacheKey = (userId: number, filters: any) => {
+  return `todos-${userId}-${JSON.stringify(filters)}`;
+};
 
-## Resources
-- [Redux Toolkit](https://redux-toolkit.js.org/)
-- [RTK Query](https://redux-toolkit.js.org/rtk-query/overview)
+// Pure cache invalidation
+const invalidateUserTodos = (userId: number) => [
+  { type: 'Todo', id: userId },
+  { type: 'Todo', id: 'LIST' }
+];
+
+const api = createApi({
+  baseQuery: fetchBaseQuery({ baseUrl: '/api' }),
+  tagTypes: ['Todo', 'User'],
+  endpoints: (builder) => ({
+    getTodos: builder.query({
+      query: ({ userId, filters = {} }: { userId: number; filters?: any }) => ({
+        url: `users/${userId}/todos`,
+        params: filters
+      }),
+      providesTags: (result, error, { userId }) => 
+        result ? [
+          ...result.map((todo: any) => ({ type: 'Todo', id: todo.id })),
+          { type: 'Todo', id: `user-${userId}` }
+        ] : []
+    }),
+    
+    updateTodo: builder.mutation({
+      query: ({ id, updates }: { id: number; updates: any }) => ({
+        url: `todos/${id}`,
+        method: 'PATCH',
+        body: updates
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: 'Todo', id },
+        { type: 'Todo', id: 'LIST' }
+      ]
+    })
+  })
+});
+```
+
+### 3. Functional Error Handling
+```typescript
+// Pure error transformation
+const transformError = (error: any): { type: string; message: string } => {
+  if (error.status === 401) {
+    return { type: 'AUTH_ERROR', message: 'Please log in again' };
+  }
+  if (error.status === 404) {
+    return { type: 'NOT_FOUND', message: 'Resource not found' };
+  }
+  return { type: 'GENERIC_ERROR', message: error.data?.message || 'An error occurred' };
+};
+
+import { retry } from '@reduxjs/toolkit/query/react';
+const baseQuery = retry(fetchBaseQuery({ baseUrl: '/api' }), { maxRetries: 3 });
+
+const api = createApi({
+  baseQuery,
+  endpoints: (builder) => ({
+    getTodos: builder.query<Todo[], number>({
+      query: (userId: number) => `users/${userId}/todos`,
+      transformErrorResponse: (response: any) => transformError(response),
+    })
+  })
+});
+```
+
+## Advanced Functional Patterns
+
+### 1. Functional Selectors with Reselect
+```typescript
+import { createSelector } from '@reduxjs/toolkit';
+
+// Pure selector functions
+const selectTodos = (state: any) => state.todos.items;
+const selectFilter = (state: any) => state.todos.filter;
+
+// Memoized derived state
+const selectFilteredTodos = createSelector(
+  [selectTodos, selectFilter],
+  (todos: Todo[], filter: string) => {
+    switch (filter) {
+      case 'completed':
+        return todos.filter(todo => todo.completed);
+      case 'active':
+        return todos.filter(todo => !todo.completed);
+      default:
+        return todos;
+    }
+  }
+);
+
+const selectTodoStats = createSelector(
+  [selectTodos],
+  (todos: Todo[]) => ({
+    total: todos.length,
+    completed: todos.filter(todo => todo.completed).length,
+    active: todos.filter(todo => !todo.completed).length
+  })
+);
+```
+
+### 2. Functional Component Integration
+```typescript
+import { useGetTodosQuery, useCreateTodoMutation } from './api';
+
+// Pure component with RTK Query hooks
+const TodoList = ({ userId }: { userId: number }) => {
+  const { data: todos, isLoading, error } = useGetTodosQuery(userId);
+  const [createTodo, { isLoading: isCreating }] = useCreateTodoMutation();
+  
+  // Pure event handlers
+  const handleAddTodo = async (text: string) => {
+    try {
+      await createTodo({ userId, text, completed: false }).unwrap();
+    } catch (error) {
+      console.error('Failed to create todo:', error);
+    }
+  };
+  
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {(error as any).message}</div>;
+  
+  return (
+    <div>
+      {todos?.map(todo => (
+        <TodoItem key={todo.id} todo={todo} />
+      ))}
+      <AddTodoForm onSubmit={handleAddTodo} disabled={isCreating} />
+    </div>
+  );
+};
+```
+
+### 3. Functional Middleware
+```typescript
+import { createListenerMiddleware } from '@reduxjs/toolkit';
+
+// Pure middleware functions
+const listenerMiddleware = createListenerMiddleware();
+
+listenerMiddleware.startListening({
+  actionCreator: addTodo,
+  effect: async (action, listenerApi) => {
+    // Pure side effect handling
+    const { dispatch, getState } = listenerApi;
+    
+    // Debounced save
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    try {
+      const result = await fetch('/api/todos', {
+        method: 'POST',
+        body: JSON.stringify(action.payload)
+      });
+      
+      if (!result.ok) {
+        throw new Error('Failed to save todo');
+      }
+      
+      const savedTodo = await result.json();
+      dispatch(updateTodo({ id: action.payload.id, updates: savedTodo }));
+    } catch (error) {
+      dispatch(setError(error instanceof Error ? error.message : 'Unknown error'));
+    }
+  }
+});
+```
+
+## Performance Optimization
+
+### 1. Functional Memoization
+```typescript
+// Pure memoization utility
+const memoize = <T extends any[], R>(fn: (...args: T) => R) => {
+  const cache = new Map<string, R>();
+  return (...args: T): R => {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) {
+      return cache.get(key)!;
+    }
+    const result = fn(...args);
+    cache.set(key, result);
+    return result;
+  };
+};
+
+// Memoized expensive calculation
+const expensiveCalculation = memoize((numbers: number[]): number => {
+  return numbers.reduce((sum, num) => sum + num, 0);
+});
+```
+
+### 2. Functional Lazy Loading
+```typescript
+// Pure lazy loading utility
+const createLazyLoader = <T>(loader: () => Promise<T>) => {
+  let promise: Promise<T> | null = null;
+  return (): Promise<T> => {
+    if (!promise) {
+      promise = loader();
+    }
+    return promise;
+  };
+};
+
+// Lazy load API slices
+const lazyUserApi = createLazyLoader(() => import('./userApi'));
+const lazyPostApi = createLazyLoader(() => import('./postApi'));
+```
+
+## Testing Functional RTK Code
+
+### 1. Pure Function Testing
+```typescript
+// Test pure selectors
+describe('todoSelectors', () => {
+  it('should filter completed todos', () => {
+    const state = {
+      todos: {
+        items: [
+          { id: 1, text: 'Todo 1', completed: true },
+          { id: 2, text: 'Todo 2', completed: false }
+        ] as Todo[]
+      }
+    };
+    
+    const result = selectFilteredTodos(state, 'completed');
+    expect(result).toHaveLength(1);
+    expect(result[0].id).toBe(1);
+  });
+});
+```
+
+### 2. RTK Query Testing
+```typescript
+import { setupApiStore } from '@reduxjs/toolkit/query/react';
+import { api } from './api';
+
+const storeRef = setupApiStore(api);
+
+describe('todoApi', () => {
+  it('should fetch todos', async () => {
+    const { result, waitForNextUpdate } = renderHook(
+      () => useGetTodosQuery(1),
+      { wrapper: ({ children }) => (
+        <Provider store={storeRef.store}>{children}</Provider>
+      )}
+    );
+    
+    expect(result.current.isLoading).toBe(true);
+    
+    await waitForNextUpdate();
+    
+    expect(result.current.isLoading).toBe(false);
+    expect(result.current.data).toBeDefined();
+  });
+});
+```
 
 ## Exercise
-Create a Redux Toolkit slice for a user profile with async thunk for fetching user data. 
+Define a tiny RTK Query API and test a query hook behavior.
+
+Task:
+- Create `todosApi` with `getTodos(userId: number)` endpoint.
+- Write a test that renders the hook with a configured store and asserts loading -> data.
+
+### Unit tests
+```typescript
+// Exercise: RTK Query endpoint test
+describe('todosApi/getTodos', () => {
+  it('transitions from loading to data', async () => {
+    const mockTodos = [ { id: 1, text: 'X', completed: false } ];
+    server.use(rest.get('/api/users/1/todos', (req, res, ctx) => res(ctx.json(mockTodos))));
+
+    const { result, waitForNextUpdate } = renderHook(
+      () => useGetTodosQuery(1),
+      { wrapper: ({ children }) => <Provider store={store}>{children}</Provider> }
+    );
+
+    expect(result.current.isLoading).toBe(true);
+    await waitForNextUpdate();
+    expect(result.current.isLoading).toBe(false);
+    expect(result.current.data).toEqual(mockTodos);
+  });
+});
+```
+
+## Resources
+- [RTK Query Advanced Patterns](https://redux-toolkit.js.org/rtk-query/usage/advanced-patterns)
+- [Redux Toolkit Testing](https://redux-toolkit.js.org/rtk-query/usage/testing)
 
 # Functional Composition
 
@@ -2128,24 +2597,31 @@ Functional composition is a core principle where complex functions are built by 
 ### Mathematical Composition
 ```typescript
 // Mathematical composition: (f ∘ g)(x) = f(g(x))
+// This reads as "f composed with g" - apply g first, then f
 const compose = <A, B, C>(f: (b: B) => C, g: (a: A) => B) => (x: A): C => f(g(x));
 
 const addOne = (x: number): number => x + 1;
 const multiplyByTwo = (x: number): number => x * 2;
 
-const addOneThenMultiply = compose(multiplyByTwo, addOne);
+const addOneThenMultiply = compose(multiplyByTwo, addOne); // Apply addOne first, then multiplyByTwo
 console.log(addOneThenMultiply(5)); // 12
 ```
 
 ### Pipeline Composition
 ```typescript
 // Pipeline: data flows through functions left to right
-const pipe = <T>(...fns: Array<(arg: T) => T>) => (x: T): T => fns.reduce((acc, fn) => fn(acc), x);
+// This is often more readable than mathematical composition
+export function pipe<A, B>(ab: (a: A) => B): (a: A) => B;
+export function pipe<A, B, C>(ab: (a: A) => B, bc: (b: B) => C): (a: A) => C;
+export function pipe<A, B, C, D>(ab: (a: A) => B, bc: (b: B) => C, cd: (c: C) => D): (a: A) => D;
+export function pipe(...fns: Array<(arg: unknown) => unknown>) {
+  return (x: unknown) => fns.reduce((acc, fn) => fn(acc), x);
+}
 
 const processData = pipe(
-  (x: number) => x * 2,
-  (x: number) => x + 1,
-  (x: number) => x.toString()
+  (x: number) => x * 2,    // First: double the number
+  (x: number) => x + 1,    // Second: add one
+  (x: number) => x.toString() // Third: convert to string
 );
 
 console.log(processData(5)); // "11"
@@ -2261,6 +2737,25 @@ const addTodoWithMeta = pipe(addTodo, createActionWithMeta);
 ## Exercise
 Create a composition pipeline that processes a list of products: filters by price range, sorts by rating, and maps to display format. 
 
+### Unit tests
+```typescript
+// Exercise: product composition pipeline
+type RatedProduct = { id: number; name: string; price: number; rating: number };
+
+describe('productPipeline', () => {
+  const products: RatedProduct[] = [
+    { id: 1, name: 'A', price: 50, rating: 4.2 },
+    { id: 2, name: 'B', price: 200, rating: 4.9 },
+    { id: 3, name: 'C', price: 75, rating: 3.8 }
+  ];
+
+  it('filters, sorts by rating desc, and maps to display', () => {
+    const result = productPipeline(products, { min: 0, max: 100 });
+    expect(result).toEqual(['A (4.2★) - $50', 'C (3.8★) - $75']);
+  });
+});
+```
+
 # Monads in Functional Programming
 
 Monads are a fundamental concept in functional programming that handle side effects and complex computations. This lecture explores monads based on Philip Wadler's work and their practical applications.
@@ -2319,7 +2814,7 @@ const result = Maybe.just(10)
   .bind(x => safeDivide(x, 2))
   .bind(x => safeDivide(x, 5));
 
-console.log(result.value); // 1
+console.log(result.getOrElse(0)); // 1
 ```
 
 ### 2. Either Monad (Handles errors)
@@ -2490,296 +2985,32 @@ const result = numbers
 ## Exercise
 Implement a Result monad that can handle both success and error cases, then use it to process a list of user data with validation. 
 
-# Reactive Programming with Cycle.js
-
-Reactive programming is a paradigm focused on data streams and propagation of change. This lecture explores reactive programming concepts through Andre Staltz's Cycle.js framework.
-
-## What is Reactive Programming?
-
-Reactive programming is programming with asynchronous data streams. Everything is a stream:
-- User events (clicks, typing)
-- HTTP requests
-- Timer events
-- Component state changes
-
+### Unit tests
 ```typescript
-// Traditional imperative approach
-let count = 0;
-button.addEventListener('click', () => {
-  count++;
-  display.textContent = count.toString();
+// Exercise: Result monad
+describe('Result', () => {
+  it('maps and chains on Ok', () => {
+    const res = Ok(2).map(x => x + 1).chain(x => Ok(x * 10));
+    expect(res.unwrap()).toBe(30);
+  });
+
+  it('skips map/chain on Err', () => {
+    const res = Err<number>('bad').map(x => x + 1).chain(x => Ok(x * 10));
+    expect(res.isErr()).toBe(true);
+  });
 });
 
-// Reactive approach with streams
-const clickStream = fromEvent(button, 'click');
-const countStream = clickStream.pipe(
-  scan((acc) => acc + 1, 0)
-);
-countStream.subscribe(count => display.textContent = count.toString());
-```
-
-## Core Concepts
-
-### 1. Streams
-```typescript
-// A stream is a sequence of events over time
-const stream = new Observable<number>(observer => {
-  observer.next(1);
-  observer.next(2);
-  observer.next(3);
-  observer.complete();
-});
-
-stream.subscribe({
-  next: (value: number) => console.log(value),
-  complete: () => console.log('Done')
+describe('processUsers with Result', () => {
+  it('validates and formats only valid users', () => {
+    const users = [
+      { name: 'Alice', email: 'a@a.com' },
+      { name: '', email: '' }
+    ];
+    const result = processUsers(users);
+    expect(result.unwrap()).toEqual(['Alice <a@a.com>']);
+  });
 });
 ```
-
-### 2. Operators
-```typescript
-// Transform streams using operators
-const numbers$ = of(1, 2, 3, 4, 5);
-
-const doubled$ = numbers$.pipe(
-  map((x: number) => x * 2),
-  filter((x: number) => x > 5)
-);
-
-doubled$.subscribe(console.log); // 6, 8, 10
-```
-
-### 3. Composition
-```typescript
-// Combine multiple streams
-const clicks$ = fromEvent(button, 'click');
-const timer$ = interval(1000);
-
-const combined$ = merge(clicks$, timer$);
-combined$.subscribe((event: any) => console.log('Event:', event));
-```
-
-## Cycle.js Architecture
-
-### MVI Pattern (Model-View-Intent)
-```typescript
-import { run } from '@cycle/run';
-import { makeDOMDriver } from '@cycle/dom';
-import { makeHTTPDriver } from '@cycle/http';
-
-function main(sources: any) {
-  // Intent: User actions → actions
-  const click$ = sources.DOM.select('.button').events('click');
-  const action$ = click$.map(() => ({ type: 'INCREMENT' }));
-
-  // Model: Actions → state
-  const state$ = action$.pipe(
-    scan((state: any, action: any) => {
-      switch (action.type) {
-        case 'INCREMENT':
-          return { ...state, count: state.count + 1 };
-        default:
-          return state;
-      }
-    }, { count: 0 })
-  );
-
-  // View: State → DOM
-  const vdom$ = state$.map((state: any) => 
-    h('div', [
-      h('h1', `Count: ${state.count}`),
-      h('button.button', 'Increment')
-    ])
-  );
-
-  return {
-    DOM: vdom$
-  };
-}
-
-run(main, {
-  DOM: makeDOMDriver('#app')
-});
-```
-
-## Functional Reactive Programming
-
-### Pure Functions with Streams
-```typescript
-// Pure function that transforms a stream
-const incrementCounter = (action$: any) => 
-  action$.pipe(
-    filter((action: any) => action.type === 'INCREMENT'),
-    scan((count: number, action: any) => count + 1, 0)
-  );
-
-// Pure function for DOM rendering
-const renderCounter = (count$: any) =>
-  count$.pipe(
-    map((count: number) => h('div', [
-      h('h1', `Count: ${count}`),
-      h('button', 'Increment')
-    ]))
-  );
-```
-
-### Composition of Streams
-```typescript
-// Compose multiple stream transformations
-const processUserInput = pipe(
-  debounceTime(300),
-  map((event: any) => event.target.value),
-  filter((text: string) => text.length > 2),
-  distinctUntilChanged()
-);
-
-const searchResults$ = userInput$.pipe(processUserInput);
-```
-
-## Real-World Examples
-
-### Search with Debouncing
-```typescript
-interface SearchResult {
-  title: string;
-  id: string;
-}
-
-interface SearchSources {
-  DOM: {
-    select: (selector: string) => {
-      events: (eventType: string) => Observable<Event>;
-    };
-  };
-  HTTP: {
-    get: (url: string) => Observable<{ body: { results: SearchResult[] } }>;
-  };
-}
-
-function searchComponent(sources: SearchSources) {
-  const input$ = sources.DOM.select('.search').events('input');
-  
-  const searchTerm$ = input$.pipe(
-    map((event: Event) => (event.target as HTMLInputElement).value),
-    debounceTime(300),
-    filter((term: string) => term.length > 2)
-  );
-
-  const searchResults$ = searchTerm$.pipe(
-    switchMap((term: string) => 
-      sources.HTTP.get(`/api/search?q=${term}`)
-    ),
-    map((response: { body: { results: SearchResult[] } }) => response.body.results)
-  );
-
-  const vdom$ = combineLatest(searchTerm$, searchResults$).pipe(
-    map(([term, results]: [string, SearchResult[]]) => 
-      h('div', [
-        h('input.search', { placeholder: 'Search...' }),
-        h('ul', results.map((result: SearchResult) => 
-          h('li', result.title)
-        ))
-      ])
-    )
-  );
-
-  return {
-    DOM: vdom$,
-    HTTP: searchTerm$.pipe(map((term: string) => ({
-      url: `/api/search?q=${term}`,
-      category: 'search'
-    })))
-  };
-}
-```
-
-### Todo App with Streams
-```typescript
-interface Todo {
-  id: number;
-  text: string;
-  completed: boolean;
-}
-
-interface TodoSources {
-  DOM: {
-    select: (selector: string) => {
-      events: (eventType: string) => Observable<Event>;
-    };
-  };
-}
-
-function todoApp(sources: TodoSources) {
-  // Intent
-  const addTodo$ = sources.DOM.select('.add-todo').events('click');
-  const newTodoText$ = sources.DOM.select('.new-todo').events('input')
-    .pipe(map((event: Event) => (event.target as HTMLInputElement).value));
-
-  // Model
-  const todos$ = addTodo$.pipe(
-    withLatestFrom(newTodoText$),
-    scan((todos: Todo[], [_, text]: [Event, string]) => [
-      ...todos,
-      { id: Date.now(), text, completed: false }
-    ], [] as Todo[])
-  );
-
-  // View
-  const vdom$ = todos$.pipe(
-    map((todos: Todo[]) => 
-      h('div', [
-        h('input.new-todo', { placeholder: 'New todo' }),
-        h('button.add-todo', 'Add'),
-        h('ul', todos.map((todo: Todo) => 
-          h('li', { key: todo.id }, todo.text)
-        ))
-      ])
-    )
-  );
-
-  return { DOM: vdom$ };
-}
-```
-
-## Benefits of Reactive Programming
-
-### 1. Declarative
-```typescript
-// Declarative: Describe what you want, not how to get it
-const result$ = source$.pipe(
-  filter((x: number) => x > 0),
-  map((x: number) => x * 2),
-  take(5)
-);
-```
-
-### 2. Compositional
-```typescript
-// Compose complex behaviors from simple streams
-const userInput$ = fromEvent(input, 'input');
-const validation$ = userInput$.pipe(
-  map((event: Event) => validate((event.target as HTMLInputElement).value)),
-  distinctUntilChanged()
-);
-const submit$ = fromEvent(form, 'submit');
-const formData$ = combineLatest(userInput$, validation$);
-```
-
-### 3. Testable
-```typescript
-// Easy to test with marble testing
-const input$ = cold('a-b-c', { a: 1, b: 2, c: 3 });
-const result$ = input$.pipe(map((x: number) => x * 2));
-const expected$ = cold('a-b-c', { a: 2, b: 4, c: 6 });
-
-expectObservable(result$).toBe(expected$);
-```
-
-## Resources
-- [Andre Staltz - Cycle.js](https://cycle.js.org/)
-
-## Exercise
-Create a reactive counter component that can increment, decrement, and reset, using only pure functions and stream composition. 
 
 # Practical Applications of Functional Programming
 
@@ -2919,89 +3150,6 @@ const fetchUserTodos = pipe(
   safeApiCall,
   result => result.map(processTodos)
 );
-```
-
-### 4. Reactive Components with Streams
-```typescript
-import { fromEvent, combineLatest, merge } from 'rxjs';
-import { map, filter, debounceTime, switchMap } from 'rxjs/operators';
-
-interface TodoAction {
-  type: 'ADD_TODO' | 'TOGGLE_TODO';
-  payload: { text: string } | string;
-}
-
-interface TodoComponentSources {
-  DOM: {
-    select: (selector: string) => {
-      events: (eventType: string) => Observable<Event>;
-    };
-  };
-}
-
-function TodoComponent(sources: TodoComponentSources) {
-  // Intent: User actions
-  const addTodo$ = sources.DOM.select('.add-todo').events('click');
-  const inputChange$ = sources.DOM.select('.todo-input').events('input');
-  const toggleTodo$ = sources.DOM.select('.todo-item').events('click');
-
-  // Model: State management
-  const newTodoText$ = inputChange$.pipe(
-    map((event: Event) => (event.target as HTMLInputElement).value),
-    debounceTime(300)
-  );
-
-  const todos$ = merge(
-    addTodo$.pipe(
-      withLatestFrom(newTodoText$),
-      map(([_, text]: [Event, string]) => ({ type: 'ADD_TODO' as const, payload: { text } }))
-    ),
-    toggleTodo$.pipe(
-      map((event: Event) => ({ 
-        type: 'TOGGLE_TODO' as const, 
-        payload: (event.target as HTMLElement).dataset.id || '' 
-      }))
-    )
-  ).pipe(
-    scan((todos: Todo[], action: TodoAction) => {
-      switch (action.type) {
-        case 'ADD_TODO':
-          return [...todos, { 
-            id: Date.now(), 
-            text: (action.payload as { text: string }).text, 
-            completed: false 
-          }];
-        case 'TOGGLE_TODO':
-          return todos.map(todo => 
-            todo.id === parseInt(action.payload as string) 
-              ? { ...todo, completed: !todo.completed }
-              : todo
-          );
-        default:
-          return todos;
-      }
-    }, [] as Todo[])
-  );
-
-  // View: Render UI
-  const vdom$ = todos$.pipe(
-    map((todos: Todo[]) => 
-      h('div.todo-app', [
-        h('input.todo-input', { placeholder: 'Add todo...' }),
-        h('button.add-todo', 'Add'),
-        h('ul.todo-list', todos.map((todo: Todo) => 
-          h('li.todo-item', { 
-            key: todo.id,
-            'data-id': todo.id,
-            className: todo.completed ? 'completed' : ''
-          }, todo.text)
-        ))
-      ])
-    )
-  );
-
-  return { DOM: vdom$ };
-}
 ```
 
 ## Advanced Patterns
@@ -3222,7 +3370,31 @@ const createLazyStream = <T>(generator: () => Generator<T>) => {
 - Mock side effects and test pure logic separately
 
 ## Exercise
-Build a complete todo application that combines all these patterns: Redux for state, composition for data processing, monads for error handling, and reactive streams for user interactions.
+Refactor an impure data workflow into pure transformations plus side-effect boundaries.
+
+Task:
+- Implement `parseUsers(json: unknown): User[]` (pure) and `toDisplayNames(users: User[]): string[]` (pure).
+- Keep network/file I/O outside these functions.
+
+### Unit tests
+```typescript
+// Exercise: pure data workflow
+describe('parseUsers + toDisplayNames', () => {
+  it('parses valid JSON and maps display names', () => {
+    const json = JSON.stringify([
+      { firstName: 'Alice', lastName: 'Smith' },
+      { firstName: 'Bob', lastName: 'Lee' }
+    ]);
+    const users = parseUsers(json);
+    expect(Array.isArray(users)).toBe(true);
+    expect(toDisplayNames(users)).toEqual(['Alice Smith', 'Bob Lee']);
+  });
+
+  it('throws on invalid input', () => {
+    expect(() => parseUsers('not json')).toThrow();
+  });
+});
+```
 
 ## Additional Resources
 
@@ -3275,7 +3447,7 @@ This lecture explores strategies for maintaining a codebase in pure functional p
 - **Small, Focused Files**: Preferably one function per file for clarity and testability
 - **Multiple Command Dispatchers**: Different handlers for different domains
 - **Boilerplate vs. Business Logic**: Keep setup code separate from core application rules
-- **No Consolidation**: Distribute business logic by feature rather than centralizing
+- **Avoid Over-Centralization**: Distribute feature business logic; centralize only cross-cutting infrastructure
 
 **Why This Matters:**
 - **Maintainability**: Easier to update, debug, and onboard new developers
@@ -3642,12 +3814,32 @@ const debouncedSave = debounce(saveUser, 1000);
 ```
 
 ## Exercise
-Refactor a monolithic user management component into a functional architecture with:
-- Separate validation, repository, and UI layers
-- Redux Toolkit slices for state management
-- RTK Query for data fetching
-- Pure selector functions
-- One function per file organization
+Write selectors and utilities to demonstrate testability and reusability:
+
+1. `selectCompletedTodos(state): Todo[]` (pure selector).
+2. `formatUserDisplayName(user: User, includeTitle?: boolean): string`.
+
+### Unit tests
+```typescript
+// Exercise: selectors and utilities
+describe('selectCompletedTodos', () => {
+  it('filters only completed items', () => {
+    const state = { todos: { items: [
+      { id: 1, text: 'A', completed: true },
+      { id: 2, text: 'B', completed: false }
+    ] } } as any;
+    expect(selectCompletedTodos(state)).toEqual([{ id: 1, text: 'A', completed: true }]);
+  });
+});
+
+describe('formatUserDisplayName', () => {
+  it('formats with or without title', () => {
+    const u = { firstName: 'Ada', lastName: 'Lovelace', title: 'Dr.' } as any;
+    expect(formatUserDisplayName(u)).toBe('Ada Lovelace');
+    expect(formatUserDisplayName(u, true)).toBe('Dr. Ada Lovelace');
+  });
+});
+```
 
 ## Resources
 - [Redux Toolkit Best Practices](https://redux-toolkit.js.org/usage/usage-guide)
@@ -3695,11 +3887,11 @@ const todoSlice = createSlice({
   reducers: {
     // Pure functions that appear mutable but are actually immutable
     addTodo: (state, action) => {
-      state.items.push(action.payload); // Immer handles immutability
+      state.items.push(action.payload); // Immer handles immutability behind the scenes
     },
     toggleTodo: (state, action) => {
       const todo = state.items.find(t => t.id === action.payload);
-      if (todo) todo.completed = !todo.completed;
+      if (todo) todo.completed = !todo.completed; // Immer ensures this is immutable
     },
     removeTodo: (state, action) => {
       state.items = state.items.filter(t => t.id !== action.payload);
@@ -3856,19 +4048,15 @@ const transformError = (error: any): { type: string; message: string } => {
   return { type: 'GENERIC_ERROR', message: error.data?.message || 'An error occurred' };
 };
 
+import { retry } from '@reduxjs/toolkit/query/react';
+const baseQuery = retry(fetchBaseQuery({ baseUrl: '/api' }), { maxRetries: 3 });
+
 const api = createApi({
-  baseQuery: fetchBaseQuery({ baseUrl: '/api' }),
+  baseQuery,
   endpoints: (builder) => ({
     getTodos: builder.query<Todo[], number>({
       query: (userId: number) => `users/${userId}/todos`,
       transformErrorResponse: (response: any) => transformError(response),
-      // Pure retry logic
-      retry: (failedAttempts: number, error: any) => {
-        if (error.status === 500 && failedAttempts < 3) {
-          return true;
-        }
-        return false;
-      }
     })
   })
 });
@@ -4068,12 +4256,32 @@ describe('todoApi', () => {
 ```
 
 ## Exercise
-Create a complete todo application using RTK Query with:
-- Pure API definitions with proper caching
-- Functional selectors with memoization
-- Error handling with pure transformation functions
-- Optimistic updates with rollback
-- Comprehensive testing
+Define a tiny RTK Query API and test a query hook behavior.
+
+Task:
+- Create `todosApi` with `getTodos(userId: number)` endpoint.
+- Write a test that renders the hook with a configured store and asserts loading -> data.
+
+### Unit tests
+```typescript
+// Exercise: RTK Query endpoint test
+describe('todosApi/getTodos', () => {
+  it('transitions from loading to data', async () => {
+    const mockTodos = [ { id: 1, text: 'X', completed: false } ];
+    server.use(rest.get('/api/users/1/todos', (req, res, ctx) => res(ctx.json(mockTodos))));
+
+    const { result, waitForNextUpdate } = renderHook(
+      () => useGetTodosQuery(1),
+      { wrapper: ({ children }) => <Provider store={store}>{children}</Provider> }
+    );
+
+    expect(result.current.isLoading).toBe(true);
+    await waitForNextUpdate();
+    expect(result.current.isLoading).toBe(false);
+    expect(result.current.data).toEqual(mockTodos);
+  });
+});
+```
 
 ## Resources
 - [RTK Query Advanced Patterns](https://redux-toolkit.js.org/rtk-query/usage/advanced-patterns)
@@ -4645,13 +4853,37 @@ describe('todoApi', () => {
 ```
 
 ## Exercise
-Build a scalable Redux application with:
-- Feature-based architecture
-- RTK Query for all data management
-- Pure functional components
-- Comprehensive error handling
-- Performance optimization
-- Full test coverage
+Capstone: Build a mini feature end-to-end with functional purity.
+
+Task:
+- Define a `todos` slice (add/toggle/remove) and selectors.
+- Define an `api` slice with `getTodos` and `addTodo` endpoints.
+- Create a `TodoList` component that uses selectors and hooks.
+- Write unit tests for reducers, selectors, and API hooks.
+
+### Unit tests
+```typescript
+// Capstone sample tests
+describe('todos reducer', () => {
+  it('adds and toggles', () => {
+    const s0 = undefined as any;
+    const s1 = todosReducer(s0, addTodo({ id: 1, text: 'A', completed: false }));
+    const s2 = todosReducer(s1, toggleTodo(1));
+    expect(s1.items).toHaveLength(1);
+    expect(s2.items[0].completed).toBe(true);
+  });
+});
+
+describe('selectIncomplete', () => {
+  it('derives incomplete todos', () => {
+    const state = { todos: { items: [
+      { id: 1, text: 'A', completed: false },
+      { id: 2, text: 'B', completed: true }
+    ] } } as any;
+    expect(selectIncomplete(state)).toEqual([{ id: 1, text: 'A', completed: false }]);
+  });
+});
+```
 
 ## Resources
 - [Redux Toolkit Architecture](https://redux-toolkit.js.org/usage/usage-guide)
