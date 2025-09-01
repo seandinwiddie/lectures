@@ -5,6 +5,8 @@ This lecture explores performance optimization techniques in functional programm
 ## Memoization
 
 ### Basic Memoization
+
+Memoization is like having a smart memory that remembers the results of expensive calculations. Since pure functions always return the same result for the same inputs, you can safely store the result and return it immediately the next time you call the function with the same input. This is especially useful for recursive functions like factorial, where the same calculations are repeated many times.
 ```typescript
 const memoize = <T, U>(fn: (arg: T) => U) => {
   const cache = new Map<T, U>();
@@ -29,6 +31,8 @@ console.log(factorial(5)); // Cached: 120
 ```
 
 ### Multi-Argument Memoization
+
+When functions take multiple arguments, you need a way to create a unique key for each combination of arguments. The `JSON.stringify` approach converts the arguments into a string that can be used as a cache key. This lets you memoize functions with any number of arguments, making them much faster when called repeatedly with the same inputs.
 ```typescript
 const memoizeMulti = <T extends any[], U>(fn: (...args: T) => U) => {
   const cache = new Map<string, U>();
@@ -50,6 +54,8 @@ const add = memoizeMulti((a: number, b: number): number => a + b);
 ## Lazy Evaluation
 
 ### Lazy Lists
+
+Lazy lists are like infinite sequences that only compute values when you actually need them. Instead of creating all the values upfront (which could be infinite and crash your program), lazy lists create a promise to compute each value when it's requested. This is perfect for working with potentially infinite data like number sequences, where you only need a few values at a time.
 ```typescript
 class LazyList<T> {
   private constructor(private thunk: () => { head: T; tail: LazyList<T> } | null) {}
@@ -104,6 +110,8 @@ console.log(naturals.take(5)); // [0, 1, 2, 3, 4]
 ## Stream Processing
 
 ### Efficient Data Processing
+
+Streams are like lazy lists but optimized for processing large amounts of data efficiently. They only compute the values you actually need, which can save enormous amounts of memory and processing time when working with large datasets. Streams are perfect for data processing pipelines where you might only need the first few results or want to process data one piece at a time.
 ```typescript
 interface Stream<T> {
   head(): T | null;
@@ -164,6 +172,8 @@ class StreamImpl<T> implements Stream<T> {
 ## Tail Call Optimization
 
 ### Recursive Functions
+
+Tail call optimization is a technique that prevents stack overflow in recursive functions. A tail call is when a function calls itself as the very last thing it does. In this case, the computer can reuse the same stack frame instead of creating a new one for each recursive call. The trampoline pattern is a way to simulate tail call optimization in languages that don't support it natively.
 ```typescript
 // Non-tail recursive (can cause stack overflow)
 const factorial = (n: number): number => {
@@ -198,6 +208,8 @@ const factorialTrampoline = (n: number): number => {
 ## Immutable Data Structures
 
 ### Efficient Updates
+
+Immutable data structures are designed to be efficient even when you need to make changes. Instead of copying the entire structure, they use clever techniques like tree structures to share unchanged parts between the old and new versions. This gives you the safety of immutability without the performance penalty of copying everything. The persistent vector is a great example of this approach.
 ```typescript
 // Persistent Vector (simplified)
 class Vector<T> {
@@ -238,6 +250,8 @@ interface Node<T> {
 ## Performance Monitoring
 
 ### Function Performance
+
+Performance monitoring helps you understand how fast your functions are running and identify bottlenecks. The `measurePerformance` function wraps any function and automatically measures how long it takes to execute. This is essential for optimizing functional programs because it helps you identify which operations are taking the most time and where you should focus your optimization efforts.
 ```typescript
 const measurePerformance = <T extends any[], U>(
   fn: (...args: T) => U,
@@ -268,6 +282,8 @@ console.log(expensiveOperation(1000000));
 ```
 
 ### Memory Usage
+
+Memory monitoring is just as important as performance monitoring, especially in functional programming where you might create many intermediate objects. The `measureMemory` function tracks how much memory your functions use, helping you identify memory leaks or inefficient memory usage patterns. This is crucial for applications that need to run for long periods or handle large amounts of data.
 ```typescript
 const measureMemory = <T extends any[], U>(
   fn: (...args: T) => U

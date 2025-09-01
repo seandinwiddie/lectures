@@ -64,6 +64,100 @@ type Coordinates = {
 const point: Coordinates = { x: 10, y: 20 };
 ```
 
+### Generics Basics
+
+Generics are like **variables for types**. Just as you can pass values to functions, you can pass types to type definitions, interfaces, and functions. The `<T>` syntax declares a **type parameter** that gets replaced with an actual type when you use it.
+
+Think of generics as templates that work with different types. Instead of writing the same function multiple times for different types (like one for numbers, one for strings), you write it once and it works with whatever type you give it. The `extends` keyword lets you say "this generic type must have certain properties" - like saying "this function works with any object that has an `id` property."
+
+## How Generics Work
+
+```typescript
+type Success<T> = { status: "success"; data: T };
+```
+
+- `<T>` declares a **type parameter** named `T`
+- `T` is a placeholder that gets replaced with an actual type when you use `Success`
+- The `data` property will have whatever type you specify for `T`
+
+## Usage Examples
+
+```typescript
+// T becomes string
+type StringSuccess = Success<string>;
+// Equivalent to: { status: "success"; data: string }
+
+// T becomes number  
+type NumberSuccess = Success<number>;
+// Equivalent to: { status: "success"; data: number }
+
+// T becomes a custom object type
+type UserSuccess = Success<{ id: string; name: string }>;
+// Equivalent to: { status: "success", data: { id: string; name: string } }
+```
+
+## Why Use Generics?
+
+Without generics, you'd need separate types for each data type:
+
+```typescript
+// Without generics - repetitive!
+type StringSuccess = { status: "success"; data: string };
+type NumberSuccess = { status: "success"; data: number };
+type UserSuccess = { status: "success"; data: User };
+```
+
+With generics, you write it once and reuse it:
+
+```typescript
+// With generics - reusable!
+type Success<T> = { status: "success"; data: T };
+```
+
+## Common Generic Names
+- `T` = "Type" (most common)
+- `U`, `V` = additional types
+- `K` = "Key" 
+- `V` = "Value"
+- Descriptive names like `TData`, `TUser` are also fine
+
+The `<>` brackets are called **angle brackets** or **generic brackets**, and the letter inside (like `T`) is the **type parameter**.
+
+```typescript
+/**
+ * Generic function that returns the first element of an array.
+ * Works with any array type and returns undefined if the array is empty.
+ * @param items - The array to get the first element from
+ * @returns The first element or undefined if the array is empty
+ * 
+ * @example
+ * first([1, 2, 3]) // returns 1
+ * first(["hello", "world"]) // returns "hello"
+ * first([]) // returns undefined
+ */
+function first<T>(items: ReadonlyArray<T>): T | undefined {
+  return items[0];
+}
+
+/**
+ * Creates an index object from an array of items with string IDs.
+ * Generic constraint ensures T must have an 'id' property of type string.
+ * @param items - The array of items to index
+ * @returns An object where keys are item IDs and values are the items
+ * 
+ * @example
+ * const users = [{ id: "1", name: "Alice" }, { id: "2", name: "Bob" }];
+ * indexById(users) // returns { "1": { id: "1", name: "Alice" }, "2": { id: "2", name: "Bob" } }
+ */
+interface HasId { id: string }
+function indexById<T extends HasId>(items: ReadonlyArray<T>): Record<string, T> {
+  return items.reduce<Record<string, T>>((acc, item) => {
+    acc[item.id] = item; // Safe to access item.id because of the constraint
+    return acc;
+  }, {});
+}
+```
+
 ### Unions, Intersections, and Narrowing
 
 A union type means "this could be one of several different things" - like a result that could be loading, success, or an error. Before you can use the specific properties of each type, you need to check which one you have (this is called "narrowing"). Intersections let you combine different types together, like mixing in extra properties to an existing type.
@@ -161,43 +255,7 @@ function map<A, B>(items: ReadonlyArray<A>, f: (a: A) => B): B[] {
 }
 ```
 
-### Generics Basics
 
-Generics are like templates that work with different types. Instead of writing the same function multiple times for different types (like one for numbers, one for strings), you write it once and it works with whatever type you give it. The `extends` keyword lets you say "this generic type must have certain properties" - like saying "this function works with any object that has an `id` property."
-```typescript
-/**
- * Generic function that returns the first element of an array.
- * Works with any array type and returns undefined if the array is empty.
- * @param items - The array to get the first element from
- * @returns The first element or undefined if the array is empty
- * 
- * @example
- * first([1, 2, 3]) // returns 1
- * first(["hello", "world"]) // returns "hello"
- * first([]) // returns undefined
- */
-function first<T>(items: ReadonlyArray<T>): T | undefined {
-  return items[0];
-}
-
-/**
- * Creates an index object from an array of items with string IDs.
- * Generic constraint ensures T must have an 'id' property of type string.
- * @param items - The array of items to index
- * @returns An object where keys are item IDs and values are the items
- * 
- * @example
- * const users = [{ id: "1", name: "Alice" }, { id: "2", name: "Bob" }];
- * indexById(users) // returns { "1": { id: "1", name: "Alice" }, "2": { id: "2", name: "Bob" } }
- */
-interface HasId { id: string }
-function indexById<T extends HasId>(items: ReadonlyArray<T>): Record<string, T> {
-  return items.reduce<Record<string, T>>((acc, item) => {
-    acc[item.id] = item; // Safe to access item.id because of the constraint
-    return acc;
-  }, {});
-}
-```
 
 ### Arrays, Tuples, and Readonly
 
