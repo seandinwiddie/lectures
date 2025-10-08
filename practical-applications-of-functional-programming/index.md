@@ -2,6 +2,8 @@
 
 This lecture explores real-world applications of functional programming principles in modern software development.
 
+> "Functional programming isn't academic theory—it's production-ready engineering. Pure functions, immutability, and composition solve real problems in React, Redux, data pipelines, and API clients every single day." - AI Insight
+
 ## Web Development
 
 ### React with Functional Components

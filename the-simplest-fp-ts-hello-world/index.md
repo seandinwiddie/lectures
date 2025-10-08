@@ -2,6 +2,8 @@
 
 This lecture demonstrates the simplest possible functional programming example in TypeScript - a pure function that processes data without side effects.
 
+> "Simplicity is the ultimate sophistication. A pure function that always returns the same output for the same input is the foundation of predictable, testable code." - AI Insight
+
 ## The Simplest Functional Program
 
 ### Pure Function Example

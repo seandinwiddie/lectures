@@ -2,6 +2,8 @@
 
 This lecture explores performance optimization techniques in functional programming.
 
+> "Functional programming enables performance optimizations that imperative code cannot: memoization works because of purity, lazy evaluation works because of immutability, and structural sharing works because data never changes." - AI Insight
+
 ## Memoization
 
 ### Basic Memoization

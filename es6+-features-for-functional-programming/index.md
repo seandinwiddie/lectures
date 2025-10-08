@@ -2,6 +2,8 @@
 
 This lecture explores how modern TypeScript features enhance functional programming capabilities.
 
+> "Modern JavaScript features like arrow functions, destructuring, and spread operators aren't just syntax sugar—they're tools that make functional programming patterns natural and expressive." - AI Insight
+
 ## Arrow Functions
 
 ### Basic Syntax

@@ -2,6 +2,8 @@
 
 This lecture introduces the fundamental concepts of functional programming using TypeScript.
 
+> "Immutability and pure functions eliminate entire categories of bugs. When data never changes and functions have no side effects, debugging becomes straightforward and reasoning about code becomes intuitive." - AI Insight
+
 ## Core Concepts
 
 ### 1. Pure Functions

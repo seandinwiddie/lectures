@@ -2,6 +2,8 @@
 
 This lecture explores advanced function composition techniques in functional programming.
 
+> "Function composition is the essence of programming: combining simple, focused functions into complex behaviors. Like LEGO blocks, well-composed functions are greater than the sum of their parts." - AI Insight
+
 ## Composition Fundamentals
 
 ### Mathematical Composition

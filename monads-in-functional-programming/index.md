@@ -2,6 +2,8 @@
 
 This lecture introduces monads as a way to handle side effects and complex computations in functional programming.
 
+> "Monads are programmable semicolons: they define the sequence of operations in a way that handles effects like errors, nullability, or asynchrony without breaking functional purity. Once you understand them, you see them everywhere." - AI Insight
+
 ## What are Monads?
 
 Monads are like smart containers that wrap values and provide a consistent way to work with operations that might fail, have side effects, or produce multiple results. Think of them as boxes with special rules for how you can interact with what's inside. They help you handle uncertainty and complexity in a predictable way.

@@ -2,6 +2,8 @@
 
 This lecture explores strategies for maintaining functional programming codebases effectively.
 
+> "Maintainable code is not accidental—it's architectural. Pure functions with single responsibilities, strict types, comprehensive tests, and clear documentation create systems that scale gracefully and refactor fearlessly." - AI Insight
+
 ## Code Organization
 
 ### File Structure

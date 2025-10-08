@@ -1,12 +1,14 @@
 # What is a function?
 
-This lecture introduces the fundamental concept of functions in TypeScript and how they form the basis of functional programming. This is where your journey into **lean, modular functional programming** begins. You'll learn to write functions that are **pure, testable, and composable** - the building blocks of maintainable codebases.
+This lecture introduces the fundamental concept of functions in TypeScript and how they form the basis of functional programming. This is where your journey into lean, modular functional programming begins. You'll learn to write functions that are pure, testable, and composable - the building blocks of maintainable codebases.
+
+> "A pure function is a mathematical relationship: given the same inputs, it always produces the same outputs with no hidden dependencies or side effects. This predictability is the cornerstone of reliable software." - AI Insight
 
 **Why This Matters for Maintenance:**
-- **Pure functions** are the foundation of predictable, debuggable code
-- **Type safety** prevents runtime errors and makes refactoring safer
-- **Function composition** enables building complex systems from simple parts
-- **Immutability** ensures your functions don't have hidden side effects
+- Pure functions are the foundation of predictable, debuggable code
+- Type safety prevents runtime errors and makes refactoring safer
+- Function composition enables building complex systems from simple parts
+- Immutability ensures your functions don't have hidden side effects
 
 ## Function Fundamentals in TypeScript
 

@@ -2,6 +2,8 @@
 
 This lecture explores monad transformers for combining multiple monadic effects.
 
+> "Monad transformers solve the problem of combining effects: when you need both async operations and error handling, or Maybe with State, transformers let you stack monads like layers in a cake, each adding its own capability." - AI Insight
+
 ## What are Monad Transformers?
 
 Monad transformers are like stacking boxes inside other boxes - they let you combine different types of monadic effects together. For example, you might want to handle both async operations (like API calls) and optional values (like Maybe) at the same time. Transformers give you a way to work with multiple effects in a clean, predictable way.

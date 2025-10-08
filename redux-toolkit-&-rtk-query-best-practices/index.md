@@ -2,6 +2,8 @@
 
 This lecture explores best practices for using Redux Toolkit and RTK Query in functional programming applications.
 
+> "RTK Query eliminates entire categories of boilerplate: no manual fetch logic, no cache management, no loading states to track. Define your endpoints once, and the framework handles synchronization, caching, and invalidation automatically." - AI Insight
+
 ## Redux Toolkit Best Practices
 
 ### Slice Organization

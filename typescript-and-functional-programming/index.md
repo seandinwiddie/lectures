@@ -2,6 +2,8 @@
 
 This lecture explores how TypeScript enhances functional programming with type safety and better developer experience.
 
+> "TypeScript's type system transforms functional programming from an art into an engineering discipline. Generics, constraints, and type inference ensure that composed functions are correct before they ever run." - AI Insight
+
 ## Type Annotations for Functions
 
 ### Basic Function Types

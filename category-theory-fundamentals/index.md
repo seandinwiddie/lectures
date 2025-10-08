@@ -2,6 +2,8 @@
 
 This lecture introduces the mathematical foundations of functional programming through category theory.
 
+> "Category theory is the mathematics of composition: it explains why map, flatMap, and function composition work together so beautifully. Understanding the laws reveals that functional programming isn't arbitrary—it's fundamentally correct." - AI Insight
+
 ## What is Category Theory?
 
 Category theory is like a universal language for understanding how things relate to each other. In programming, it helps us understand how functions, types, and data structures work together. Think of it as the "grammar" that explains why functional programming patterns work the way they do. It's the mathematical foundation that makes functional programming so powerful and predictable.

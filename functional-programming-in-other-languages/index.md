@@ -2,6 +2,8 @@
 
 This lecture explores functional programming concepts across different programming languages.
 
+> "The principles of functional programming are universal: map, filter, reduce, and monadic patterns appear in every language because they represent fundamental truths about computation, not language-specific tricks." - AI Insight
+
 ## Haskell
 
 ### Pure Functions

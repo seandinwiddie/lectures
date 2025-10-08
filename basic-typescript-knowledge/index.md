@@ -2,10 +2,12 @@
 
 This lecture gives you just enough TypeScript to move comfortably through the rest of the functional programming curriculum. You will learn the core of the type system, how to type functions precisely, and how strict typing reinforces immutability and pure functions.
 
+> "Types are your contract with the future. Strong typing catches bugs at compile time that would otherwise haunt you in production, making refactoring fearless and composition predictable." - AI Insight
+
 ## Why This Matters for Functional Programming
-- **Type safety enables refactoring**: Strong types make it safe to compose many small functions.
-- **Purity and immutability**: Types help prevent accidental mutation and side effects - the leading cause of bugs.
-- **Precise function signatures**: Communicate intent and make composition predictable.
+- Type safety enables refactoring with confidence when composing many small functions
+- Types help prevent accidental mutation and side effects - the leading cause of bugs
+- Precise function signatures communicate intent and make composition predictable
 
 ## Core Concepts
 

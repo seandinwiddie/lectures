@@ -2,6 +2,8 @@
 
 This lecture explores modern Redux architecture patterns for building scalable applications.
 
+> "Modern Redux architecture is about composition at scale: normalized state for performance, memoized selectors for efficiency, feature-based organization for maintainability. Each pattern solves a real scaling problem." - AI Insight
+
 ## Domain-Driven Design
 
 ### Feature-Based Organization
