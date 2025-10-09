@@ -171,6 +171,8 @@ export const createUser = createAsyncThunk(
 
 ## RTK Query Best Practices
 
+> "RTK Query's tags system is declarative cache invalidation: instead of manually tracking what to refetch, you declare relationships. Update a user? Invalidate 'User' tags. The framework handles the rest." - AI Insight
+
 ### API Definition
 ```typescript
 // api/usersApi.ts

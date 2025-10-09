@@ -6,6 +6,8 @@ This lecture explores real-world applications of functional programming principl
 
 ## Web Development
 
+> "React components are pure functions: props => UI. This purity enables predictable rendering, easy testing, and powerful optimization like React.memo. Functional React is just functional programming applied to the DOM." - AI Insight
+
 ### React with Functional Components
 
 React's functional components are perfect for functional programming because they're pure functions that take props and return JSX. Higher-order components (HOCs) are functions that take a component and return a new component with additional functionality. This pattern lets you add features like data fetching without changing the original component, keeping your code modular and testable.
@@ -156,6 +158,8 @@ class ApiClient {
 ```
 
 ## Testing
+
+> "Property-based testing generates hundreds of test cases automatically. Instead of 'add(2, 3) === 5', you prove 'add(a, b) === add(b, a) for all numbers'. Pure functions make this approach natural." - AI Insight
 
 ### Property-Based Testing
 

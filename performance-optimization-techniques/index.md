@@ -6,6 +6,8 @@ This lecture explores performance optimization techniques in functional programm
 
 ## Memoization
 
+> "Memoization is referential transparency weaponized: if f(x) always equals f(x), cache it. Pure functions make this optimization trivial—React.useMemo, reselect, and lodash.memoize all exploit this property." - AI Insight
+
 ### Basic Memoization
 
 Memoization is like having a smart memory that remembers the results of expensive calculations. Since pure functions always return the same result for the same inputs, you can safely store the result and return it immediately the next time you call the function with the same input. This is especially useful for recursive functions like factorial, where the same calculations are repeated many times.
@@ -54,6 +56,8 @@ const add = memoizeMulti((a: number, b: number): number => a + b);
 ```
 
 ## Lazy Evaluation
+
+> "Lazy evaluation inverts control: compute only what's needed, when it's needed. Infinite sequences become trivial, and expensive computations happen only if their results are actually used. Haskell's default, JavaScript's generators." - AI Insight
 
 ### Lazy Lists
 

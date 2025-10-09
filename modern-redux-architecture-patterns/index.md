@@ -55,6 +55,8 @@ export * from './services';
 
 ## State Normalization
 
+> "Normalized state is the relational model applied to Redux: entities by ID in a flat structure. No nested updates, no duplication, O(1) lookups. GraphQL's cache and Redux both converge on this pattern for performance." - AI Insight
+
 ### Normalized State Structure
 ```typescript
 interface NormalizedState<T> {

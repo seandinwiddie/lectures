@@ -76,6 +76,8 @@ class Either<L, R> {
 
 ## Monad Laws
 
+> "Monad laws aren't academic pedantry—they're guarantees. When your types obey the laws, refactoring is safe, composition works as expected, and your abstractions don't leak. Laws enable fearless refactoring." - AI Insight
+
 ### Left Identity
 
 Monads follow specific mathematical laws that ensure they work predictably. The left identity law says that if you put a value in a monad and then bind a function to it, it's the same as just calling that function directly with the value. This might sound abstract, but it ensures that monads don't change the meaning of your operations - they just add safety and structure.

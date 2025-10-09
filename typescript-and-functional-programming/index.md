@@ -72,6 +72,8 @@ const pipe: Pipe = (f, g) => (x) => g(f(x)); // Pipeline: g(f(x))
 
 ## Generic Types
 
+> "Generics let you write code that's both type-safe and reusable. The Maybe<T> type works for any T, the map function works for any transformation—this is how functional libraries achieve both safety and flexibility." - AI Insight
+
 ### Generic Functions
 
 Generics are like templates that work with different types. Instead of writing the same function multiple times for different types, you write it once and it works with whatever type you give it. TypeScript is smart enough to figure out what type you're using and make sure everything matches up correctly.
@@ -217,6 +219,8 @@ type CreateUserParams = Parameters<typeof createUser>; // [string, number]
 ```
 
 ## Type-Safe Functional Libraries
+
+> "The Maybe monad eliminates null pointer exceptions by making absence explicit. No more 'Cannot read property of undefined'—you must handle Nothing explicitly, or the code won't compile." - AI Insight
 
 ### Maybe Implementation
 

@@ -66,6 +66,8 @@ const associativity = <A, B, C, D>(
 
 ## Functors
 
+> "Functors are structure-preserving transformations: map transforms the contents while preserving the container. Arrays, Promises, Maybe—all functors. Understanding functors means understanding why map works the same everywhere." - AI Insight
+
 Functors are like translators that preserve the structure of what they're translating. In programming, a functor is something that can be "mapped over" - like arrays, where you can apply a function to every element. Functors maintain the shape and structure of the container while transforming what's inside.
 
 ### Functor Laws

@@ -247,6 +247,8 @@ processDivision x y =
 
 ## Common Patterns Across Languages
 
+> "Map, filter, and reduce transcend syntax: they're universal operations on sequences. Whether you write .map in JavaScript, map in Haskell, or (map) in Clojure, the pattern and laws remain identical." - AI Insight
+
 ### Map, Filter, Reduce
 ```typescript
 // TypeScript

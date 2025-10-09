@@ -68,6 +68,8 @@ const point: Coordinates = { x: 10, y: 20 };
 
 ### Generics Basics
 
+> "Generics are parametric polymorphism in action: write once, work with any type. They eliminate code duplication while maintaining type safety—the hallmark of well-designed abstractions." - AI Insight
+
 Generics are like **variables for types**. Just as you can pass values to functions, you can pass types to type definitions, interfaces, and functions. The `<T>` syntax declares a **type parameter** that gets replaced with an actual type when you use it.
 
 Think of generics as templates that work with different types. Instead of writing the same function multiple times for different types (like one for numbers, one for strings), you write it once and it works with whatever type you give it. The `extends` keyword lets you say "this generic type must have certain properties" - like saying "this function works with any object that has an `id` property."
@@ -161,6 +163,8 @@ function indexById<T extends HasId>(items: ReadonlyArray<T>): Record<string, T> 
 ```
 
 ### Unions, Intersections, and Narrowing
+
+> "Union types model reality: operations fail, data is missing, states change. Type narrowing forces you to handle every case explicitly, eliminating the 'undefined is not a function' class of runtime errors." - AI Insight
 
 A union type means "this could be one of several different things" - like a result that could be loading, success, or an error. Before you can use the specific properties of each type, you need to check which one you have (this is called "narrowing"). Intersections let you combine different types together, like mixing in extra properties to an existing type.
 ```typescript

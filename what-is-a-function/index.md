@@ -155,6 +155,8 @@ const double: Transformer<number, number> = (n) => n * 2;
 
 ## Pure Functions
 
+> "Pure functions are deterministic state machines: same input → same output, always. No hidden dependencies, no surprise mutations. This simplicity is what makes functional programs composable, testable, and parallelizable." - AI Insight
+
 ### Characteristics of Pure Functions
 
 Pure functions are like math functions - they always give you the same answer for the same inputs, and they don't change anything else in your program. This makes them predictable and easy to test. The examples show the difference between pure functions (which are good) and impure functions (which can cause bugs).
@@ -285,6 +287,8 @@ const expensiveCalculation = memoize((n: number): number => {
 
 ## Higher-Order Functions
 
+> "Higher-order functions are the core of functional abstraction: they treat functions as data, enabling patterns like map, filter, reduce, and middleware that would require complex inheritance in OOP." - AI Insight
+
 ### Functions as Parameters
 
 Functions can take other functions as parameters! This is like having a tool that can use different tools inside it. The `applyOperation` function is flexible - it can add, multiply, or do any other operation you give it. This is a powerful way to make your code more reusable.
@@ -348,9 +352,9 @@ console.log(sayGoodbye('Bob')); // "Goodbye, Bob!"
 
 ## Function Composition
 
-### Basic Composition
+> "Composition is the ultimate code reuse: small, focused functions combine to create complex behaviors. It's not inheritance—it's mathematical. Unix pipes, middleware chains, and data pipelines all leverage this fundamental pattern." - AI Insight
 
-Function composition is like connecting pipes - you take the output of one function and feed it into another function. The `compose` function does this automatically. Think of it like a math problem: if you have f(x) and g(x), composition gives you f(g(x)). The `pipe` function does the same thing but reads more naturally from left to right.
+### Basic Composition
 
 Function composition is like connecting pipes - you take the output of one function and feed it into another function. The `compose` function does this automatically. Think of it like a math problem: if you have f(x) and g(x), composition gives you f(g(x)). The `pipe` function does the same thing but reads more naturally from left to right.
 ```typescript

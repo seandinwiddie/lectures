@@ -85,6 +85,8 @@ const result = numbers
 
 ## Destructuring
 
+> "Destructuring is syntactic sugar that reveals intent: instead of accessing array[0] and array[1], you declare 'let [first, second] = array'. Pattern matching in TypeScript starts here." - AI Insight
+
 ### Array Destructuring
 
 Destructuring is like unpacking a box - you can take items out of arrays and objects and put them into separate variables all at once. It's much cleaner than writing multiple lines to extract each value. The `...rest` syntax lets you collect all the remaining items into a new array.
@@ -164,6 +166,8 @@ const getUserStats = (user: any) => {
 ```
 
 ## Spread and Rest Operators
+
+> "The spread operator is immutability made elegant: {...obj, name: 'new'} creates a new object without mutation. It's the foundation of Redux reducers and React state updates—copy-on-write as syntax." - AI Insight
 
 ### Spread Operator
 

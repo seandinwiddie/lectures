@@ -40,6 +40,8 @@ console.log(processData(5)); // "11"
 
 ### Point-Free Style
 
+> "Point-free style reveals the essence: processUsers = pipe(filterActive, extractNames, sort). No intermediate variables, no explicit parameters—just pure transformation pipelines that read like prose." - AI Insight
+
 Point-free style means writing functions without explicitly mentioning their parameters. Instead of writing `(users) => users.filter(...)`, you can write just `filter(...)`. This makes your code more concise and focuses on what the functions do rather than what they're called. It's like writing poetry - you focus on the meaning, not the mechanics.
 ```typescript
 // Point-free: functions without explicit parameters

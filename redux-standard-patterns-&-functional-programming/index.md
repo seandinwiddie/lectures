@@ -8,6 +8,8 @@ Redux follows functional programming principles at its core. This lecture explor
 
 ## Key Functional Programming Concepts in Redux
 
+> "Redux reducers are pure functions enforced by convention: (state, action) => newState. This purity enables time-travel debugging, hot reloading, and predictable state transitions—impossible with mutable state." - AI Insight
+
 ### 1. Pure Functions
 
 Redux reducers must be pure functions - they always give you the same result for the same inputs and never change anything else in your program. Think of them as reliable machines that take the current state and an action, then give you back a new state. They never modify the original state, only create a new one.

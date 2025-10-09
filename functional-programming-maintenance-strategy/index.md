@@ -59,6 +59,8 @@ const processUser = pipe(validateUser, transformUser);
 
 ## Type Safety
 
+> "Strict TypeScript configuration is preventative medicine: noImplicitAny catches 'any' creep, noUncheckedIndexedAccess prevents array bounds errors, strictNullChecks eliminates null pointer exceptions. Turn on all flags." - AI Insight
+
 ### Strict TypeScript Configuration
 ```json
 {

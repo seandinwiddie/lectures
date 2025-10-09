@@ -30,6 +30,8 @@ const addToTotal = (num: number): number => {
 
 ### 2. Immutability
 
+> "Immutability eliminates temporal coupling: when data never changes, you never wonder 'what modified this?' Debugging becomes trivial, and time-travel debugging becomes possible—Redux DevTools proves this daily." - AI Insight
+
 Immutability means "don't change things that already exist." Instead of modifying your original data, you create new copies with the changes you want. This prevents bugs because you can't accidentally change data that other parts of your program are using. The spread operator (`...`) is your friend for creating new arrays and objects.
 
 ```typescript
@@ -104,6 +106,8 @@ console.log(sayGoodbye('Bob')); // "Goodbye, Bob!"
 ```
 
 ## Array Methods for Functional Programming
+
+> "Map, filter, and reduce are the holy trinity of functional programming: they replace 90% of loops with declarative transformations. Once you think in terms of transformations instead of iteration, your code becomes self-documenting." - AI Insight
 
 ### 1. map() - Transform Elements
 
