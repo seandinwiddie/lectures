@@ -1,5 +1,16 @@
 # Resources
 
+## Real-World Application
+
+These functional programming patterns are used in production at **[ForbocAI](https://forbocai.github.io)** — a neuro-symbolic AI SDK for autonomous game NPCs. The SDK uses Redux-style state management, pure functional pipelines, and monadic patterns for AI inference.
+
+- [ForbocAI SDK Documentation](https://forbocai.docs.buildwithfern.com) — See these patterns in action
+- [ForbocAI SDK Concepts](https://forbocai.docs.buildwithfern.com/concepts) — Architecture overview
+
+---
+
+## Reference Links
+
 - [TypeScript Documentation](https://www.typescriptlang.org/docs/)
 - [Redux Standard Patterns](https://redux.js.org/tutorials/fundamentals/part-7-standard-patterns)
 - [Redux Toolkit](https://redux-toolkit.js.org/)
