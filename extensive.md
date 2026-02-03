@@ -2,6 +2,16 @@
 
 This document provides comprehensive guidelines for maintaining the codebase using functional programming (FP) principles combined with Redux Toolkit (RTK) and RTK Query. It serves as the comprehensive reference for architectural decisions, coding patterns, testing strategies, and best practices across the **entire application stack**—frontend, backend, and database.
 
+> **MODERNIZATION NOTE (2026):**
+> This document is being updated to align with the **Functional Programming with AI Quickstart Guide**.
+> consistently check `fp-quickstart/pages` for the latest patterns on:
+> *   **Effect Ecosystem & Branded Types** (Foundation)
+> *   **Agentic Workflows** (MCP, Antigravity, & Roles)
+> *   **React 19 Compiler Architecture** (Purity over Memoization)
+> *   **Property-Based Testing** (PBT) vs. Example-Based Testing
+>
+> While the core Redux/Backend patterns here remain valid, the "AI-Assisted" workflow supersedes manual coding practices described in older sections.
+
 Ensure full Storybook coverage for all UI components
 
 Ensure full Playwright E2E test coverage.
@@ -14,12 +24,12 @@ Run all stories and tests to ensure they are working correctly.
 
 
 ##
-as you are fixing thing make sure to follow @My-Paper-Plane/docs/base/development/standards/technology-maintenance/condensed.md 
+as you are fixing things make sure to follow development/standards/technology-maintenance/condensed.md 
 
 run
 
 ```
-$cd /Users/seandinwiddie/GitHub/My-Paper-Plane/frontend && npm run web
+$cd /frontend && npm run web
 $sleep 20
 ```
 
@@ -29,13 +39,13 @@ until there are no errors
 
 run
 
-`cd /Users/seandinwiddie/GitHub/My-Paper-Plane/frontend && npx expo export --platform web --output-dir /tmp/test-build`
+`cd /frontend && npx expo export --platform web --output-dir /tmp/test-build`
 
 until there are no errors
 ##
 
 ##
-`~/github/my-paper-plane`
+`~/github/` *
 run git status && git diff and give me a commit message that: explain the tradeoffs, not just the change. explain the user problem, not just the implementation. that explain why you're trading complexity for the benefit.
 
 then please push it to gh
