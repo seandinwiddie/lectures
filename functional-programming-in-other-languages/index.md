@@ -30,11 +30,11 @@ map _ [] = []
 map f (x:xs) = f x : map f xs
 
 -- Filter function
-filter :: (a -> Bool) -> [a] -> [a]
-filter _ [] = []
-filter p (x:xs)
-  | p x = x : filter p xs
-  | otherwise = filter p xs
+filter' :: (a -> Bool) -> [a] -> [a]
+filter' _ [] = []
+filter' p (x:xs)
+  | p x       = x : filter' p xs
+  | otherwise = filter' p xs
 
 -- Fold function
 foldr :: (a -> b -> b) -> b -> [a] -> b

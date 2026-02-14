@@ -329,46 +329,69 @@ export type AppDispatch = typeof store.dispatch;
 ### Redux Error Boundary
 ```typescript
 // components/ReduxErrorBoundary.tsx
-import React from 'react';
-import { useDispatch } from 'react-redux';
+import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { connect, ConnectedProps } from 'react-redux';
 import { clearErrors } from '../features/errors/errorSlice';
 
-interface Props {
-  children: React.ReactNode;
+const mapDispatch = { clearErrors };
+const connector = connect(null, mapDispatch);
+
+type PropsFromRedux = ConnectedProps<typeof connector>;
+
+interface Props extends PropsFromRedux {
+  children: ReactNode;
   fallback?: React.ComponentType<{ error: Error; resetError: () => void }>;
 }
 
-export const ReduxErrorBoundary: React.FC<Props> = ({ 
-  children, 
-  fallback: Fallback 
-}) => {
-  const [error, setError] = React.useState<Error | null>(null);
-  const dispatch = useDispatch();
+interface State {
+  error: Error | null;
+}
 
-  const resetError = () => {
-    setError(null);
-    dispatch(clearErrors());
-  };
-
-  if (error) {
-    if (Fallback) {
-      return <Fallback error={error} resetError={resetError} />;
-    }
-    return (
-      <div>
-        <h2>Something went wrong</h2>
-        <p>{error.message}</p>
-        <button onClick={resetError}>Try again</button>
-      </div>
-    );
+class ReduxErrorBoundaryClass extends Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = { error: null };
   }
 
-  return (
-    <React.Suspense fallback={<div>Loading...</div>}>
-      {children}
-    </React.Suspense>
-  );
-};
+  static getDerivedStateFromError(error: Error): State {
+    return { error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('Uncaught error:', error, errorInfo);
+  }
+
+  resetError = () => {
+    this.setState({ error: null });
+    this.props.clearErrors();
+  };
+
+  render() {
+    const { error } = this.state;
+    const { children, fallback: Fallback } = this.props;
+
+    if (error) {
+      if (Fallback) {
+        return <Fallback error={error} resetError={this.resetError} />;
+      }
+      return (
+        <div>
+          <h2>Something went wrong</h2>
+          <p>{error.message}</p>
+          <button onClick={this.resetError}>Try again</button>
+        </div>
+      );
+    }
+
+    return (
+      <React.Suspense fallback={<div>Loading...</div>}>
+        {children}
+      </React.Suspense>
+    );
+  }
+}
+
+export const ReduxErrorBoundary = connector(ReduxErrorBoundaryClass);
 ```
 
 ## Performance Optimization

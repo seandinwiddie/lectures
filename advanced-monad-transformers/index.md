@@ -20,13 +20,20 @@ class MaybeT<M, T> {
   }
 
   map<U>(fn: (value: T) => U): MaybeT<M, U> {
-    // Implementation depends on the underlying monad M
-    return new MaybeT(this.runMaybeT);
+    // Map over the inner Maybe value
+    const result = this.runMaybeT.map((maybe: Maybe<T>) => maybe.map(fn));
+    return new MaybeT(result);
   }
 
   bind<U>(fn: (value: T) => MaybeT<M, U>): MaybeT<M, U> {
-    // Implementation depends on the underlying monad M
-    return new MaybeT(this.runMaybeT);
+    // Chain the inner Maybe value
+    const result = this.runMaybeT.bind((maybe: Maybe<T>) => {
+      if (maybe.isNothing()) {
+        return this.runMaybeT.constructor.of(Maybe.nothing());
+      }
+      return fn(maybe.getValue()).runMaybeT;
+    });
+    return new MaybeT(result);
   }
 }
 ```
@@ -43,13 +50,20 @@ class EitherT<M, L, R> {
   }
 
   map<U>(fn: (value: R) => U): EitherT<M, L, U> {
-    // Implementation depends on the underlying monad M
-    return new EitherT(this.runEitherT);
+    // Map over the inner Either value
+    const result = this.runEitherT.map((either: Either<L, R>) => either.map(fn));
+    return new EitherT(result);
   }
 
   bind<U>(fn: (value: R) => EitherT<M, L, U>): EitherT<M, L, U> {
-    // Implementation depends on the underlying monad M
-    return new EitherT(this.runEitherT);
+    // Chain the inner Either value
+    const result = this.runEitherT.bind((either: Either<L, R>) => {
+      if (either.isLeft()) {
+        return this.runEitherT.constructor.of(Either.left(either.value));
+      }
+      return fn(either.value).runEitherT;
+    });
+    return new EitherT(result);
   }
 }
 ```
@@ -122,6 +136,20 @@ interface User {
   name: string;
   email: string;
 }
+
+interface Database {
+  users: {
+    findById: (id: number) => Promise<User | null>;
+    update: (id: number, updates: Partial<User>) => Promise<User>;
+  };
+}
+
+const db: Database = {
+  users: {
+    findById: async (id) => ({ id, name: 'User', email: 'user@example.com' }),
+    update: async (id, updates) => ({ id, name: 'User', email: 'user@example.com', ...updates })
+  }
+};
 
 const findUser = async (id: number): Promise<Either<DatabaseError, User>> => {
   try {

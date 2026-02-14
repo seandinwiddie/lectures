@@ -243,7 +243,8 @@ class Vector<T> {
     if (index >= this.size - this.tail.length) {
       return this.tail[index - (this.size - this.tail.length)];
     }
-    // Implementation for tree traversal would go here
+    // Note: Full implementation would traverse the tree structure here
+    // For this simplified example, we only check the tail
     return undefined;
   }
 }

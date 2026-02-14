@@ -125,7 +125,7 @@ export const selectUserStats = createSelector(
 ```typescript
 // userThunks.ts
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { setLoading, setError, setUsers } from './userSlice';
+import { setLoading, setError, setUsers, addUser } from './userSlice';
 
 export const fetchUsers = createAsyncThunk(
   'users/fetchUsers',

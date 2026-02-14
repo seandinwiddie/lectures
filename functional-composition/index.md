@@ -25,15 +25,15 @@ console.log(addOneThenMultiply(5)); // 12
 Pipeline composition does the same thing as mathematical composition, but it reads more naturally from left to right, like reading English. Instead of right-to-left like `compose`, `pipe` applies functions in the order you write them. This makes complex data processing easier to read and understand, especially when you have many steps in your pipeline.
 ```typescript
 // Pipeline: data flows left to right
-const pipe = <A, B, C>(f: (a: A) => B, g: (b: B) => C) => (x: A): C => g(f(x));
+const pipe = <T>(...fns: Array<(arg: T) => T>) => (value: T) => 
+  fns.reduce((acc, fn) => fn(acc), value);
 
 const processData = pipe(
   (x: number) => x * 2,
-  (x: number) => x + 1,
-  (x: number) => x.toString()
+  (x: number) => x + 1
 );
 
-console.log(processData(5)); // "11"
+console.log(processData(5)); // 11
 ```
 
 ## Advanced Composition Patterns
@@ -94,7 +94,7 @@ const users: User[] = [
 const processUsers = pipe(
   (users: User[]) => users.filter(user => user.active),
   (users: User[]) => users.map(user => user.name),
-  (names: string[]) => names.sort()
+  (names: string[]) => [...names].sort()
 );
 
 console.log(processUsers(users)); // ["Alice", "Charlie"]

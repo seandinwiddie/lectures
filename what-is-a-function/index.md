@@ -95,6 +95,9 @@ const divide = (a: number, b: number): number => a / b;
  * divide(15, 3) // returns 5
  * divide(7, 2) // returns 3.5
  * divide(5, 0) // returns Infinity
+ * // Note: In functional programming, we often use types like Maybe or Either 
+ * // to handle division by zero safely instead of returning Infinity.
+ * // See the "Monads in Functional Programming" lecture for more details.
  */
 
 // Function with generic types

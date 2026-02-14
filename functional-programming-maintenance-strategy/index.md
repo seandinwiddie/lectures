@@ -125,28 +125,32 @@ describe('User validation', () => {
 
 ### Property-Based Testing
 ```typescript
-import { property, forAll, string, integer } from 'fast-check';
+import fc from 'fast-check';
 
 describe('User transformation properties', () => {
   it('should preserve user id during transformation', () => {
-    property(
-      forAll(integer(), string(), string()),
-      (id, name, email) => {
-        const user = { id, name, email };
-        const transformed = transformUser(user);
-        return transformed.id === id;
-      }
+    fc.assert(
+      fc.property(
+        fc.integer(), fc.string(), fc.string(),
+        (id, name, email) => {
+          const user = { id, name, email };
+          const transformed = transformUser(user);
+          return transformed.id === id;
+        }
+      )
     );
   });
 
   it('should always uppercase name', () => {
-    property(
-      forAll(string()),
-      (name) => {
-        const user = { id: 1, name, email: 'test@example.com' };
-        const transformed = transformUser(user);
-        return transformed.name === name.toUpperCase();
-      }
+    fc.assert(
+      fc.property(
+        fc.string(),
+        (name) => {
+          const user = { id: 1, name, email: 'test@example.com' };
+          const transformed = transformUser(user);
+          return transformed.name === name.toUpperCase();
+        }
+      )
     );
   });
 });

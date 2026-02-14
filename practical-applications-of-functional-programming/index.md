@@ -118,9 +118,7 @@ const processData = pipe(
 const processBatch = (rawData: RawData[]): ProcessedData[] => {
   return rawData
     .map(processData)
-    .filter((result): result is Either<string, ProcessedData> => 
-      result.isRight()
-    )
+    .filter(result => result.isRight())
     .map(result => result.getOrElse(null!));
 };
 ```
@@ -165,28 +163,34 @@ class ApiClient {
 
 Property-based testing is perfect for functional programming because it tests the mathematical properties of your functions rather than specific examples. Instead of testing individual cases, you test properties like commutativity (order doesn't matter) or associativity (grouping doesn't matter). This is especially powerful for pure functions because their behavior is predictable and mathematical.
 ```typescript
-import { property, forAll, integer, string } from 'fast-check';
+import fc from 'fast-check';
 
 // Testing pure functions with property-based testing
-const testAddCommutativity = property(
-  forAll(integer(), integer()),
-  (a, b) => {
-    return add(a, b) === add(b, a);
-  }
+const testAddCommutativity = fc.assert(
+  fc.property(
+    fc.integer(), fc.integer(),
+    (a, b) => {
+      return add(a, b) === add(b, a);
+    }
+  )
 );
 
-const testAddAssociativity = property(
-  forAll(integer(), integer(), integer()),
-  (a, b, c) => {
-    return add(add(a, b), c) === add(a, add(b, c));
-  }
+const testAddAssociativity = fc.assert(
+  fc.property(
+    fc.integer(), fc.integer(), fc.integer(),
+    (a, b, c) => {
+      return add(add(a, b), c) === add(a, add(b, c));
+    }
+  )
 );
 
-const testStringReversal = property(
-  forAll(string()),
-  (str) => {
-    return reverse(reverse(str)) === str;
-  }
+const testStringReversal = fc.assert(
+  fc.property(
+    fc.string(),
+    (str) => {
+      return reverse(reverse(str)) === str;
+    }
+  )
 );
 ```
 
@@ -295,16 +299,20 @@ interface Config {
   };
 }
 
-const createConfig = (overrides: Partial<Config> = {}): Config => ({
-  apiUrl: 'https://api.example.com',
-  timeout: 5000,
-  retries: 3,
-  features: {
-    caching: true,
-    logging: false
-  },
-  ...overrides
-});
+const createConfig = (overrides: Partial<Config> = {}): Config => {
+  const { features, ...rest } = overrides;
+  return {
+    apiUrl: 'https://api.example.com',
+    timeout: 5000,
+    retries: 3,
+    ...rest,
+    features: {
+      caching: true,
+      logging: false,
+      ...features
+    }
+  };
+};
 
 // Environment-specific configurations
 const devConfig = createConfig({

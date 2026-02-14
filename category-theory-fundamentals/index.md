@@ -80,7 +80,8 @@ interface Functor<F> {
 
 // Identity law: map(id) = id
 const functorIdentity = <F, A>(fa: F<A>, functor: Functor<F>): boolean => {
-  return functor.map(identity, fa) === fa;
+  // Note: In a real application, use deep equality check instead of reference equality
+  return JSON.stringify(functor.map(identity, fa)) === JSON.stringify(fa);
 };
 
 // Composition law: map(f ∘ g) = map(f) ∘ map(g)
@@ -95,7 +96,8 @@ const functorComposition = <F, A, B, C>(
     (fb: F<B>) => functor.map(f, fb),
     (fa: F<A>) => functor.map(g, fa)
   )(fa);
-  return lhs === rhs;
+  // Note: In a real application, use deep equality check instead of reference equality
+  return JSON.stringify(lhs) === JSON.stringify(rhs);
 };
 ```
 
@@ -180,7 +182,7 @@ const safeProp = <T, K extends keyof T>(key: K) => (obj: T): Maybe<T[K]> => {
 };
 
 // Natural transformation for validation
-const validateUser = (user: any): Either<string, User> => {
+const validateUser = (user: Partial<User>): Either<string, User> => {
   if (!user.name) return Either.left('Name is required');
   if (!user.email) return Either.left('Email is required');
   return Either.right(user as User);

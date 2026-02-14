@@ -71,6 +71,12 @@ class Either<L, R> {
       ? Either.left<L, U>(this.leftValue!)
       : fn(this.rightValue!);
   }
+
+  fold<U>(onLeft: (left: L) => U, onRight: (right: R) => U): U {
+    return this.isLeft
+      ? onLeft(this.leftValue!)
+      : onRight(this.rightValue!);
+  }
 }
 ```
 

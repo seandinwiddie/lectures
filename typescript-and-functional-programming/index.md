@@ -111,6 +111,7 @@ const safeDivide = (a: number, b: number): Maybe<number> => {
   return b === 0 ? null : a / b; // Return null for division by zero
 };
 
+// See "Monads in Functional Programming" for how to handle nulls safely using Maybe
 const safeHead = <T>(array: T[]): Maybe<T> => {
   return array.length > 0 ? array[0] : null; // Return null for empty array
 };
@@ -492,12 +493,12 @@ Create a lightweight `Maybe<T>` type with `of`, `map`, `chain`, and `getOrElse`.
 // Exercise: Maybe type
 describe('Maybe', () => {
   it('maps over present values', () => {
-    const value = Maybe.of(2).map(x => x * 3).getOrElse(0);
+    const value = Maybe.just(2).map(x => x * 3).getOrElse(0);
     expect(value).toBe(6);
   });
 
   it('does not map over empty', () => {
-    const value = Maybe.of<number | null>(null).map(x => (x as number) * 3).getOrElse(10);
+    const value = Maybe.just<number | null>(null).map(x => (x as number) * 3).getOrElse(10);
     expect(value).toBe(10);
   });
 });

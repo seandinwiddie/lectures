@@ -89,4 +89,4 @@ const selectTodoCount = (state: any) =>
 - **Performance**: Immutability enables efficient change detection
 
 ## Resources
-- [Redux Standard Patterns]
+- [Redux Style Guide](https://redux.js.org/style-guide/)

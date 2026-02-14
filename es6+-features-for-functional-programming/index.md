@@ -29,7 +29,14 @@ const getRandom = (): number => Math.random();
 /// getRandom() returns a random number between 0 and 1
 
 // Multiple statements - use curly braces and explicit return
-const processUser = (user: any) => {
+interface User {
+  name: string;
+  age: number;
+  email?: string;
+  posts?: { likes: number }[];
+}
+
+const processUser = (user: User) => {
   const validated = validateUser(user);
   const transformed = transformUser(validated);
   return transformed;
@@ -156,10 +163,12 @@ const user = createUser({ name: 'Alice', age: 25 });
 console.log(user); // { name: 'Alice', age: 25, email: null }
 
 // Multiple return values
-const getUserStats = (user: any) => {
-  const { name, posts } = user;
+const getUserStats = (user: User) => {
+  const { name, posts = [] } = user;
   const postCount = posts.length;
-  const avgLikes = posts.reduce((sum: number, post: any) => sum + post.likes, 0) / postCount;
+  const avgLikes = postCount > 0 
+    ? posts.reduce((sum, post) => sum + post.likes, 0) / postCount
+    : 0;
   
   return { name, postCount, avgLikes };
 };
