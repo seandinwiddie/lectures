@@ -43,8 +43,8 @@ TypeScript will be the language of choice for this course.
 6. **[TypeScript and Functional Programming](./typescript-and-functional-programming/index.md)** - Type safety in FP
 
 ### 2. Intermediate
-7. **[Redux Standard Patterns & Functional Programming](./redux-standard-patterns-&-functional-programming/index.md)** - Traditional Redux patterns
-8. **[Redux Toolkit & Functional Programming](./redux-toolkit-&-functional-programming/index.md)** - Modern Redux with RTK
+7. **[Redux Standard Patterns & Functional Programming](./redux-standard-patterns-and-functional-programming/index.md)** - Traditional Redux patterns
+8. **[Redux Toolkit & Functional Programming](./redux-toolkit-and-functional-programming/index.md)** - Modern Redux with RTK
 9. **[Functional Composition](./functional-composition/index.md)** - Advanced composition techniques
 
 ### 3. Advanced
@@ -59,7 +59,7 @@ TypeScript will be the language of choice for this course.
 
 ### 5. Maintenance & Architecture
 16. **[Functional Programming Maintenance Strategy](./functional-programming-maintenance-strategy/index.md)** - Maintaining FP codebases
-17. **[Redux Toolkit & RTK Query Best Practices](./redux-toolkit-&-rtk-query-best-practices/index.md)** - RTK and RTK Query
+17. **[Redux Toolkit & RTK Query Best Practices](./redux-toolkit-and-rtk-query-best-practices/index.md)** - RTK and RTK Query
 18. **[Modern Redux Architecture Patterns](./modern-redux-architecture-patterns/index.md)** - Scalable Redux patterns
 
 ## Programming Glossary

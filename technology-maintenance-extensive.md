@@ -24,45 +24,13 @@ Run all stories and tests to ensure they are working correctly.
 
 
 ##
-as you are fixing things make sure to follow development/standards/technology-maintenance/condensed.md 
-
-run
-
-```
-$cd /frontend && npm run web
-$sleep 20
-```
-
-and check the @Browser 
-
-until there are no errors
-
-run
-
-`cd /frontend && npx expo export --platform web --output-dir /tmp/test-build`
-
-until there are no errors
-##
-
-##
-`~/github/` *
-run git status && git diff and give me a commit message that: explain the tradeoffs, not just the change. explain the user problem, not just the implementation. that explain why you're trading complexity for the benefit.
-
-then please push it to gh
-
-without creating a new branch or pr
-##
-
-##
-remove meta comments
 ##
 
 
 
 
-##
-replace references to "redux" in the backend to "the design pattern"
-##
+
+
 ##
 The Redux design pattern is an implementation of the Flux architecture and incorporates concepts from functional programming, the Command pattern, and the Elm Architecture. It is primarily known by its own name, "Redux pattern," but is related to other established software design principles. [1, 2, 3]  
 Key alternative or related names and concepts include: 

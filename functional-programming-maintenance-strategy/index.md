@@ -30,7 +30,7 @@ src/
 ### Single Responsibility Principle
 ```typescript
 // ❌ Bad: Multiple responsibilities
-const processUser = (user: any) => {
+const processUser = (user: User) => {
   // Validation
   if (!user.name) throw new Error('Name required');
   
@@ -44,7 +44,7 @@ const processUser = (user: any) => {
 };
 
 // ✅ Good: Separated concerns
-const validateUser = (user: any): User => {
+const validateUser = (user: Partial<User>): User => {
   if (!user.name) throw new Error('Name required');
   return user;
 };
@@ -78,7 +78,7 @@ const processUser = pipe(validateUser, transformUser);
 ### Type Guards
 ```typescript
 // Type guards for runtime type checking
-const isUser = (obj: any): obj is User => {
+const isUser = (obj: unknown): obj is User => {
   return typeof obj === 'object' && 
          obj !== null && 
          typeof obj.name === 'string' &&
@@ -172,7 +172,7 @@ describe('User transformation properties', () => {
  * @since 1.0.0
  * @author John Doe
  */
-const validateUser = (user: any): User => {
+const validateUser = (user: Partial<User>): User => {
   if (!user.name) throw new Error('Name is required');
   if (!user.email) throw new Error('Email is required');
   if (!isValidEmail(user.email)) throw new Error('Invalid email format');
@@ -197,7 +197,7 @@ const result = processUser(rawUserData);
 
 ## API Reference
 
-### `validateUser(user: any): User`
+### `validateUser(user: unknown): User`
 
 Validates user data and returns a typed User object.
 
@@ -205,7 +205,7 @@ Validates user data and returns a typed User object.
 
 Transforms user data (e.g., uppercases name).
 
-### `processUser(user: any): ProcessedUser`
+### `processUser(user: unknown): ProcessedUser`
 
 Combines validation and transformation in a single pipeline.
 
@@ -223,7 +223,7 @@ type Result<T, E = string> =
   | { success: true; data: T }
   | { success: false; error: E };
 
-const validateUser = (user: any): Result<User, string> => {
+const validateUser = (user: Partial<User>): Result<User, string> => {
   if (!user.name) {
     return { success: false, error: 'Name is required' };
   }
@@ -310,8 +310,13 @@ const withMemoryMonitoring = <T extends any[], U>(
 
 ### Extract Pure Functions
 ```typescript
+interface Item {
+  active: boolean;
+  processed?: boolean;
+}
+
 // Before: Mixed concerns
-const processData = (data: any[]) => {
+const processData = (data: Item[]) => {
   const results = [];
   for (const item of data) {
     if (item.active) {
@@ -323,17 +328,17 @@ const processData = (data: any[]) => {
 };
 
 // After: Separated concerns
-const isActive = (item: any): boolean => item.active;
-const markProcessed = (item: any) => ({ ...item, processed: true });
+const isActive = (item: Item): boolean => item.active;
+const markProcessed = (item: Item) => ({ ...item, processed: true });
 
-const processData = (data: any[]) => 
+const processData = (data: Item[]) => 
   data.filter(isActive).map(markProcessed);
 ```
 
 ### Use Composition
 ```typescript
 // Before: Nested function calls
-const processUser = (user: any) => {
+const processUser = (user: unknown) => {
   const validated = validateUser(user);
   const transformed = transformUser(validated);
   const enriched = enrichUser(transformed);

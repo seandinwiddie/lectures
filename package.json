@@ -1,0 +1,22 @@
+{
+  "name": "functional-programming-lectures",
+  "version": "1.0.0",
+  "description": "A comprehensive curriculum for mastering functional programming with TypeScript and Redux",
+  "scripts": {
+    "lint": "markdownlint '**/*.md' --ignore node_modules",
+    "lint:fix": "markdownlint '**/*.md' --ignore node_modules --fix",
+    "check-links": "markdown-link-check **/*.md"
+  },
+  "keywords": [
+    "functional-programming",
+    "typescript",
+    "redux",
+    "education"
+  ],
+  "author": "Sean Dinwiddie",
+  "license": "CC-BY-4.0",
+  "devDependencies": {
+    "markdown-link-check": "^3.11.0",
+    "markdownlint-cli": "^0.39.0"
+  }
+}

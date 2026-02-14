@@ -1,4 +1,4 @@
-# FP Maintainance Strategy
+# FP Maintenance Strategy
 
 This document outlines maintaining a codebase in pure functional programming (FP) style. The goal is to use functions for everything, ensure immutability, avoid side effects where possible, and use explicit state passing. We'll leverage Redux Toolkit's createReducer, createSlice, and Immer for efficient immutable state management. As per our architectural strategy, Redux Toolkit (RTK) and RTK Query are the definitive choice for state management and data fetching, superseding reactive programming libraries.js. Prioritize core files first, then components.
 

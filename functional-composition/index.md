@@ -48,9 +48,14 @@ Point-free style means writing functions without explicitly mentioning their par
 const map = <A, B>(f: (a: A) => B) => (xs: A[]) => xs.map(f);
 const filter = <A>(p: (a: A) => boolean) => (xs: A[]) => xs.filter(p);
 
+interface User {
+  name: string;
+  active: boolean;
+}
+
 const getActiveUserNames = pipe(
-  filter((user: any) => user.active),
-  map((user: any) => user.name)
+  filter((user: User) => user.active),
+  map((user: User) => user.name)
 );
 ```
 

@@ -1,3 +1,21 @@
+# Functional Programming Lectures
+
+A comprehensive curriculum for mastering functional programming with TypeScript and Redux. This repository contains a structured series of lectures designed to take you from the basics of pure functions to advanced architectural patterns used in modern scalable applications.
+
+**[Start Learning Here (Curriculum Index)](./index.md)**
+
+## Learning Path
+
+The curriculum is organized into five main sections:
+
+1.  **Fundamentals**: Core concepts of TypeScript, pure functions, and functional programming basics.
+2.  **Intermediate**: Modern Redux patterns, Redux Toolkit, and functional composition.
+3.  **Advanced**: Monads, monad transformers, and category theory fundamentals.
+4.  **Applications**: Real-world applications, performance optimization, and cross-language FP.
+5.  **Maintenance & Architecture**: Strategies for maintaining large FP codebases and modern Redux architecture.
+
+---
+
 # Resources
 
 ## Real-World Application

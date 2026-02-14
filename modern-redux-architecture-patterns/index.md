@@ -218,7 +218,7 @@ import { Middleware } from '@reduxjs/toolkit';
 
 interface AsyncAction {
   type: string;
-  payload: Promise<any>;
+  payload: Promise<unknown>;
   meta?: {
     onSuccess?: string;
     onError?: string;
@@ -402,11 +402,11 @@ const UserComponent: React.FC<{ userId: string }> = ({ userId }) => {
 // features/users/lazySelectors.ts
 import { createSelector } from '@reduxjs/toolkit';
 
-export const createLazySelector = <T>(
-  selector: (state: any) => T,
-  transform: (data: T) => any
+export const createLazySelector = <State, T, R>(
+  selector: (state: State) => T,
+  transform: (data: T) => R
 ) => {
-  let memoizedTransform: any = null;
+  let memoizedTransform: R | null = null;
   
   return createSelector(
     [selector],
