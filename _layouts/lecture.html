@@ -1,0 +1,7 @@
+---
+layout: default
+---
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"LearningResource","name":{{ page.title | jsonify }},"description":{{ page.description | default: site.description | jsonify }},"url":"{{ page.url | absolute_url }}","learningResourceType":"Lecture","educationalLevel":"Intermediate","inLanguage":"en","isPartOf":{"@type":"Course","name":"Functional Programming Lectures","url":"{{ '/' | absolute_url }}"},"author":{"@type":"Person","@id":"https://sdin.dev/#person","name":"Sean Dinwiddie","url":"https://sdin.dev/"}}
+</script>
+{{ content }}

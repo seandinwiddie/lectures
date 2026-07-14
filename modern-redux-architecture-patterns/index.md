@@ -1,5 +1,6 @@
 ---
 title: "Modern Redux Architecture Patterns"
+description: "This lecture explores modern Redux architecture patterns for building scalable applications."
 ---
 
 # Modern Redux Architecture Patterns

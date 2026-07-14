@@ -1,5 +1,6 @@
 ---
 title: "Monads in Functional Programming"
+description: "This lecture introduces monads as a way to handle side effects and complex computations in functional programming."
 ---
 
 # Monads in Functional Programming

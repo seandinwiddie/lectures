@@ -1,5 +1,6 @@
 ---
 title: "Performance Optimization Techniques"
+description: "This lecture explores performance optimization techniques in functional programming."
 ---
 
 # Performance Optimization Techniques

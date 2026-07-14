@@ -1,5 +1,6 @@
 ---
 title: "TypeScript and Functional Programming"
+description: "This lecture explores how TypeScript enhances functional programming with type safety and better developer experience."
 ---
 
 # TypeScript and Functional Programming

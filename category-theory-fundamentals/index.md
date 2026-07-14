@@ -1,5 +1,6 @@
 ---
 title: "Category Theory Fundamentals"
+description: "This lecture introduces the mathematical foundations of functional programming through category theory."
 ---
 
 # Category Theory Fundamentals

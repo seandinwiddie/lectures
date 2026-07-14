@@ -1,5 +1,7 @@
 ---
 title: "Functional Programming Lectures"
+description: "A comprehensive curriculum for mastering functional programming with TypeScript and Redux — from pure functions to monads and modern Redux architecture."
+layout: default
 ---
 
 <script type="application/ld+json">

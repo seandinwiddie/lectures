@@ -1,5 +1,6 @@
 ---
 title: "Functional Composition"
+description: "This lecture explores advanced function composition techniques in functional programming."
 ---
 
 # Functional Composition

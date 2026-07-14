@@ -1,5 +1,6 @@
 ---
 title: "Basic Functional Programming TypeScript Knowledge"
+description: "This lecture introduces the fundamental concepts of functional programming using TypeScript."
 ---
 
 # Basic Functional Programming TypeScript Knowledge

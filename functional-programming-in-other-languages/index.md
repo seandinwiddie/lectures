@@ -1,5 +1,6 @@
 ---
 title: "Functional Programming in Other Languages"
+description: "This lecture explores functional programming concepts across different programming languages."
 ---
 
 # Functional Programming in Other Languages

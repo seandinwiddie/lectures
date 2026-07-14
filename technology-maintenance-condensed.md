@@ -1,5 +1,6 @@
 ---
 title: "FP Maintenance Strategy (Condensed)"
+description: "This document provides essential guidelines for maintaining the codebase using functional programming (FP) principles combined with Redux Toolkit (RTK)…"
 ---
 
 # FP Maintenance Strategy (Condensed)

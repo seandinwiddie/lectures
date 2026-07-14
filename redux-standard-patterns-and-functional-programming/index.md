@@ -1,5 +1,6 @@
 ---
 title: "Redux Standard Patterns & Functional Programming"
+description: "Redux follows functional programming principles at its core. This lecture explores how Redux patterns align with functional programming concepts. While…"
 ---
 
 # Redux Standard Patterns & Functional Programming

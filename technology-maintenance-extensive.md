@@ -1,5 +1,6 @@
 ---
 title: "FP Maintenance Strategy (Extensive)"
+description: "This document provides comprehensive guidelines for maintaining the codebase using functional programming (FP) principles combined with Redux Toolkit…"
 ---
 
 # FP Maintenance Strategy (Extensive)

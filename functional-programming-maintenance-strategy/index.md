@@ -1,5 +1,6 @@
 ---
 title: "Functional Programming Maintenance Strategy"
+description: "This lecture explores strategies for maintaining functional programming codebases effectively."
 ---
 
 # Functional Programming Maintenance Strategy

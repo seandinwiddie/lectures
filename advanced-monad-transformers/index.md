@@ -1,5 +1,6 @@
 ---
 title: "Advanced Monad Transformers"
+description: "This lecture explores monad transformers for combining multiple monadic effects."
 ---
 
 # Advanced Monad Transformers

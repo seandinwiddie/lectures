@@ -1,5 +1,6 @@
 ---
 title: "Basic TypeScript knowledge"
+description: "This lecture gives you just enough TypeScript to move comfortably through the rest of the functional programming curriculum. You will learn the core of…"
 ---
 
 # Basic TypeScript knowledge

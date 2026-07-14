@@ -1,5 +1,6 @@
 ---
 title: "What is a function?"
+description: "This lecture introduces the fundamental concept of functions in TypeScript and how they form the basis of functional programming. This is where your…"
 ---
 
 # What is a function?

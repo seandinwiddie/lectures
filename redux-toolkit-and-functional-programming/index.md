@@ -1,5 +1,6 @@
 ---
 title: "Redux Toolkit & Functional Programming"
+description: "This lecture explores how Redux Toolkit (RTK) enhances functional programming patterns in state management."
 ---
 
 # Redux Toolkit & Functional Programming

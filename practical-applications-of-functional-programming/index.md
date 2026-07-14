@@ -1,5 +1,6 @@
 ---
 title: "Practical Applications of Functional Programming"
+description: "This lecture explores real-world applications of functional programming principles in modern software development."
 ---
 
 # Practical Applications of Functional Programming

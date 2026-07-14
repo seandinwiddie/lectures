@@ -1,5 +1,6 @@
 ---
 title: "FP Maintenance Strategy"
+description: "This document outlines maintaining a codebase in pure functional programming (FP) style. The goal is to use functions for everything, ensure…"
 ---
 
 # FP Maintenance Strategy
