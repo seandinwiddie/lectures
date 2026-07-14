@@ -318,4 +318,4 @@ Implement a Kleisli category for monadic composition and prove the monad laws.
 ## Resources
 
 - [Category Theory for Programmers](https://bartoszmilewski.com/2014/10/28/category-theory-for-programmers-the-preface/)
-- [Category Theory in Context](https://math.jhu.edu/~eriehl/context.pdf)
+- [Category Theory in Context](https://math.jhu.edu/~eriehl/context/)
