@@ -1,339 +1,660 @@
 ---
 title: "Practical Applications of Functional Programming"
-description: "This lecture explores real-world applications of functional programming principles in modern software development."
+description: "Apply functional cores, explicit decoding, modern Redux Toolkit, property tests, memoization, and immutable configuration in production TypeScript."
+layout: lecture
 ---
 
 # Practical Applications of Functional Programming
 
-This lecture explores real-world applications of functional programming principles in modern software development.
+Functional programming is most useful when it gives ordinary application code
+clear boundaries. Pure functions transform trusted values. Small adapters own
+network, storage, clock, and engine effects. The boundary between them validates
+untrusted data instead of pretending that a type annotation changed runtime
+input.
 
-> "Functional programming isn't academic theory—it's production-ready engineering. Pure functions, immutability, and composition solve real problems in React, Redux, data pipelines, and API clients every single day." - AI Insight
+## Learning Goals
+
+By the end of this lecture, you should be able to:
+
+- separate a functional core from an imperative shell;
+- assign local, server, shared client, and simulation state to the right owner;
+- decode `unknown` data before feature code uses it;
+- model recoverable failure with serializable tagged data;
+- test laws and postconditions of pure functions; and
+- state the policies that make memoization, laziness, and configuration safe.
+
+## Start with Ownership and Boundaries
+
+A practical application commonly contains this flow:
+
+```text
+external input -> effectful adapter -> decoder -> pure domain transformation
+                                      |
+                                      +-> explicit error value
+
+pure result -> RTK event, RTK Query cache, ECS command, UI, or output adapter
+```
+
+Keep the functional layer independent of the systems that consume it:
+
+```text
+        functional core
+         /          \
+Redux Toolkit      ECS
+client workflow    frame simulation
+```
+
+The functional core may define parsers, validators, predicates, and
+transformations. Redux Toolkit and ECS may call those functions. The core
+should not import a store, reducer, world, entity, component, or system.
+
+Choose an owner before choosing an abstraction:
+
+| Kind of state | Normal owner |
+| --- | --- |
+| One component's open panel | React component state |
+| Shareable navigation or filters | URL or router |
+| Server-owned documents and request status | RTK Query |
+| Shared durable client workflow | Redux Toolkit slice |
+| High-frequency spatial or simulation data | ECS world |
+| Intermediate values inside a transformation | Local function scope |
+
+## Represent Expected Failure as Plain Data
+
+The examples in this lecture share a small `Either` representation. It uses no
+custom class instance or function-valued methods, so it remains suitable for
+Redux state or actions when its error and success values are recursively plain
+serializable data.
+
+```ts
+export type Either<E, T> =
+  | { readonly _tag: 'Left'; readonly error: E }
+  | { readonly _tag: 'Right'; readonly value: T }
+
+export const left = <E>(error: E): Either<E, never> => ({
+  _tag: 'Left',
+  error,
+})
+
+export const right = <T>(value: T): Either<never, T> => ({
+  _tag: 'Right',
+  value,
+})
+
+export interface User {
+  readonly id: string
+  readonly name: string
+  readonly email: string
+}
+
+export type DecodeError = {
+  readonly kind: 'decode'
+  readonly message: string
+}
+
+export const decodeUser = (input: unknown): Either<DecodeError, User> => {
+  if (typeof input !== 'object' || input === null) {
+    return left({ kind: 'decode', message: 'Expected a user object' })
+  }
+
+  if (
+    !('id' in input) ||
+    typeof input.id !== 'string' ||
+    !('name' in input) ||
+    typeof input.name !== 'string' ||
+    !('email' in input) ||
+    typeof input.email !== 'string'
+  ) {
+    return left({
+      kind: 'decode',
+      message: 'Expected string id, name, and email fields',
+    })
+  }
+
+  return right({ id: input.id, name: input.name, email: input.email })
+}
+
+export const decodeUsers = (
+  input: unknown,
+): Either<DecodeError, readonly User[]> => {
+  if (!Array.isArray(input)) {
+    return left({ kind: 'decode', message: 'Expected an array of users' })
+  }
+
+  const users: User[] = []
+
+  for (const [index, value] of input.entries()) {
+    const decoded = decodeUser(value)
+
+    if (decoded._tag === 'Left') {
+      return left({
+        kind: 'decode',
+        message: `users[${index}]: ${decoded.error.message}`,
+      })
+    }
+
+    users.push(decoded.value)
+  }
+
+  return right(users)
+}
+```
+
+A TypeScript generic describes a compile-time contract. Only a decoder checks
+whether an HTTP response, saved file, message, or engine payload satisfies that
+contract at runtime.
 
 ## Web Development
 
-> "React components are pure functions: props => UI. This purity enables predictable rendering, easy testing, and powerful optimization like React.memo. Functional React is just functional programming applied to the DOM." - AI Insight
+### React and RTK Query
 
-### React with Functional Components
+React components describe UI from props, state, and context. Keep a
+presentational component unaware of data fetching. Use RTK Query as the default
+owner for server data, and ensure its endpoint validates the response before a
+component receives `User`.
 
-React's functional components are perfect for functional programming because they're pure functions that take props and return JSX. Higher-order components (HOCs) are functions that take a component and return a new component with additional functionality. This pattern lets you add features like data fetching without changing the original component, keeping your code modular and testable.
-```typescript
-import React from 'react';
+```tsx
+import { useGetUserQuery } from '../services/api'
+import type { User } from '../domain/user'
 
-// Pure functional component
-const UserCard: React.FC<{ user: User }> = ({ user }) => {
-  return (
-    <div className="user-card">
-      <h3>{user.name}</h3>
-      <p>{user.email}</p>
-    </div>
-  );
-};
+export const UserCard = ({ user }: { user: User }) => (
+  <article className="user-card">
+    <h3>{user.name}</h3>
+    <p>{user.email}</p>
+  </article>
+)
 
-// Higher-order component for data fetching
-const withUserData = <P extends object>(
-  Component: React.ComponentType<P & { user: User }>
-) => {
-  return (props: P) => {
-    const [user, setUser] = React.useState<User | null>(null);
-    
-    React.useEffect(() => {
-      fetchUser().then(setUser);
-    }, []);
-    
-    return user ? <Component {...props} user={user} /> : <div>Loading...</div>;
-  };
-};
+export const UserPanel = ({ userId }: { userId: string }) => {
+  const { data: user, isLoading, isError } = useGetUserQuery(userId)
 
-const UserCardWithData = withUserData(UserCard);
+  if (isLoading) return <p>Loading…</p>
+  if (isError || user === undefined) {
+    return <p>Unable to load this user.</p>
+  }
+
+  return <UserCard user={user} />
+}
 ```
 
-### State Management with Redux Toolkit
+For one backend, prefer one `createApi` root and split feature endpoints with
+`injectEndpoints`. Register both the API reducer and middleware. Use tags for
+normal invalidation and keep optimistic cache patches in endpoint lifecycle
+handlers, where rollback remains coupled to the request.
 
-Redux Toolkit makes state management much simpler while maintaining functional programming principles. The `createSlice` function automatically generates action creators and reducers, reducing boilerplate code. Even though the code looks like it's mutating state, Redux Toolkit uses Immer behind the scenes to ensure immutability, giving you the safety of functional programming with the simplicity of "mutable" syntax.
-```typescript
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+Do not copy query results and loading flags into an ordinary slice. That creates
+two authorities for the same server document.
 
-interface TodoState {
-  items: Todo[];
-  loading: boolean;
-  error: string | null;
+### Shared Client State with Redux Toolkit
+
+Redux Toolkit slices are appropriate for shared, durable client state. Actions
+should describe events. Reducers own transitions from current state plus event
+data, and selectors derive views instead of storing duplicate values.
+
+```ts
+import {
+  configureStore,
+  createSelector,
+  createSlice,
+  type PayloadAction,
+} from '@reduxjs/toolkit'
+import { useDispatch, useSelector } from 'react-redux'
+import { api } from '../services/api'
+
+interface Todo {
+  readonly id: string
+  readonly title: string
+  readonly completed: boolean
 }
 
-const todoSlice = createSlice({
-  name: 'todos',
-  initialState: { items: [], loading: false, error: null } as TodoState,
-  reducers: {
-    addTodo: (state, action: PayloadAction<Todo>) => {
-      state.items.push(action.payload);
-    },
-    toggleTodo: (state, action: PayloadAction<number>) => {
-      const todo = state.items.find(t => t.id === action.payload);
-      if (todo) {
-        todo.completed = !todo.completed;
-      }
-    }
-  }
-});
+interface TodoState {
+  readonly items: readonly Todo[]
+}
 
-export const { addTodo, toggleTodo } = todoSlice.actions;
-export default todoSlice.reducer;
+const initialState: TodoState = { items: [] }
+
+const todosSlice = createSlice({
+  name: 'todos',
+  initialState,
+  reducers: {
+    todoAdded(
+      state,
+      action: PayloadAction<{ readonly id: string; readonly title: string }>,
+    ) {
+      state.items.push({ ...action.payload, completed: false })
+    },
+    todoToggled(state, action: PayloadAction<{ readonly id: string }>) {
+      const todo = state.items.find((item) => item.id === action.payload.id)
+      if (todo) todo.completed = !todo.completed
+    },
+  },
+})
+
+export const store = configureStore({
+  reducer: {
+    todos: todosSlice.reducer,
+    [api.reducerPath]: api.reducer,
+  },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(api.middleware),
+})
+
+export type RootState = ReturnType<typeof store.getState>
+export type AppDispatch = typeof store.dispatch
+
+export const useAppDispatch = useDispatch.withTypes<AppDispatch>()
+export const useAppSelector = useSelector.withTypes<RootState>()
+
+const selectTodos = (state: RootState) => state.todos.items
+
+export const selectCompletedCount = createSelector(
+  [selectTodos],
+  (todos) => todos.filter((todo) => todo.completed).length,
+)
+
+export const { todoAdded, todoToggled } = todosSlice.actions
 ```
+
+Immer lets a slice reducer use mutation syntax while producing immutable state.
+That does not make effects legal in a reducer: no HTTP calls, clocks, random ID
+generation, logging, or mutation of values outside the draft.
+
+Keep Redux actions and state as plain serializable data. A tagged `Either` value
+can cross that boundary if both branches contain serializable data. An object
+whose `.map()` method is a function cannot.
 
 ## Data Processing
 
-### ETL Pipeline
+### A Pure ETL Core
 
-ETL (Extract, Transform, Load) pipelines are perfect for functional programming because they're just a series of data transformations. Each step is a pure function that takes data and returns transformed data. The `pipe` function chains these transformations together, and the `Either` type handles errors gracefully without throwing exceptions. This makes data processing predictable and easy to test.
-```typescript
-interface RawData {
-  id: string;
-  name: string;
-  value: string;
-  timestamp: string;
-}
+A CSV library might produce string-valued rows. Once that adapter has done I/O,
+the domain can validate and transform each row with a pure function.
+
+```ts
+type CsvRow = Readonly<Record<string, string | undefined>>
 
 interface ProcessedData {
-  id: number;
-  name: string;
-  value: number;
-  date: Date;
+  readonly id: number
+  readonly name: string
+  readonly value: number
+  readonly timestamp: string
 }
 
-// Pure functions for data transformation
-const validateData = (data: RawData): Either<string, RawData> => {
-  if (!data.id || !data.name || !data.value) {
-    return Either.left('Missing required fields');
+type RowError = {
+  readonly kind: 'invalid-row'
+  readonly message: string
+}
+
+const processRow = (row: CsvRow): Either<RowError, ProcessedData> => {
+  const idText = row.id?.trim()
+  const name = row.name?.trim()
+  const valueText = row.value?.trim()
+  const timestamp = row.timestamp?.trim()
+
+  if (!idText || !name || !valueText || !timestamp) {
+    return left({ kind: 'invalid-row', message: 'Missing a required field' })
   }
-  return Either.right(data);
-};
 
-const transformData = (data: RawData): ProcessedData => ({
-  id: parseInt(data.id),
-  name: data.name.trim(),
-  value: parseFloat(data.value),
-  date: new Date(data.timestamp)
-});
+  if (!/^-?\d+$/.test(idText)) {
+    return left({ kind: 'invalid-row', message: `Invalid id: ${idText}` })
+  }
 
-const processData = pipe(
-  validateData,
-  dataEither => dataEither.map(transformData)
-);
+  const id = Number(idText)
+  const value = Number(valueText)
+  const milliseconds = Date.parse(timestamp)
 
-// Batch processing
-const processBatch = (rawData: RawData[]): ProcessedData[] => {
-  return rawData
-    .map(processData)
-    .filter(result => result.isRight())
-    .map(result => result.getOrElse(null!));
-};
-```
+  if (!Number.isSafeInteger(id)) {
+    return left({ kind: 'invalid-row', message: `Unsafe id: ${idText}` })
+  }
 
-### API Client with Error Handling
+  if (!Number.isFinite(value)) {
+    return left({ kind: 'invalid-row', message: `Invalid value: ${valueText}` })
+  }
 
-API clients benefit greatly from functional programming because they deal with uncertainty - network requests can fail, servers can be down, or data might be malformed. The `Either` type lets you handle these cases explicitly instead of throwing exceptions. Each method returns either a success value or an error message, making error handling predictable and forcing you to consider both cases.
-```typescript
-class ApiClient {
-  private async request<T>(url: string, options?: RequestInit): Promise<Either<string, T>> {
-    try {
-      const response = await fetch(url, options);
-      if (!response.ok) {
-        return Either.left(`HTTP ${response.status}: ${response.statusText}`);
-      }
-      const data = await response.json();
-      return Either.right(data);
-    } catch (error) {
-      return Either.left(error.message);
+  if (Number.isNaN(milliseconds)) {
+    return left({ kind: 'invalid-row', message: `Invalid date: ${timestamp}` })
+  }
+
+  return right({
+    id,
+    name,
+    value,
+    timestamp: new Date(milliseconds).toISOString(),
+  })
+}
+
+interface RejectedRow {
+  readonly row: CsvRow
+  readonly error: RowError
+}
+
+interface BatchResult {
+  readonly accepted: readonly ProcessedData[]
+  readonly rejected: readonly RejectedRow[]
+}
+
+const processBatch = (rows: readonly CsvRow[]): BatchResult => {
+  const accepted: ProcessedData[] = []
+  const rejected: RejectedRow[] = []
+
+  for (const row of rows) {
+    const result = processRow(row)
+
+    if (result._tag === 'Right') {
+      accepted.push(result.value)
+    } else {
+      rejected.push({ row, error: result.error })
     }
   }
 
-  async getUsers(): Promise<Either<string, User[]>> {
-    return this.request<User[]>('/api/users');
+  return { accepted, rejected }
+}
+```
+
+This batch deliberately accumulates rejected rows. A command-validation
+pipeline might instead return the first `Left`. Neither behavior is universally
+correct; collection versus fail-fast is part of the contract. Its local arrays
+never escape until the final return, so this implementation stays observable as
+a pure function without repeatedly copying a growing batch.
+
+Reading the CSV and writing accepted records remain effects:
+
+```ts
+interface ImportPorts {
+  readRows: () => Promise<readonly CsvRow[]>
+  writeRows: (rows: readonly ProcessedData[]) => Promise<void>
+}
+
+const runImport = async (
+  ports: ImportPorts,
+): Promise<readonly RejectedRow[]> => {
+  const rows = await ports.readRows()
+  const batch = processBatch(rows)
+  await ports.writeRows(batch.accepted)
+  return batch.rejected
+}
+```
+
+This is a functional core inside an imperative shell. Tests for `processRow`
+need no database mock; integration tests for `runImport` can supply small port
+implementations.
+
+### An API Client That Decodes `unknown`
+
+If an application does not use RTK Query for a request, the same boundary rule
+still applies. Pass a decoder to the effectful client instead of writing
+`request<User>()`, which would only assert an expectation.
+
+```ts
+type ApiError =
+  | { readonly kind: 'network'; readonly message: string }
+  | { readonly kind: 'http'; readonly status: number; readonly message: string }
+  | { readonly kind: 'decode'; readonly message: string }
+
+type Decoder<T> = (input: unknown) => Either<DecodeError, T>
+
+const errorMessage = (error: unknown): string =>
+  error instanceof Error ? error.message : 'Unknown failure'
+
+class ApiClient {
+  private async request<T>(
+    url: string,
+    decode: Decoder<T>,
+    options?: RequestInit,
+  ): Promise<Either<ApiError, T>> {
+    let response: Response
+
+    try {
+      response = await fetch(url, options)
+    } catch (error: unknown) {
+      return left({ kind: 'network', message: errorMessage(error) })
+    }
+
+    if (!response.ok) {
+      return left({
+        kind: 'http',
+        status: response.status,
+        message: response.statusText,
+      })
+    }
+
+    let payload: unknown
+
+    try {
+      payload = await response.json()
+    } catch (error: unknown) {
+      return left({
+        kind: 'decode',
+        message: `Invalid JSON: ${errorMessage(error)}`,
+      })
+    }
+
+    const decoded = decode(payload)
+    return decoded._tag === 'Right'
+      ? right(decoded.value)
+      : left({ kind: 'decode', message: decoded.error.message })
   }
 
-  async createUser(user: Omit<User, 'id'>): Promise<Either<string, User>> {
-    return this.request<User>('/api/users', {
+  getUsers(): Promise<Either<ApiError, readonly User[]>> {
+    return this.request('/api/users', decodeUsers)
+  }
+
+  createUser(user: Omit<User, 'id'>): Promise<Either<ApiError, User>> {
+    return this.request('/api/users', decodeUser, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(user)
-    });
+      body: JSON.stringify(user),
+    })
   }
 }
 ```
 
-## Testing
+This client distinguishes transport, HTTP, and decoding failures. Domain rules
+can add another error vocabulary after decoding instead of collapsing every
+failure into one string.
 
-> "Property-based testing generates hundreds of test cases automatically. Instead of 'add(2, 3) === 5', you prove 'add(a, b) === add(b, a) for all numbers'. Pure functions make this approach natural." - AI Insight
+## Test Laws and Boundaries
 
-### Property-Based Testing
+Pure functions support example tests and broader properties. State the input
+domain so the property is actually true; JavaScript number arithmetic is not
+mathematical real-number arithmetic.
 
-Property-based testing is perfect for functional programming because it tests the mathematical properties of your functions rather than specific examples. Instead of testing individual cases, you test properties like commutativity (order doesn't matter) or associativity (grouping doesn't matter). This is especially powerful for pure functions because their behavior is predictable and mathematical.
-```typescript
-import fc from 'fast-check';
+```ts
+import * as fc from 'fast-check'
+import { describe, expect, it } from 'vitest'
 
-// Testing pure functions with property-based testing
-const testAddCommutativity = fc.assert(
-  fc.property(
-    fc.integer(), fc.integer(),
-    (a, b) => {
-      return add(a, b) === add(b, a);
-    }
-  )
-);
+const normalizeName = (value: string): string =>
+  value.trim().replace(/\s+/gu, ' ')
 
-const testAddAssociativity = fc.assert(
-  fc.property(
-    fc.integer(), fc.integer(), fc.integer(),
-    (a, b, c) => {
-      return add(add(a, b), c) === add(a, add(b, c));
-    }
-  )
-);
+describe('functional core', () => {
+  it('normalizes names idempotently', () => {
+    fc.assert(
+      fc.property(fc.string(), (value) => {
+        const once = normalizeName(value)
+        return normalizeName(once) === once
+      }),
+    )
+  })
 
-const testStringReversal = fc.assert(
-  fc.property(
-    fc.string(),
-    (str) => {
-      return reverse(reverse(str)) === str;
-    }
-  )
-);
+  it('rejects malformed users at the boundary', () => {
+    expect(decodeUser({ id: 'u1', name: 'Ada' })).toEqual({
+      _tag: 'Left',
+      error: {
+        kind: 'decode',
+        message: 'Expected string id, name, and email fields',
+      },
+    })
+  })
+
+  it('parses a valid CSV row', () => {
+    expect(
+      processRow({
+        id: '7',
+        name: 'Ada',
+        value: '2.5',
+        timestamp: '2026-01-02T00:00:00.000Z',
+      }),
+    ).toEqual(
+      right({
+        id: 7,
+        name: 'Ada',
+        value: 2.5,
+        timestamp: '2026-01-02T00:00:00.000Z',
+      }),
+    )
+  })
+})
 ```
 
-### Unit Testing with Pure Functions
+Test both branches of a decoder, reducer, or tagged value. Avoid extracting a
+success with a fake `null` default or a non-null assertion; branch on the tag so
+TypeScript and the test both prove which value exists.
 
-Pure functions are incredibly easy to test because they always give the same result for the same inputs and have no side effects. You don't need to set up complex test environments or mock external dependencies. Each test is isolated and predictable, making your test suite fast, reliable, and easy to understand.
-```typescript
-describe('User validation', () => {
-  it('should validate correct user data', () => {
-    const user = { name: 'Alice', age: 25, email: 'alice@example.com' };
-    const result = validateUser(user);
-    expect(result.isRight()).toBe(true);
-    expect(result.getOrElse(null)).toEqual(user);
-  });
+## Performance Policies
 
-  it('should reject invalid email', () => {
-    const user = { name: 'Alice', age: 25, email: 'invalid-email' };
-    const result = validateUser(user);
-    expect(result.isLeft()).toBe(true);
-    expect(result.fold(
-      error => error,
-      () => 'No error'
-    )).toContain('Invalid email');
-  });
-});
+### Memoize Only Pure Work
+
+Memoization is sound when output depends only on the key and retained entries
+remain valid. Wrapping the cached value avoids a non-null assertion and still
+supports functions whose result is `undefined`.
+
+```ts
+const memoize = <A, R>(transform: (argument: A) => R) => {
+  const cache = new Map<A, { readonly value: R }>()
+
+  return (argument: A): R => {
+    const cached = cache.get(argument)
+    if (cached) return cached.value
+
+    const entry = { value: transform(argument) }
+    cache.set(argument, entry)
+    return entry.value
+  }
+}
+
+const cube = memoize((value: number) => value * value * value)
+
+cube(5) // computes 125
+cube(5) // reuses 125
 ```
 
-## Performance Optimization
+This cache is intentionally simple, not universally safe:
 
-### Memoization
+- `Map` compares object keys by identity, not structural value;
+- mutable arguments can make a retained result stale;
+- entries have no size, lifetime, or eviction policy; and
+- an effect such as `fetch()` must not be disguised as a pure calculation.
 
-Memoization is like remembering the results of expensive calculations. Since pure functions always return the same result for the same inputs, you can safely cache their results. The first time you call the function, it computes the result and stores it. The next time you call it with the same input, it returns the cached result instead of recomputing. This is especially useful for expensive operations like API calls or complex calculations.
-```typescript
-const memoize = <T, U>(fn: (arg: T) => U) => {
-  const cache = new Map<T, U>();
-  return (arg: T): U => {
-    if (cache.has(arg)) {
-      return cache.get(arg)!;
-    }
-    const result = fn(arg);
-    cache.set(arg, result);
-    return result;
-  };
-};
+Use `createSelector` for derived Redux views. Use RTK Query for server request
+deduplication, subscription lifetimes, errors, and invalidation. Use a bounded
+cache with an explicit key and eviction policy for general application work.
 
-// Memoized expensive calculation
-const expensiveCalculation = memoize((n: number): number => {
-  // Simulate expensive computation
-  return n * n * n;
-});
+### Lazy Values Hide a Small Effect
 
-// Usage
-console.log(expensiveCalculation(5)); // Computed: 125
-console.log(expensiveCalculation(5)); // Cached: 125
-```
+A memoized lazy value defers a synchronous computation and runs it at most once
+after a successful evaluation.
 
-### Lazy Evaluation
-
-Lazy evaluation means "don't compute until you need it." Instead of computing a value immediately, you create a promise to compute it later. This is useful for expensive operations that might not be needed. The `Lazy` class wraps a computation and only executes it when you actually request the result. This can save significant time and resources in applications with complex, conditional logic.
-```typescript
+```ts
 class Lazy<T> {
-  private constructor(private thunk: () => T) {}
+  private state:
+    | { status: 'pending'; evaluate: () => T }
+    | { status: 'ready'; value: T }
+
+  private constructor(evaluate: () => T) {
+    this.state = { status: 'pending', evaluate }
+  }
 
   static of<T>(value: T): Lazy<T> {
-    return new Lazy(() => value);
+    return new Lazy(() => value)
   }
 
-  static from<T>(thunk: () => T): Lazy<T> {
-    return new Lazy(thunk);
+  static from<T>(evaluate: () => T): Lazy<T> {
+    return new Lazy(evaluate)
   }
 
-  map<U>(fn: (value: T) => U): Lazy<U> {
-    return new Lazy(() => fn(this.thunk()));
+  map<U>(transform: (value: T) => U): Lazy<U> {
+    return Lazy.from(() => transform(this.get()))
   }
 
   get(): T {
-    return this.thunk();
+    if (this.state.status === 'pending') {
+      const value = this.state.evaluate()
+      this.state = { status: 'ready', value }
+      return value
+    }
+
+    return this.state.value
   }
 }
 
-// Lazy computation
-const expensiveOperation = Lazy.from(() => {
-  console.log('Computing...');
-  return 42;
-});
-
-// Only computed when accessed
-const result = expensiveOperation.map(x => x * 2);
-console.log('Before access');
-console.log(result.get()); // "Computing..." then 84
+const answer = Lazy.from(() => 21).map((value) => value * 2)
+answer.get() // 42
+answer.get() // the cached 42
 ```
 
-## Configuration Management
+The state transition inside `get()` is an effect hidden behind the abstraction.
+This version is synchronous, retries if evaluation throws, has no cancellation,
+and makes no cross-thread guarantee. An asynchronous workflow needs a real
+Promise, task, or runtime policy rather than a renamed callback registry.
 
-### Immutable Configuration
+## Immutable Configuration
 
-Configuration management benefits from functional programming because configurations should be predictable and consistent. The `createConfig` function creates immutable configuration objects with sensible defaults, and you can override specific values without changing the original. This prevents configuration drift and makes it easy to create environment-specific configurations (like development vs production) while maintaining consistency.
-```typescript
+Configuration builders are useful when defaults and override precedence are
+explicit. `Partial<Config>` is not enough for nested overrides because it still
+requires a complete `features` object, so define the boundary shape directly.
+
+```ts
 interface Config {
-  apiUrl: string;
-  timeout: number;
-  retries: number;
-  features: {
-    caching: boolean;
-    logging: boolean;
-  };
+  readonly apiUrl: string
+  readonly timeout: number
+  readonly retries: number
+  readonly features: {
+    readonly caching: boolean
+    readonly logging: boolean
+  }
 }
 
-const createConfig = (overrides: Partial<Config> = {}): Config => {
-  const { features, ...rest } = overrides;
-  return {
+type ConfigOverrides = Partial<Omit<Config, 'features'>> & {
+  readonly features?: Partial<Config['features']>
+}
+
+const createConfig = (overrides: ConfigOverrides = {}): Config => {
+  const { features, ...topLevel } = overrides
+
+  return Object.freeze({
     apiUrl: 'https://api.example.com',
-    timeout: 5000,
+    timeout: 5_000,
     retries: 3,
-    ...rest,
-    features: {
+    ...topLevel,
+    features: Object.freeze({
       caching: true,
       logging: false,
-      ...features
-    }
-  };
-};
+      ...features,
+    }),
+  })
+}
 
-// Environment-specific configurations
-const devConfig = createConfig({
+const development = createConfig({
   apiUrl: 'https://dev-api.example.com',
-  features: { caching: false, logging: true }
-});
+  features: { logging: true },
+})
 
-const prodConfig = createConfig({
-  timeout: 10000,
-  retries: 5
-});
+const production = createConfig({ timeout: 10_000, retries: 5 })
 ```
 
+The ordering is intentional: caller overrides win over defaults, and nested
+feature overrides win only inside `features`. `readonly` protects TypeScript
+callers; `Object.freeze` also protects these two object levels at runtime.
+
 ## Exercise
-Build a complete data processing pipeline that reads from a CSV file, validates and transforms the data, and writes to a database, using only pure functions and functional programming principles.
+
+Build an import workflow that reads CSV rows, decodes and validates them with a
+pure core, and writes accepted records through an effectful port. Then expose
+the latest import summary as shared client state with an event-style RTK action.
+Keep raw server documents in RTK Query and high-frequency progress particles in
+an ECS world. Test the core separately from the adapters.
 
 ## Resources
-- [Functional Programming in JavaScript](https://www.freecodecamp.org/news/functional-programming-in-javascript/)
-- [Real World Functional Programming](https://www.manning.com/books/real-world-functional-programming)
+
+- [Redux Style Guide](https://redux.js.org/style-guide/)
+- [RTK Query Overview](https://redux-toolkit.js.org/rtk-query/overview)
+- [Property-Based Testing with fast-check](https://fast-check.dev/docs/introduction/getting-started/)

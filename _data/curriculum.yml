@@ -1,0 +1,126 @@
+- path: the-simplest-fp-ts-hello-world/index.md
+  url: /the-simplest-fp-ts-hello-world/
+  title: The Simplest FP TypeScript Hello World
+  difficulty: Beginner
+  outcomes:
+    - Explain purity and referential transparency with a small TypeScript function.
+    - Run and adapt a typed pure-function example.
+- path: basic-typescript-knowledge/index.md
+  url: /basic-typescript-knowledge/
+  title: Basic TypeScript Knowledge
+  difficulty: Beginner
+  outcomes:
+    - Use the TypeScript types and narrowing techniques needed by later lectures.
+    - Model simple data with unions, interfaces, generics, and immutable values.
+- path: what-is-a-function/index.md
+  url: /what-is-a-function/
+  title: What Is a Function?
+  difficulty: Beginner
+  outcomes:
+    - Distinguish pure functions from functions with observable side effects.
+    - Describe parameters, return values, composition, and function boundaries.
+- path: basic-functional-programming-knowledge/index.md
+  url: /basic-functional-programming-knowledge/
+  title: Basic Functional Programming TypeScript Knowledge
+  difficulty: Beginner
+  outcomes:
+    - Apply immutability, higher-order functions, and data transformations.
+    - Compose small TypeScript functions into predictable pipelines.
+- path: es6+-features-for-functional-programming/index.md
+  url: /es6+-features-for-functional-programming/
+  title: ES6+ Features for Functional Programming
+  difficulty: Beginner
+  outcomes:
+    - Use modern JavaScript syntax to express immutable transformations.
+    - Apply destructuring, spread, rest, modules, and arrow functions safely.
+- path: typescript-and-functional-programming/index.md
+  url: /typescript-and-functional-programming/
+  title: TypeScript and Functional Programming
+  difficulty: Intermediate
+  outcomes:
+    - Encode functional domain rules with TypeScript's type system.
+    - Use generics and discriminated unions to make invalid states harder to represent.
+- path: redux-standard-patterns-and-functional-programming/index.md
+  url: /redux-standard-patterns-and-functional-programming/
+  title: Redux Standard Patterns and Functional Programming
+  difficulty: Intermediate
+  outcomes:
+    - Trace Redux's event, reducer, selector, and render dataflow.
+    - Explain why modern Redux Toolkit replaces handwritten Redux boilerplate.
+- path: redux-toolkit-and-functional-programming/index.md
+  url: /redux-toolkit-and-functional-programming/
+  title: Redux Toolkit and Functional Programming
+  difficulty: Intermediate
+  outcomes:
+    - Build event-oriented slices with pure reducer-owned transitions.
+    - Configure typed hooks and derive view data with selectors.
+- path: functional-composition/index.md
+  url: /functional-composition/
+  title: Functional Composition
+  difficulty: Intermediate
+  outcomes:
+    - Compose typed transformations, predicates, and branching rules with explicit contracts.
+    - Keep memoization, mutation, and effects at named boundaries around a functional core.
+- path: monads-in-functional-programming/index.md
+  url: /monads-in-functional-programming/
+  title: Monads in Functional Programming
+  difficulty: Advanced
+  outcomes:
+    - Explain Maybe and Either as composable computational contexts.
+    - Apply monad laws when reasoning about safe transformations.
+- path: advanced-monad-transformers/index.md
+  url: /advanced-monad-transformers/
+  title: Advanced Monad Transformers
+  difficulty: Advanced
+  outcomes:
+    - Combine environment, asynchronous, optional, and error-aware effects with concrete types.
+    - Choose deliberately between transformer-style composition, RTK Query, thunks, and listeners.
+- path: category-theory-fundamentals/index.md
+  url: /category-theory-fundamentals/
+  title: Category Theory Fundamentals
+  difficulty: Advanced
+  outcomes:
+    - Relate objects, morphisms, functors, and natural transformations to code.
+    - Use category-theory vocabulary without losing sight of practical design decisions.
+- path: practical-applications-of-functional-programming/index.md
+  url: /practical-applications-of-functional-programming/
+  title: Practical Applications of Functional Programming
+  difficulty: Intermediate
+  outcomes:
+    - Separate pure domain transformations from effectful application boundaries.
+    - Apply functional techniques to validation, data processing, and UI workflows.
+- path: performance-optimization-techniques/index.md
+  url: /performance-optimization-techniques/
+  title: Performance Optimization Techniques
+  difficulty: Advanced
+  outcomes:
+    - Measure before applying memoization, lazy evaluation, or structural optimizations.
+    - Recognize when referential stability materially improves application performance.
+- path: functional-programming-in-other-languages/index.md
+  url: /functional-programming-in-other-languages/
+  title: Functional Programming in Other Languages
+  difficulty: Intermediate
+  outcomes:
+    - Compare one functional contract across Rust, TypeScript, GDScript, and Unreal C++.
+    - Port laws, ownership boundaries, and conformance tests without forcing identical representations.
+- path: functional-programming-maintenance-strategy/index.md
+  url: /functional-programming-maintenance-strategy/
+  title: Functional Programming Maintenance Strategy
+  difficulty: Advanced
+  outcomes:
+    - Evolve a functional codebase while preserving behavior and ownership boundaries.
+    - Use tests, types, and small refactors to control maintenance risk.
+- path: redux-toolkit-and-rtk-query-best-practices/index.md
+  url: /redux-toolkit-and-rtk-query-best-practices/
+  title: Redux Toolkit and RTK Query Best Practices
+  difficulty: Advanced
+  outcomes:
+    - Assign form, URL, shared client, and server state to the correct owners.
+    - Design one RTK Query API per base URL with injected feature endpoints.
+- path: modern-redux-architecture-patterns/index.md
+  url: /modern-redux-architecture-patterns/
+  title: Modern Redux Architecture Patterns
+  difficulty: Advanced
+  outcomes:
+    - Choose slices, RTK Query, thunks, and listener middleware by responsibility.
+    - Build typed, feature-oriented Redux applications with appropriate store lifetimes.

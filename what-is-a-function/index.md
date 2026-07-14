@@ -1,15 +1,17 @@
 ---
-title: "What is a function?"
-description: "This lecture introduces the fundamental concept of functions in TypeScript and how they form the basis of functional programming. This is where your…"
+title: "What Is a Function?"
+description: "Learn how TypeScript functions model inputs, outputs, purity, composition, and side-effect boundaries in functional programs."
+layout: lecture
 ---
 
-# What is a function?
+# What Is a Function?
 
 This lecture introduces the fundamental concept of functions in TypeScript and how they form the basis of functional programming. This is where your journey into lean, modular functional programming begins. You'll learn to write functions that are pure, testable, and composable - the building blocks of maintainable codebases.
 
 > "A pure function is a mathematical relationship: given the same inputs, it always produces the same outputs with no hidden dependencies or side effects. This predictability is the cornerstone of reliable software." - AI Insight
 
 **Why This Matters for Maintenance:**
+
 - Pure functions are the foundation of predictable, debuggable code
 - Type safety prevents runtime errors and makes refactoring safer
 - Function composition enables building complex systems from simple parts
@@ -20,6 +22,7 @@ This lecture introduces the fundamental concept of functions in TypeScript and h
 ### Function Declarations
 
 Functions are like recipes - they take ingredients (parameters), do something with them, and give you back a result. In TypeScript, we can be very specific about what types of ingredients our functions accept and what type of result they return. This helps catch mistakes before your code even runs!
+
 ```typescript
 /**
  * Calculates the sum of two numbers.
@@ -72,6 +75,7 @@ function sum(...numbers: number[]): number {
 ### Function Expressions
 
 You can also create functions by assigning them to variables, just like you would with any other value. Arrow functions (using `=>`) are a shorter way to write functions, especially when they're simple. The `identity` function is a special case - it just returns whatever you give it, unchanged.
+
 ```typescript
 // Function expression with type annotation
 const multiply: (a: number, b: number) => number = (a, b) => a * b;
@@ -122,6 +126,7 @@ const identity = <T>(value: T): T => value;
 ### Function Types
 
 Just like we can have types for numbers and strings, we can have types for functions! This is really useful because it lets us be very clear about what kind of function we expect. A `Predicate` is a function that returns true or false, and a `Transformer` is a function that changes one type of data into another.
+
 ```typescript
 // Function type aliases
 type BinaryOperation = (a: number, b: number) => number;
@@ -168,6 +173,7 @@ const double: Transformer<number, number> = (n) => n * 2;
 ### Characteristics of Pure Functions
 
 Pure functions are like math functions - they always give you the same answer for the same inputs, and they don't change anything else in your program. This makes them predictable and easy to test. The examples show the difference between pure functions (which are good) and impure functions (which can cause bugs).
+
 ```typescript
 // ✅ Pure function - same input always produces same output
 /**
@@ -238,6 +244,7 @@ const addWithLogging = (a: number, b: number): number => {
 ### Benefits of Pure Functions
 
 Pure functions have superpowers! They're easy to test because you know exactly what they'll do. You can also "remember" their results (called memoization) to avoid doing the same work twice. This is especially useful for expensive calculations that you might do multiple times.
+
 ```typescript
 // 1. Predictable and testable
 /**
@@ -300,6 +307,7 @@ const expensiveCalculation = memoize((n: number): number => {
 ### Functions as Parameters
 
 Functions can take other functions as parameters! This is like having a tool that can use different tools inside it. The `applyOperation` function is flexible - it can add, multiply, or do any other operation you give it. This is a powerful way to make your code more reusable.
+
 ```typescript
 // Function that takes a function as parameter
 const applyOperation = (
@@ -332,6 +340,7 @@ console.log(applyOperation(multiply, 5, 3)); // 15
 ### Functions that Return Functions
 
 Functions can also return other functions! This is like a factory that creates tools. The `createGreeter` function is a factory that makes greeting functions. You give it a greeting word, and it gives you back a function that uses that greeting. This is called a "function factory."
+
 ```typescript
 // Function that returns a function
 /**
@@ -365,6 +374,7 @@ console.log(sayGoodbye('Bob')); // "Goodbye, Bob!"
 ### Basic Composition
 
 Function composition is like connecting pipes - you take the output of one function and feed it into another function. The `compose` function does this automatically. Think of it like a math problem: if you have f(x) and g(x), composition gives you f(g(x)). The `pipe` function does the same thing but reads more naturally from left to right.
+
 ```typescript
 // Compose two functions - mathematical composition: f(g(x))
 /**
@@ -408,6 +418,7 @@ console.log(processData(5)); // "11"
 ### Pipeline Composition
 
 Pipeline composition is like an assembly line - data flows through each function in order, getting transformed at each step. The `pipe` function makes this easy by letting you chain functions together. It's often easier to read than regular composition because it flows from left to right, just like reading English.
+
 ```typescript
 // Pipeline: data flows through functions left to right
 export function pipe<A, B>(ab: (a: A) => B): (a: A) => B;
@@ -438,6 +449,7 @@ console.log(processData(5)); // "11"
 ## Type-Safe Function Patterns
 
 ### Currying
+
 ```typescript
 // Manual currying
 const add = (a: number) => (b: number): number => a + b;
@@ -489,6 +501,7 @@ console.log(multiplyByTwo(5)); // 10
 ### Partial Application
 
 Partial application is like "fixing" some of the arguments of a function to create a new, simpler function. Instead of currying (which breaks a function into single-argument functions), partial application lets you provide some arguments now and the rest later. This is useful when you want to create specialized versions of general functions.
+
 ```typescript
 // Using default parameters for partial application
 const add = (a: number, b: number): number => a + b;
@@ -505,6 +518,7 @@ console.log(addFive(3)); // 8
 ### Currying with Arrow Functions
 
 Arrow functions make currying look really clean! The manual currying example shows how you can write a function that returns another function. The auto-currying utility is like a helper that can turn any function into a curried version automatically. This is especially useful when you want to create specialized functions on the fly.
+
 ```typescript
 // Manual currying - transform multi-argument function into series of single-argument functions
 const add = (a: number) => (b: number): number => a + b;
@@ -532,6 +546,7 @@ console.log(addFive(3)); // 8
 ### Data Processing Functions
 
 These examples show how functional programming works in real applications. The `validateUser` function checks if data is correct, and the `formatUser` function transforms data into a readable format. When you combine them with `pipe`, you get a data processing pipeline that validates first, then formats. This is a common pattern in functional programming.
+
 ```typescript
 // Type-safe data transformation functions
 interface User {
@@ -581,6 +596,7 @@ console.log(processUser(user)); // "Alice (25) - alice@example.com"
 ### Configuration Functions
 
 Configuration functions help you create and validate settings for your application. The `createConfig` function uses default parameters to make some settings optional, while `validateConfig` ensures all the settings are valid. This pattern is common in applications where you need to set up connections to databases, APIs, or other services.
+
 ```typescript
 // Function for creating configuration objects
 interface Config {
@@ -645,6 +661,7 @@ const createValidConfig = (apiUrl: string, timeout?: number, retries?: number): 
 ```
 
 ## Exercise
+
 Implement a small user-processing pipeline using only pure functions:
 
 1. `sanitizeUser(u: { name: string; age: number; email: string }): { name: string; age: number; email: string }` that trims `name`, lowercases `email`, and throws for negative `age` or empty `name`/`email`.
@@ -652,6 +669,7 @@ Implement a small user-processing pipeline using only pure functions:
 3. `processUser = pipe(sanitizeUser, formatUser)`.
 
 ### Unit tests
+
 ```typescript
 // Exercise: user-processing pipeline
 describe('processUser pipeline', () => {
@@ -669,5 +687,6 @@ describe('processUser pipeline', () => {
 ```
 
 ## Resources
+
 - [TypeScript Functions](https://www.typescriptlang.org/docs/handbook/functions.html)
 - [Functional Programming in TypeScript](https://github.com/gcanti/fp-ts)

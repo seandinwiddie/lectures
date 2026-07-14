@@ -1,6 +1,7 @@
 ---
 title: "Category Theory Fundamentals"
 description: "This lecture introduces the mathematical foundations of functional programming through category theory."
+layout: lecture
 ---
 
 # Category Theory Fundamentals
@@ -18,54 +19,56 @@ Category theory is like a universal language for understanding how things relate
 #### Objects and Morphisms
 
 In category theory, objects are like nouns (the things) and morphisms are like verbs (the actions). In programming, objects are types (like strings, numbers, arrays) and morphisms are functions that transform one type into another. This gives us a way to think about all the different kinds of data transformations in a unified way.
-```typescript
-// In programming, objects are types and morphisms are functions
-interface Category<A, B> {
-  // Objects: A, B (types)
-  // Morphisms: functions from A to B
-  morphism: (a: A) => B;
-}
 
-// Example: Category of types and functions
-const stringToNumber: Category<string, number> = {
-  morphism: (str: string) => parseInt(str)
-};
+```typescript
+// A function is a morphism from an input type to an output type.
+type Morphism<A, B> = (value: A) => B;
+
+const stringLength: Morphism<string, number> = (value) => value.length;
 ```
 
 #### Identity Morphism
 
 Every object has an identity morphism - a function that does nothing, like a "do nothing" button. It's like the number 1 in multiplication: multiplying by 1 doesn't change anything. The identity function takes a value and returns it unchanged. This might seem trivial, but it's essential for the mathematical structure to work properly.
+
 ```typescript
-// Every object has an identity morphism
-const identity = <A>(a: A): A => a;
+const identity = <A>(value: A): A => value;
 
-// Identity laws
-const leftIdentity = <A, B>(f: (a: A) => B, a: A): boolean => {
-  return compose(f, identity)(a) === f(a);
-};
+const compose = <A, B, C>(
+  outer: Morphism<B, C>,
+  inner: Morphism<A, B>
+): Morphism<A, C> => (value) => outer(inner(value));
 
-const rightIdentity = <A, B>(f: (a: A) => B, a: A): boolean => {
-  return compose(identity, f)(a) === f(a);
-};
+type Equal<A> = (left: A, right: A) => boolean;
+
+const leftIdentity = <A, B>(
+  f: Morphism<A, B>,
+  value: A,
+  equals: Equal<B>
+): boolean => equals(identity(f(value)), f(value));
+
+const rightIdentity = <A, B>(
+  f: Morphism<A, B>,
+  value: A,
+  equals: Equal<B>
+): boolean => equals(f(identity(value)), f(value));
 ```
 
 #### Composition
 
 Composition is like connecting pipes - you can take the output of one function and feed it into another function. The associativity law says that the order in which you group your compositions doesn't matter, just like how (a + b) + c = a + (b + c) in addition. This ensures that function composition works predictably no matter how you organize it.
-```typescript
-// Morphisms can be composed
-const compose = <A, B, C>(f: (b: B) => C, g: (a: A) => B) => (a: A): C => f(g(a));
 
-// Composition must be associative
+```typescript
 const associativity = <A, B, C, D>(
-  f: (c: C) => D,
-  g: (b: B) => C,
-  h: (a: A) => B,
-  a: A
+  f: Morphism<C, D>,
+  g: Morphism<B, C>,
+  h: Morphism<A, B>,
+  value: A,
+  equals: Equal<D>
 ): boolean => {
-  const lhs = compose(compose(f, g), h)(a);
-  const rhs = compose(f, compose(g, h))(a);
-  return lhs === rhs;
+  const leftGrouped = compose(compose(f, g), h)(value);
+  const rightGrouped = compose(f, compose(g, h))(value);
+  return equals(leftGrouped, rightGrouped);
 };
 ```
 
@@ -77,135 +80,242 @@ Functors are like translators that preserve the structure of what they're transl
 
 ### Functor Laws
 
-Functors follow specific laws that ensure they work predictably. The identity law says that mapping the identity function doesn't change anything, and the composition law says that mapping a composition of functions is the same as composing the mapped functions. These laws ensure that functors behave consistently and don't break the mathematical structure.
-```typescript
-interface Functor<F> {
-  map<A, B>(f: (a: A) => B, fa: F<A>): F<B>;
-}
+Functors follow specific laws that ensure they work predictably. The identity
+law says that mapping the identity function does not change a value, and the
+composition law says that one map with a composed function is equivalent to two
+successive maps.
 
-// Identity law: map(id) = id
-const functorIdentity = <F, A>(fa: F<A>, functor: Functor<F>): boolean => {
-  // Note: In a real application, use deep equality check instead of reference equality
-  return JSON.stringify(functor.map(identity, fa)) === JSON.stringify(fa);
-};
-
-// Composition law: map(f ∘ g) = map(f) ∘ map(g)
-const functorComposition = <F, A, B, C>(
-  fa: F<A>,
-  f: (b: B) => C,
-  g: (a: A) => B,
-  functor: Functor<F>
-): boolean => {
-  const lhs = functor.map(compose(f, g), fa);
-  const rhs = compose(
-    (fb: F<B>) => functor.map(f, fb),
-    (fa: F<A>) => functor.map(g, fa)
-  )(fa);
-  // Note: In a real application, use deep equality check instead of reference equality
-  return JSON.stringify(lhs) === JSON.stringify(rhs);
-};
-```
+TypeScript does not natively support applying an arbitrary type parameter as
+`F<A>`. Libraries can encode higher-kinded types, but ordinary application code
+is often clearer when it states the concrete carrier. The following example is
+therefore a real, compilable Array functor rather than pretend TypeScript syntax.
 
 ### Array Functor
 
 Arrays are a perfect example of functors in programming. The `map` function applies a transformation to every element in the array while preserving the array structure. This is why arrays are so powerful for data transformation - they maintain their shape while letting you transform what's inside.
+
 ```typescript
-const arrayFunctor: Functor<Array> = {
-  map: <A, B>(f: (a: A) => B, fa: A[]): B[] => fa.map(f)
+interface ArrayFunctor {
+  map<A, B>(
+    values: ReadonlyArray<A>,
+    transform: Morphism<A, B>
+  ): ReadonlyArray<B>;
+}
+
+const arrayFunctor: ArrayFunctor = {
+  map: (values, transform) => values.map(transform)
 };
 
-// Example usage
-const numbers = [1, 2, 3, 4, 5];
-const doubled = arrayFunctor.map(x => x * 2, numbers);
+const arraysEqual = <A>(
+  left: ReadonlyArray<A>,
+  right: ReadonlyArray<A>,
+  equals: Equal<A>
+): boolean => left.length === right.length
+  && left.every((value, index) => equals(value, right[index]!));
+
+const arrayFunctorIdentity = <A>(
+  values: ReadonlyArray<A>,
+  equals: Equal<A>
+): boolean => arraysEqual(
+  arrayFunctor.map(values, identity),
+  values,
+  equals
+);
+
+const arrayFunctorComposition = <A, B, C>(
+  values: ReadonlyArray<A>,
+  first: Morphism<A, B>,
+  second: Morphism<B, C>,
+  equals: Equal<C>
+): boolean => arraysEqual(
+  arrayFunctor.map(values, compose(second, first)),
+  arrayFunctor.map(arrayFunctor.map(values, first), second),
+  equals
+);
+
+const numbers = [1, 2, 3, 4, 5] as const;
+const doubled = arrayFunctor.map(numbers, (value) => value * 2);
+
 console.log(doubled); // [2, 4, 6, 8, 10]
+console.log(arrayFunctorIdentity(numbers, Object.is)); // true
 ```
 
 ## Natural Transformations
 
-Natural transformations are like bridges between different types of containers. They let you convert from one functor to another in a consistent way. For example, you might want to convert a Maybe (which might contain a value) into an Array (which might contain zero or more values). Natural transformations ensure this conversion works predictably.
+Natural transformations are bridges between functors that do not inspect or
+change the element type. For example, `maybeToArray` consistently converts
+`Just(value)` to a one-element array and `Nothing` to an empty array. Its
+naturality law says that mapping before conversion has the same result as
+converting before mapping.
 
 ```typescript
-interface NaturalTransformation<F, G> {
-  transform<A>(fa: F<A>): G<A>;
-}
+type Maybe<A> =
+  | Readonly<{ kind: 'just'; value: A }>
+  | Readonly<{ kind: 'nothing' }>;
 
-// Example: Maybe to Array transformation
-const maybeToArray: NaturalTransformation<Maybe, Array> = {
-  transform: <A>(ma: Maybe<A>): A[] => {
-    return ma.isJust() ? [ma.getOrElse(null!)] : [];
-  }
-};
+const nothing: Maybe<never> = { kind: 'nothing' };
+const just = <A>(value: A): Maybe<A> => ({ kind: 'just', value });
+
+const mapMaybe = <A, B>(
+  maybe: Maybe<A>,
+  transform: Morphism<A, B>
+): Maybe<B> => maybe.kind === 'nothing'
+  ? nothing
+  : just(transform(maybe.value));
+
+const maybeToArray = <A>(maybe: Maybe<A>): ReadonlyArray<A> =>
+  maybe.kind === 'nothing' ? [] : [maybe.value];
+
+const naturalityHolds = <A, B>(
+  maybe: Maybe<A>,
+  transform: Morphism<A, B>,
+  equals: Equal<B>
+): boolean => arraysEqual(
+  maybeToArray(mapMaybe(maybe, transform)),
+  arrayFunctor.map(maybeToArray(maybe), transform),
+  equals
+);
 ```
 
-## Monads as Monoids
+## Monadic Unit, Join, and Chain
 
-Monads are like special functors that can also "join" or "flatten" nested structures. Think of them as containers that can contain other containers of the same type, and they know how to flatten them into a single container. This is why monads are so useful for handling complex operations like async computations or error handling.
+A monad adds `unit` (called `just` here) and `join` to a functor. `join`
+flattens one nested layer, while `chain` maps a function that returns the same
+carrier and then flattens. Concrete `Maybe` code keeps the laws executable
+without claiming TypeScript has native higher-kinded types.
 
 ```typescript
-interface Monad<M> extends Functor<M> {
-  unit<A>(a: A): M<A>;
-  join<A>(mma: M<M<A>>): M<A>;
-}
+const joinMaybe = <A>(nested: Maybe<Maybe<A>>): Maybe<A> =>
+  nested.kind === 'nothing' ? nothing : nested.value;
 
-// Monad laws
-const monadLeftIdentity = <M, A, B>(
-  a: A,
-  f: (a: A) => M<B>,
-  monad: Monad<M>
+const chainMaybe = <A, B>(
+  maybe: Maybe<A>,
+  next: Morphism<A, Maybe<B>>
+): Maybe<B> => joinMaybe(mapMaybe(maybe, next));
+
+const maybeEquals = <A>(
+  left: Maybe<A>,
+  right: Maybe<A>,
+  equals: Equal<A>
 ): boolean => {
-  const lhs = monad.join(monad.map(f, monad.unit(a)));
-  const rhs = f(a);
-  return lhs === rhs;
+  if (left.kind === 'nothing' || right.kind === 'nothing') {
+    return left.kind === right.kind;
+  }
+  return equals(left.value, right.value);
 };
 
-const monadRightIdentity = <M, A>(
-  ma: M<A>,
-  monad: Monad<M>
-): boolean => {
-  const lhs = monad.join(monad.map(monad.unit, ma));
-  const rhs = ma;
-  return lhs === rhs;
-};
+const monadLeftIdentity = <A, B>(
+  value: A,
+  next: Morphism<A, Maybe<B>>,
+  equals: Equal<B>
+): boolean => maybeEquals(
+  chainMaybe(just(value), next),
+  next(value),
+  equals
+);
+
+const monadRightIdentity = <A>(
+  maybe: Maybe<A>,
+  equals: Equal<A>
+): boolean => maybeEquals(chainMaybe(maybe, just), maybe, equals);
+
+const monadAssociativity = <A, B, C>(
+  maybe: Maybe<A>,
+  first: Morphism<A, Maybe<B>>,
+  second: Morphism<B, Maybe<C>>,
+  equals: Equal<C>
+): boolean => maybeEquals(
+  chainMaybe(chainMaybe(maybe, first), second),
+  chainMaybe(maybe, (value) => chainMaybe(first(value), second)),
+  equals
+);
 ```
 
 ## Real-World Applications
 
 ### Type-Safe Data Processing
 
-This example shows how category theory concepts work in real applications. We use functors (like Maybe and Either) to handle uncertainty and errors safely, natural transformations to convert between different types of containers, and composition to chain operations together. This gives us type-safe data processing that handles errors gracefully and maintains mathematical consistency.
+This example applies the same ideas to validation. `safeProp` represents
+absence with `Maybe`; `Result` preserves a typed validation error; and
+`mapResult` changes only a successful value. Validation constructs a complete
+`User` instead of asserting that a partial object is valid.
+
 ```typescript
-// Using category theory concepts for safe data transformation
+type Result<E, A> =
+  | Readonly<{ kind: 'failure'; error: E }>
+  | Readonly<{ kind: 'success'; value: A }>;
+
+const failure = <E, A>(error: E): Result<E, A> => ({
+  kind: 'failure',
+  error
+});
+
+const success = <E, A>(value: A): Result<E, A> => ({
+  kind: 'success',
+  value
+});
+
+const mapResult = <E, A, B>(
+  result: Result<E, A>,
+  transform: Morphism<A, B>
+): Result<E, B> => result.kind === 'failure'
+  ? { kind: 'failure', error: result.error }
+  : success<E, B>(transform(result.value));
+
+const safeProp = <T, K extends keyof T>(
+  object: T,
+  key: K
+): Maybe<T[K]> => {
+  const value = object[key];
+  return value === undefined ? nothing : just(value);
+};
+
 interface User {
   id: number;
   name: string;
   email: string;
 }
 
-// Functor for safe property access
-const safeProp = <T, K extends keyof T>(key: K) => (obj: T): Maybe<T[K]> => {
-  return obj[key] !== undefined ? Maybe.just(obj[key]) : Maybe.nothing();
+type ValidationError =
+  | 'A numeric id is required'
+  | 'Name is required'
+  | 'Email is required';
+
+const validateUser = (
+  input: Partial<User>
+): Result<ValidationError, User> => {
+  const { id, name, email } = input;
+
+  if (typeof id !== 'number') {
+    return failure('A numeric id is required');
+  }
+  if (typeof name !== 'string' || name.trim() === '') {
+    return failure('Name is required');
+  }
+  if (typeof email !== 'string' || email.trim() === '') {
+    return failure('Email is required');
+  }
+
+  return success({
+    id,
+    name,
+    email
+  });
 };
 
-// Natural transformation for validation
-const validateUser = (user: Partial<User>): Either<string, User> => {
-  if (!user.name) return Either.left('Name is required');
-  if (!user.email) return Either.left('Email is required');
-  return Either.right(user as User);
-};
-
-// Composition of transformations
-const processUser = pipe(
-  validateUser,
-  userEither => userEither.map(user => ({
-    ...user,
-    name: user.name.toUpperCase()
-  }))
+const processUser = (
+  input: Partial<User>
+): Result<ValidationError, User> => mapResult(
+  validateUser(input),
+  (user) => ({ ...user, name: user.name.toUpperCase() })
 );
 ```
 
 ## Exercise
+
 Implement a Kleisli category for monadic composition and prove the monad laws.
 
 ## Resources
+
 - [Category Theory for Programmers](https://bartoszmilewski.com/2014/10/28/category-theory-for-programmers-the-preface/)
 - [Category Theory in Context](https://math.jhu.edu/~eriehl/context.pdf)

@@ -1,6 +1,7 @@
 ---
 title: "Functional Programming Maintenance Strategy"
 description: "This lecture explores strategies for maintaining functional programming codebases effectively."
+layout: lecture
 ---
 
 # Functional Programming Maintenance Strategy
@@ -12,7 +13,8 @@ This lecture explores strategies for maintaining functional programming codebase
 ## Code Organization
 
 ### File Structure
-```
+
+```text
 src/
 ├── types/
 │   ├── index.ts
@@ -33,40 +35,74 @@ src/
 ```
 
 ### Single Responsibility Principle
+
 ```typescript
+interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
+type ProcessedUser = User & { processed: true };
+
+declare const saveToDatabase: (user: User) => void;
+
 // ❌ Bad: Multiple responsibilities
-const processUser = (user: User) => {
+const processUserImperatively = (user: User): ProcessedUser => {
   // Validation
   if (!user.name) throw new Error('Name required');
-  
+
   // Transformation
-  const processed = { ...user, name: user.name.toUpperCase() };
-  
+  const processed: ProcessedUser = {
+    ...user,
+    name: user.name.toUpperCase(),
+    processed: true
+  };
+
   // Side effect
   saveToDatabase(processed);
-  
+
   return processed;
 };
 
 // ✅ Good: Separated concerns
-const validateUser = (user: Partial<User>): User => {
-  if (!user.name) throw new Error('Name required');
-  return user;
+const validateUser = (input: Partial<User>): User => {
+  const { id, name, email } = input;
+
+  if (typeof id !== 'number') throw new Error('Id required');
+  if (typeof name !== 'string' || name.trim() === '') {
+    throw new Error('Name required');
+  }
+  if (typeof email !== 'string' || email.trim() === '') {
+    throw new Error('Email required');
+  }
+
+  return { id, name, email };
 };
 
 const transformUser = (user: User): ProcessedUser => ({
   ...user,
-  name: user.name.toUpperCase()
+  name: user.name.toUpperCase(),
+  processed: true
 });
 
-const processUser = pipe(validateUser, transformUser);
+const pipe2 = <A, B, C>(
+  first: (input: A) => B,
+  second: (value: B) => C
+) => (input: A): C => second(first(input));
+
+const processUser = pipe2(validateUser, transformUser);
 ```
 
 ## Type Safety
 
-> "Strict TypeScript configuration is preventative medicine: noImplicitAny catches 'any' creep, noUncheckedIndexedAccess prevents array bounds errors, strictNullChecks eliminates null pointer exceptions. Turn on all flags." - AI Insight
+> "Strict TypeScript configuration is preventative medicine: `noImplicitAny`
+> blocks implicit `any`, `noUncheckedIndexedAccess` exposes possibly absent indexed
+> values, and `strictNullChecks` makes nullable paths explicit. These checks reduce
+> risk; runtime validation is still required at external boundaries." - AI Insight
 
 ### Strict TypeScript Configuration
+
 ```json
 {
   "compilerOptions": {
@@ -81,46 +117,57 @@ const processUser = pipe(validateUser, transformUser);
 ```
 
 ### Type Guards
+
 ```typescript
-// Type guards for runtime type checking
-const isUser = (obj: unknown): obj is User => {
-  return typeof obj === 'object' && 
-         obj !== null && 
-         typeof obj.name === 'string' &&
-         typeof obj.email === 'string';
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  role: 'member' | 'admin';
+}
+
+type AdminUser = User & { role: 'admin' };
+
+const isRecord = (value: unknown): value is Record<PropertyKey, unknown> =>
+  typeof value === 'object' && value !== null;
+
+// Narrow unknown to an indexable record before reading properties.
+const isUser = (value: unknown): value is User => {
+  if (!isRecord(value)) return false;
+
+  return typeof value['id'] === 'number' &&
+    typeof value['name'] === 'string' &&
+    typeof value['email'] === 'string' &&
+    (value['role'] === 'member' || value['role'] === 'admin');
 };
 
 const isAdmin = (user: User): user is AdminUser => {
   return user.role === 'admin';
 };
 
-// Usage
-const processUser = (data: unknown): User | null => {
-  if (isUser(data)) {
-    return data;
-  }
-  return null;
-};
+const parseUser = (data: unknown): User | null =>
+  isUser(data) ? data : null;
 ```
 
 ## Testing Strategy
 
 ### Unit Testing Pure Functions
+
 ```typescript
 describe('User validation', () => {
   it('should validate correct user data', () => {
-    const user = { name: 'Alice', email: 'alice@example.com' };
+    const user = { id: 1, name: 'Alice', email: 'alice@example.com' };
     const result = validateUser(user);
     expect(result).toEqual(user);
   });
 
   it('should throw error for invalid user', () => {
-    const user = { name: '', email: 'alice@example.com' };
+    const user = { id: 1, name: '', email: 'alice@example.com' };
     expect(() => validateUser(user)).toThrow('Name required');
   });
 
   it('should be pure and not mutate input', () => {
-    const user = { name: 'Alice', email: 'alice@example.com' };
+    const user = { id: 1, name: 'Alice', email: 'alice@example.com' };
     const original = { ...user };
     validateUser(user);
     expect(user).toEqual(original);
@@ -129,6 +176,7 @@ describe('User validation', () => {
 ```
 
 ### Property-Based Testing
+
 ```typescript
 import fc from 'fast-check';
 
@@ -164,33 +212,50 @@ describe('User transformation properties', () => {
 ## Documentation
 
 ### JSDoc Comments
+
 ```typescript
+interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
+const isValidEmail = (email: string): boolean => email.includes('@');
+
 /**
  * Validates a user object and throws an error if validation fails.
- * 
- * @param user - The user object to validate
+ *
+ * @param input - The user object to validate
  * @returns The validated user object if all checks pass
- * @throws {Error} If name is missing, email is missing, or email is invalid
- * 
+ * @throws {Error} If id, name, or a valid email is missing
+ *
  * @example
  * ```typescript
- * const user = { name: 'Alice', email: 'alice@example.com' };
+ * const user = { id: 1, name: 'Alice', email: 'alice@example.com' };
  * const validated = validateUser(user);
  * ```
- * 
+ *
  * @since 1.0.0
  * @author John Doe
  */
-const validateUser = (user: Partial<User>): User => {
-  if (!user.name) throw new Error('Name is required');
-  if (!user.email) throw new Error('Email is required');
-  if (!isValidEmail(user.email)) throw new Error('Invalid email format');
-  return user;
+const validateUser = (input: Partial<User>): User => {
+  const { id, name, email } = input;
+
+  if (typeof id !== 'number') throw new Error('Id is required');
+  if (typeof name !== 'string' || name.trim() === '') {
+    throw new Error('Name is required');
+  }
+  if (typeof email !== 'string' || !isValidEmail(email)) {
+    throw new Error('A valid email is required');
+  }
+
+  return { id, name, email };
 };
 ```
 
 ### README Documentation
-```markdown
+
+````markdown
 # User Service
 
 A functional programming approach to user management.
@@ -221,57 +286,100 @@ Combines validation and transformation in a single pipeline.
 ## Examples
 
 See the `examples/` directory for complete usage examples.
-```
+````
 
 ## Error Handling
 
 ### Result Types
+
 ```typescript
-// Use Result types instead of throwing exceptions
-type Result<T, E = string> = 
+interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
+type ValidationError = {
+  field: keyof User;
+  message: string;
+};
+
+type Result<T, E> =
   | { success: true; data: T }
   | { success: false; error: E };
 
-const validateUser = (user: Partial<User>): Result<User, string> => {
-  if (!user.name) {
-    return { success: false, error: 'Name is required' };
+const validateUser = (input: Partial<User>): Result<User, ValidationError> => {
+  const { id, name, email } = input;
+
+  if (typeof id !== 'number') {
+    return {
+      success: false,
+      error: { field: 'id', message: 'Id is required' }
+    };
   }
-  if (!user.email) {
-    return { success: false, error: 'Email is required' };
+  if (typeof name !== 'string' || name.trim() === '') {
+    return {
+      success: false,
+      error: { field: 'name', message: 'Name is required' }
+    };
   }
-  return { success: true, data: user };
+  if (typeof email !== 'string' || email.trim() === '') {
+    return {
+      success: false,
+      error: { field: 'email', message: 'Email is required' }
+    };
+  }
+
+  // Construct a complete User; a checked Partial<User> is still Partial<User>.
+  return { success: true, data: { id, name, email } };
 };
 
-// Usage
-const result = validateUser(userData);
+const result = validateUser({
+  id: 1,
+  name: 'Alice',
+  email: 'alice@example.com'
+});
+
 if (result.success) {
-  // Use result.data
+  console.log(result.data.name);
 } else {
-  // Handle result.error
+  console.error(result.error.field, result.error.message);
 }
 ```
 
 ### Error Boundaries
-```typescript
-// Error boundary for React components
-class ErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false, error: null };
+
+```tsx
+import { Component, type ErrorInfo, type ReactNode } from 'react';
+
+interface ErrorBoundaryProps {
+  children: ReactNode;
+  fallback?: ReactNode;
+}
+
+interface ErrorBoundaryState {
+  error: Error | null;
+}
+
+class ErrorBoundary extends Component<
+  ErrorBoundaryProps,
+  ErrorBoundaryState
+> {
+  state: ErrorBoundaryState = { error: null };
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { error };
   }
 
-  static getDerivedStateFromError(error) {
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error, errorInfo) {
+  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     console.error('Error caught by boundary:', error, errorInfo);
   }
 
-  render() {
-    if (this.state.hasError) {
-      return <h1>Something went wrong.</h1>;
+  render(): ReactNode {
+    if (this.state.error) {
+      return this.props.fallback ?? <h1>Something went wrong.</h1>;
     }
+
     return this.props.children;
   }
 }
@@ -280,16 +388,17 @@ class ErrorBoundary extends React.Component {
 ## Performance Monitoring
 
 ### Function Performance
+
 ```typescript
-const withPerformanceMonitoring = <T extends any[], U>(
-  fn: (...args: T) => U,
+const withPerformanceMonitoring = <TArgs extends unknown[], TResult>(
+  fn: (...args: TArgs) => TResult,
   name: string
 ) => {
-  return (...args: T): U => {
+  return (...args: TArgs): TResult => {
     const start = performance.now();
     const result = fn(...args);
     const end = performance.now();
-    
+
     console.log(`${name} took ${end - start}ms`);
     return result;
   };
@@ -300,15 +409,25 @@ const monitoredValidateUser = withPerformanceMonitoring(validateUser, 'validateU
 ```
 
 ### Memory Usage
+
 ```typescript
-const withMemoryMonitoring = <T extends any[], U>(
-  fn: (...args: T) => U
+interface HeapMetrics {
+  usedJSHeapSize: number;
+}
+
+type PerformanceWithHeap = Performance & { memory?: HeapMetrics };
+
+const readUsedHeapSize = (): number =>
+  (performance as PerformanceWithHeap).memory?.usedJSHeapSize ?? 0;
+
+const withMemoryMonitoring = <TArgs extends unknown[], TResult>(
+  fn: (...args: TArgs) => TResult
 ) => {
-  return (...args: T): U => {
-    const startMemory = (performance as any).memory?.usedJSHeapSize || 0;
+  return (...args: TArgs): TResult => {
+    const startMemory = readUsedHeapSize();
     const result = fn(...args);
-    const endMemory = (performance as any).memory?.usedJSHeapSize || 0;
-    
+    const endMemory = readUsedHeapSize();
+
     console.log(`Memory used: ${endMemory - startMemory} bytes`);
     return result;
   };
@@ -318,6 +437,7 @@ const withMemoryMonitoring = <T extends any[], U>(
 ## Refactoring Guidelines
 
 ### Extract Pure Functions
+
 ```typescript
 interface Item {
   active: boolean;
@@ -345,6 +465,7 @@ const processData = (data: Item[]) =>
 ```
 
 ### Use Composition
+
 ```typescript
 // Before: Nested function calls
 const processUser = (user: unknown) => {
@@ -364,7 +485,7 @@ const processUser = pipe(
 
 ## Code Review Checklist
 
-- [ ] Functions are pure (no side effects)
+- [ ] Pure domain functions and reducers are effect-free; effectful functions are isolated at explicit boundaries
 - [ ] Functions are small and focused
 - [ ] Types are properly defined
 - [ ] Error handling is explicit
@@ -374,9 +495,9 @@ const processUser = pipe(
 - [ ] Code follows functional patterns
 
 ## Exercise
+
 Refactor a legacy imperative function into a functional pipeline with proper error handling and comprehensive tests.
 
 ## Resources
-- [Functional Programming Best Practices](https://www.functionalprogramming.com/)
+
 - [TypeScript Best Practices](https://www.typescriptlang.org/docs/)
-- [Testing Functional Code](https://www.freecodecamp.org/news/testing-functional-code/)

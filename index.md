@@ -8,33 +8,54 @@ layout: default
 {
   "@context": "https://schema.org",
   "@type": "Course",
+  "@id": "{{ '/' | absolute_url }}#course",
+  "url": "{{ '/' | absolute_url }}",
   "name": "Functional Programming Lectures",
   "description": "A comprehensive curriculum for mastering functional programming with TypeScript and Redux, from pure functions to monads and modern Redux architecture.",
   "provider": { "@type": "Person", "@id": "https://sdin.dev/#person", "name": "Sean Dinwiddie", "url": "https://sdin.dev/" },
   "inLanguage": "en",
-  "about": ["Functional Programming", "TypeScript", "Redux", "Redux Toolkit", "Monads", "Software Architecture"]
+  "about": ["Functional Programming", "TypeScript", "Redux", "Redux Toolkit", "Monads", "Software Architecture"],
+  "hasPart": [
+    {%- for lecture in site.data.curriculum -%}
+    {
+      "@type": "LearningResource",
+      "@id": "{{ lecture.url | absolute_url }}#learning-resource",
+      "url": "{{ lecture.url | absolute_url }}",
+      "name": {{ lecture.title | jsonify }},
+      "educationalLevel": {{ lecture.difficulty | jsonify }},
+      "teaches": {{ lecture.outcomes | jsonify }}
+    }{%- unless forloop.last -%},{%- endunless -%}
+    {%- endfor -%}
+  ]
 }
 </script>
 
 # Functional Programming Lectures
 
 ## Overview
+
 This series of lectures explores functional programming concepts from fundamentals to advanced applications in modern development. The curriculum is designed with a lean and modular approach, emphasizing separation of concerns and functional programming principles throughout. As you progress, you'll learn how to build maintainable, scalable applications using pure functions, immutable data structures, and modern state management architecture patterns.
 
 **Key Learning Philosophy:**
+
 - Start thinking in pure functions from the beginning
 - Embrace immutability as your default approach
 - Leverage TypeScript's type system to its fullest
 - Keep side effects isolated at your application boundaries
 - Build complexity through composition, not inheritance
-- Use Redux Toolkit and RTK Query for all state management needs
-- Keep files small and focused on single responsibilities
+- Choose state ownership before choosing a tool: local editing stays local, URL state stays with the router, shared durable client state uses Redux Toolkit, and reusable server data uses RTK Query
+- Organize by feature and split files when ownership or responsibility becomes clearer
 
 **Architecture Principles You'll Master:**
+
 - Avoid unnecessary code, duplication, and bloat in your codebase
-- Keep UI components focused on rendering and Redux slices on business logic
-- Use different handlers for different domains
-- Keep files small with preferably one function per file for clarity
+- Keep domain transitions in pure functions or reducers while components own view-specific interaction state
+- Use event-oriented actions, pure reducers, selectors for derived data, and typed React-Redux hooks
+- Use thunks for imperative workflows and listener middleware for workflows that react to later actions or state transitions
+- Use one RTK Query API per base URL and split feature endpoints with `injectEndpoints`
+- Apply entity-component-system architecture only when the domain genuinely consists of entities, composable components, and systems
+- Keep domain boundaries explicit and centralize only genuinely cross-cutting infrastructure
+- Colocate related slice, selector, endpoint, component, and test code by feature
 - Separate setup code from your core application rules
 - Distribute feature logic and centralize only cross-cutting infrastructure
 
@@ -42,9 +63,9 @@ This series of lectures explores functional programming concepts from fundamenta
 
 ## Glossary
 
-Skip to the bottom of this document to see the glossary of a list of basic programming terms.
+The glossary at the end of this page defines the basic programming terms used throughout the course.
 
-## Typescript
+## TypeScript
 
 TypeScript is a superset of JavaScript that adds static typing to the language.
 
@@ -53,6 +74,7 @@ TypeScript will be the language of choice for this course.
 ## Learning Path & Lectures
 
 ### 1. Fundamentals
+
 1. **[The Simplest FP TS Hello World](./the-simplest-fp-ts-hello-world/index.md)** - Basic pure function example
 2. **[Basic TypeScript Knowledge](./basic-typescript-knowledge/index.md)** - Core TypeScript concepts for FP
 3. **[What is a Function?](./what-is-a-function/index.md)** - Function fundamentals and pure functions
@@ -61,24 +83,28 @@ TypeScript will be the language of choice for this course.
 6. **[TypeScript and Functional Programming](./typescript-and-functional-programming/index.md)** - Type safety in FP
 
 ### 2. Intermediate
-7. **[Redux Standard Patterns & Functional Programming](./redux-standard-patterns-and-functional-programming/index.md)** - Traditional Redux patterns
-8. **[Redux Toolkit & Functional Programming](./redux-toolkit-and-functional-programming/index.md)** - Modern Redux with RTK
-9. **[Functional Composition](./functional-composition/index.md)** - Advanced composition techniques
+
+1. **[Redux Standard Patterns and Functional Programming](./redux-standard-patterns-and-functional-programming/index.md)** - Event, reducer, selector, and render dataflow
+2. **[Redux Toolkit and Functional Programming](./redux-toolkit-and-functional-programming/index.md)** - Modern Redux with RTK
+3. **[Functional Composition](./functional-composition/index.md)** - Advanced composition techniques
 
 ### 3. Advanced
-10. **[Monads in Functional Programming](./monads-in-functional-programming/index.md)** - Monadic programming
-11. **[Advanced Monad Transformers](./advanced-monad-transformers/index.md)** - Combining monadic effects
-12. **[Category Theory Fundamentals](./category-theory-fundamentals/index.md)** - Mathematical foundations
+
+1. **[Monads in Functional Programming](./monads-in-functional-programming/index.md)** - Monadic programming
+2. **[Advanced Monad Transformers](./advanced-monad-transformers/index.md)** - Combining monadic effects
+3. **[Category Theory Fundamentals](./category-theory-fundamentals/index.md)** - Mathematical foundations
 
 ### 4. Applications
-13. **[Practical Applications of Functional Programming](./practical-applications-of-functional-programming/index.md)** - Real-world FP
-14. **[Performance Optimization Techniques](./performance-optimization-techniques/index.md)** - FP performance
-15. **[Functional Programming in Other Languages](./functional-programming-in-other-languages/index.md)** - FP across languages
+
+1. **[Practical Applications of Functional Programming](./practical-applications-of-functional-programming/index.md)** - Real-world FP
+2. **[Performance Optimization Techniques](./performance-optimization-techniques/index.md)** - FP performance
+3. **[Functional Programming in Other Languages](./functional-programming-in-other-languages/index.md)** - FP across languages
 
 ### 5. Maintenance & Architecture
-16. **[Functional Programming Maintenance Strategy](./functional-programming-maintenance-strategy/index.md)** - Maintaining FP codebases
-17. **[Redux Toolkit & RTK Query Best Practices](./redux-toolkit-and-rtk-query-best-practices/index.md)** - RTK and RTK Query
-18. **[Modern Redux Architecture Patterns](./modern-redux-architecture-patterns/index.md)** - Scalable Redux patterns
+
+1. **[Functional Programming Maintenance Strategy](./functional-programming-maintenance-strategy/index.md)** - Maintaining FP codebases
+2. **[Redux Toolkit and RTK Query Best Practices](./redux-toolkit-and-rtk-query-best-practices/index.md)** - RTK and RTK Query
+3. **[Modern Redux Architecture Patterns](./modern-redux-architecture-patterns/index.md)** - Scalable Redux patterns
 
 ## Programming Glossary
 

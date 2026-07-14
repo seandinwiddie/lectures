@@ -1,195 +1,354 @@
 ---
 title: "Advanced Monad Transformers"
-description: "This lecture explores monad transformers for combining multiple monadic effects."
+description: "Combine environment, asynchrony, absence, and typed failure without fake generic abstractions, then place effects at the correct RTK or engine boundary."
+layout: lecture
 ---
 
 # Advanced Monad Transformers
 
-This lecture explores monad transformers for combining multiple monadic effects.
+Real workflows often combine more than one context: a dependency environment, an asynchronous operation, and a recoverable domain failure. Monad transformers provide a principled way to stack those contexts.
 
-> "Monad transformers solve the problem of combining effects: when you need both async operations and error handling, or Maybe with State, transformers let you stack monads like layers in a cake, each adding its own capability." - AI Insight
+In TypeScript and engine SDKs, an explicit composite type is often clearer than pretending the language supports a fully generic higher-kinded transformer interface.
 
-## What are Monad Transformers?
+## Learning Goals
 
-Monad transformers are like stacking boxes inside other boxes - they let you combine different types of monadic effects together. For example, you might want to handle both async operations (like API calls) and optional values (like Maybe) at the same time. Transformers give you a way to work with multiple effects in a clean, predictable way.
+By the end of this lecture, you should be able to:
 
-### MaybeT Transformer
+- explain what a transformer adds to an existing carrier;
+- implement lawful mapping and chaining for `Promise<Either<E, A>>`;
+- add dependency injection with a Reader-style function;
+- distinguish transport status, domain failure, and cancellation;
+- audit callback-based async wrappers for missing runtime semantics; and
+- choose RTK Query, a thunk, listener middleware, or a local effect type by responsibility.
 
-The MaybeT transformer combines the Maybe monad (for optional values) with another monad. It's like putting a Maybe box inside another type of box. This is useful when you have operations that are both async (like API calls) and might fail (returning nothing). The transformer handles both effects together, so you don't have to nest them manually.
-```typescript
-class MaybeT<M, T> {
-  constructor(private runMaybeT: M) {}
+## A Transformer Changes the Shape
 
-  static lift<M, T>(m: M): MaybeT<M, T> {
-    return new MaybeT(m);
-  }
+`MaybeT<M, A>` conceptually wraps:
 
-  map<U>(fn: (value: T) => U): MaybeT<M, U> {
-    // Map over the inner Maybe value
-    const result = this.runMaybeT.map((maybe: Maybe<T>) => maybe.map(fn));
-    return new MaybeT(result);
-  }
-
-  bind<U>(fn: (value: T) => MaybeT<M, U>): MaybeT<M, U> {
-    // Chain the inner Maybe value
-    const result = this.runMaybeT.bind((maybe: Maybe<T>) => {
-      if (maybe.isNothing()) {
-        return this.runMaybeT.constructor.of(Maybe.nothing());
-      }
-      return fn(maybe.getValue()).runMaybeT;
-    });
-    return new MaybeT(result);
-  }
-}
+```text
+M<Maybe<A>>
 ```
 
-### EitherT Transformer
+`EitherT<M, E, A>` conceptually wraps:
 
-The EitherT transformer combines the Either monad (for success/error handling) with another monad. It's like putting an Either box inside another type of box. This is perfect for async operations that might fail with specific error messages. Instead of handling async errors and Either errors separately, the transformer handles both together in a unified way.
-```typescript
-class EitherT<M, L, R> {
-  constructor(private runEitherT: M) {}
-
-  static lift<M, L, R>(m: M): EitherT<M, L, R> {
-    return new EitherT(m);
-  }
-
-  map<U>(fn: (value: R) => U): EitherT<M, L, U> {
-    // Map over the inner Either value
-    const result = this.runEitherT.map((either: Either<L, R>) => either.map(fn));
-    return new EitherT(result);
-  }
-
-  bind<U>(fn: (value: R) => EitherT<M, L, U>): EitherT<M, L, U> {
-    // Chain the inner Either value
-    const result = this.runEitherT.bind((either: Either<L, R>) => {
-      if (either.isLeft()) {
-        return this.runEitherT.constructor.of(Either.left(either.value));
-      }
-      return fn(either.value).runEitherT;
-    });
-    return new EitherT(result);
-  }
-}
+```text
+M<Either<E, A>>
 ```
 
-## Combining Effects
+The transformer supplies `map`, `chain`, and lifting rules for the combined shape. A class with an unconstrained generic `M` and calls to `M.map()` is not a valid TypeScript implementation; TypeScript cannot express that higher-kinded capability merely by naming a type parameter `M`.
 
-### Async + Maybe
+Start with a concrete carrier whose operations are known.
 
-This example shows how to combine async operations with optional values. The `fetchUser` function makes an API call that might fail (returning nothing), and the `processUser` function safely extracts the user's name if the user exists. This pattern is common when working with APIs where data might not exist or the request might fail.
-```typescript
-// Combining async operations with optional values
-const fetchUser = async (id: number): Promise<Maybe<User>> => {
+## AsyncEither: Promise plus Typed Failure
+
+Assume the plain tagged `Either` type from the previous lecture. The value is
+serializable only when its `E` and `A` payloads are recursively serializable:
+
+```ts
+type Either<E, A> =
+  | { readonly _tag: 'Left'; readonly error: E }
+  | { readonly _tag: 'Right'; readonly value: A }
+
+const left = <E, A>(error: E): Either<E, A> => ({ _tag: 'Left', error })
+const right = <E, A>(value: A): Either<E, A> => ({ _tag: 'Right', value })
+
+type AsyncEither<E, A> = Promise<Either<E, A>>
+
+const tryPromise = async <E, A>(
+  operation: () => Promise<A>,
+  onRejected: (reason: unknown) => E,
+): AsyncEither<E, A> => {
   try {
-    const response = await fetch(`/api/users/${id}`);
-    if (response.ok) {
-      const user = await response.json();
-      return Maybe.just(user);
-    } else {
-      return Maybe.nothing();
-    }
-  } catch {
-    return Maybe.nothing();
+    return right<E, A>(await operation())
+  } catch (reason) {
+    return left<E, A>(onRejected(reason))
   }
-};
-
-const processUser = async (id: number): Promise<Maybe<string>> => {
-  const userMaybe = await fetchUser(id);
-  return userMaybe.map(user => user.name);
-};
+}
 ```
 
-### Async + Either
+The thunk lets `tryPromise` catch both a synchronous throw while starting the
+operation and a later promise rejection. `onRejected` must be a total boundary
+function that converts `unknown` into the feature's error algebra.
 
-This example shows how to combine async operations with error handling. The `fetchUser` function makes an API call and returns either a user or a specific error message, and the `processUser` function safely extracts the user's name if the operation succeeds. This gives you detailed error information instead of just knowing that something failed.
-```typescript
-// Combining async operations with error handling
-const fetchUser = async (id: number): Promise<Either<string, User>> => {
+### Map the success branch
+
+```ts
+const mapAsyncEither = async <E, A, B>(
+  operation: AsyncEither<E, A>,
+  transform: (value: A) => B,
+  onUnexpected: (reason: unknown) => E,
+): AsyncEither<E, B> => {
   try {
-    const response = await fetch(`/api/users/${id}`);
-    if (response.ok) {
-      const user = await response.json();
-      return Either.right(user);
-    } else {
-      return Either.left(`HTTP ${response.status}`);
-    }
-  } catch (error) {
-    return Either.left(error.message);
+    const result = await operation
+    return result._tag === 'Right'
+      ? right<E, B>(transform(result.value))
+      : left<E, B>(result.error)
+  } catch (reason) {
+    return left<E, B>(onUnexpected(reason))
   }
-};
-
-const processUser = async (id: number): Promise<Either<string, string>> => {
-  const userEither = await fetchUser(id);
-  return userEither.map(user => user.name);
-};
+}
 ```
 
-## Real-World Applications
+### Chain another asynchronous failing operation
 
-### Database Operations with Error Handling
+```ts
+const chainAsyncEither = async <E, A, B>(
+  operation: AsyncEither<E, A>,
+  next: (value: A) => AsyncEither<E, B>,
+  onUnexpected: (reason: unknown) => E,
+): AsyncEither<E, B> => {
+  try {
+    const result = await operation
+    return result._tag === 'Right'
+      ? await next(result.value)
+      : left<E, B>(result.error)
+  } catch (reason) {
+    return left<E, B>(onUnexpected(reason))
+  }
+}
+```
 
-This example shows how monad transformers work in real applications with database operations. Each function (`findUser`, `updateUser`) handles both async operations and potential errors, returning detailed error information when things go wrong. The `processUserUpdate` function chains these operations together safely, handling errors at each step and providing meaningful error messages for debugging.
-```typescript
-interface DatabaseError {
-  code: string;
-  message: string;
+The continuation never runs after `Left`. Rejections and thrown callbacks are
+translated into the same error type rather than becoming an untyped second
+failure channel. The ordinary map and monad laws still assume pure, total
+callbacks; TypeScript cannot prove that requirement.
+
+This corrects a common mistake:
+
+```ts
+// Wrong shape: bind expects Either, but the callback returns Promise<Either>.
+// @ts-expect-error Async continuation has the wrong carrier.
+eitherChain(result, async (value) => updateValue(value))
+
+// Correct shape: chain the combined Promise<Either> carrier.
+chainAsyncEither(Promise.resolve(result), updateValue, toWorkflowError)
+```
+
+## ReaderAsyncEither: Add Dependencies
+
+A Reader is a function from an environment to a value. Combining it with `AsyncEither` gives:
+
+```ts
+type ReaderAsyncEither<Environment, Error, Value> = (
+  environment: Environment,
+) => AsyncEither<Error, Value>
+```
+
+```ts
+const chainReaderAsyncEither = <Environment, Error, A, B>(
+  operation: ReaderAsyncEither<Environment, Error, A>,
+  next: (value: A) => ReaderAsyncEither<Environment, Error, B>,
+  onUnexpected: (reason: unknown) => Error,
+): ReaderAsyncEither<Environment, Error, B> =>
+  async (environment) => {
+    try {
+      const result = await operation(environment)
+      return result._tag === 'Right'
+        ? await next(result.value)(environment)
+        : left<Error, B>(result.error)
+    } catch (reason) {
+      return left<Error, B>(onUnexpected(reason))
+    }
+  }
+```
+
+The environment is supplied once at the edge and threaded through every step without importing a global singleton.
+
+```ts
+type User = {
+  id: string
+  displayName: string
 }
 
-interface User {
-  id: number;
-  name: string;
-  email: string;
-}
+type UserError =
+  | { kind: 'not-found'; id: string }
+  | { kind: 'update-rejected'; reason: string }
+  | { kind: 'repository-failed'; message: string }
 
-interface Database {
+type Environment = {
   users: {
-    findById: (id: number) => Promise<User | null>;
-    update: (id: number, updates: Partial<User>) => Promise<User>;
-  };
+    findById(id: string): Promise<User | null>
+    save(user: User): Promise<void>
+  }
 }
 
-const db: Database = {
-  users: {
-    findById: async (id) => ({ id, name: 'User', email: 'user@example.com' }),
-    update: async (id, updates) => ({ id, name: 'User', email: 'user@example.com', ...updates })
-  }
-};
+const findUser = (
+  id: string,
+): ReaderAsyncEither<Environment, UserError, User> =>
+  async ({ users }) => {
+    const loaded = await tryPromise<UserError, User | null>(
+      () => users.findById(id),
+      (reason) => ({
+        kind: 'repository-failed',
+        message: reason instanceof Error ? reason.message : String(reason),
+      }),
+    )
 
-const findUser = async (id: number): Promise<Either<DatabaseError, User>> => {
-  try {
-    const user = await db.users.findById(id);
-    if (user) {
-      return Either.right(user);
-    } else {
-      return Either.left({ code: 'NOT_FOUND', message: 'User not found' });
-    }
-  } catch (error) {
-    return Either.left({ code: 'DATABASE_ERROR', message: error.message });
-  }
-};
+    if (loaded._tag === 'Left') return loaded
 
-const updateUser = async (id: number, updates: Partial<User>): Promise<Either<DatabaseError, User>> => {
-  try {
-    const user = await db.users.update(id, updates);
-    return Either.right(user);
-  } catch (error) {
-    return Either.left({ code: 'UPDATE_ERROR', message: error.message });
+    return loaded.value
+      ? right<UserError, User>(loaded.value)
+      : left<UserError, User>({ kind: 'not-found', id })
   }
-};
-
-const processUserUpdate = async (id: number, updates: Partial<User>): Promise<Either<DatabaseError, string>> => {
-  const userEither = await findUser(id);
-  return userEither.bind(async user => {
-    const updatedUser = await updateUser(id, updates);
-    return updatedUser.map(u => `Updated user: ${u.name}`);
-  });
-};
 ```
+
+This is a practical ReaderT-like shape. It is explicit about the actual carriers and remains easy to test with a fake environment.
+
+## Lift at Boundaries
+
+Lifting moves a value from one context into the combined context.
+
+```ts
+const fromEither = async <E, A>(result: Either<E, A>): AsyncEither<E, A> =>
+  result
+
+const fromNullable = <E, A>(
+  value: A | null | undefined,
+  onNothing: () => E,
+): Either<E, A> =>
+  value == null ? left<E, A>(onNothing()) : right<E, A>(value)
+
+const fromAsyncNullable = async <MissingError, RejectedError, A>(
+  operation: () => Promise<A | null | undefined>,
+  onNothing: () => MissingError,
+  onRejected: (reason: unknown) => RejectedError,
+): AsyncEither<MissingError | RejectedError, A> => {
+  const loaded = await tryPromise<RejectedError, A | null | undefined>(
+    operation,
+    onRejected,
+  )
+
+  return loaded._tag === 'Left'
+    ? left<MissingError | RejectedError, A>(loaded.error)
+    : fromNullable<MissingError | RejectedError, A>(
+        loaded.value,
+        onNothing,
+      )
+}
+```
+
+`tryPromise` is the raw asynchronous lift: it requires an explicit translation
+for rejection. `fromEither` cannot add a new failure, so it needs no mapper.
+`fromAsyncNullable` then combines asynchrony, expected absence, and typed
+failure without nesting `Promise<Maybe<Either<...>>>`. Be deliberate about
+information loss. Lifting `null` into `Maybe` says the absence needs no
+diagnostic. Lifting it into `Either` requires an error value and preserves the
+reason.
+
+## Separate Transport from Domain Failure
+
+The production cores include `HttpResult` alongside generic `Either`. That separation is useful:
+
+```ts
+type HttpResult<A> =
+  | { ok: true; status: number; data: A }
+  | { ok: false; status: number; message: string }
+
+type DomainError =
+  | { kind: 'unauthorized' }
+  | { kind: 'invalid-user'; reason: string }
+```
+
+Translate the transport result at the boundary:
+
+```text
+HTTP response -> decode -> Either<DomainError, DomainValue>
+```
+
+Do not let HTTP status codes become the domain's permanent error algebra. Conversely, do not discard useful transport details before logging or retry policy has consumed them.
+
+## Concurrency Is Not Ordinary Chain
+
+Sequential `chain` stops before starting the next effect after a failure. Concurrent work is different:
+
+```ts
+const results = await Promise.all(operations)
+```
+
+Every operation has already started, so finding the first `Left` in the result array cannot cancel the others. Specify:
+
+- whether work is sequential or concurrent;
+- whether failure is fail-fast or accumulated;
+- whether in-flight work is cancelled;
+- whether result order follows input order or completion order; and
+- how many operations may run at once.
+
+A type such as `AsyncEither` does not answer those policy questions by itself.
+
+## Cancellation Belongs in the Effect Contract
+
+```ts
+type AbortableAsyncEither<E, A> = (
+  signal: AbortSignal,
+) => AsyncEither<E, A>
+```
+
+Propagate the signal through every nested operation. Decide whether cancellation becomes a typed `Left`, a rejected promise handled by infrastructure, or a separate state. Do not silently mix the policies across platforms.
+
+RTK Query and `createAsyncThunk` already provide cancellation-related lifecycle behavior. Prefer those tools when the workflow belongs to Redux rather than rebuilding a private runtime.
+
+## Audit a Callback-Based AsyncResult
+
+The Rust, GDScript, and Unreal cores include promise-like `AsyncResult` values built from an executor plus success and error handlers. They are useful for understanding effect descriptions, but the abstraction is incomplete unless it specifies:
+
+1. exactly-once settlement;
+2. whether repeated `execute` calls rerun the executor;
+3. exception-to-error conversion;
+4. cancellation and timeout behavior;
+5. handler registration after settlement;
+6. scheduler and thread affinity;
+7. re-entrancy and handler mutation during delivery; and
+8. whether copied values share mutable state.
+
+The examined implementations use shared callback state and explicit repeatable execution. They should not be described as equivalent to a JavaScript `Promise`, Rust `Future`, or thread-safe Unreal task without adding those semantics.
+
+Constructing an effect description may be deterministic. Executing arbitrary callbacks is effectful.
+
+## Choose the Application Tool First
+
+| Job | Default tool |
+| --- | --- |
+| Reusable server documents, request deduplication, cache lifetime | RTK Query |
+| One imperative sequence using `dispatch` or `getState` | `createAsyncThunk` or a thunk |
+| Reaction to later actions or state transitions | Listener middleware |
+| Synchronous absence | `Maybe` |
+| Synchronous recoverable domain failure | `Either` |
+| Local environment-dependent calculation | Reader-style function |
+| Engine-owned scheduled world transition | ECS system boundary |
+
+Do not wrap RTK Query's cache in a second `AsyncEither` store. Let RTK Query own its lifecycle and translate data or errors at the feature boundary when the domain needs a different representation.
+
+## Test Combined Effects
+
+Test more than the happy-path value:
+
+- `map` never transforms `Left`;
+- `chain` never starts the next operation after `Left`;
+- the environment is threaded to every step;
+- transport errors are translated once;
+- cancellation reaches nested operations;
+- concurrent policies match their documented ordering;
+- effect interpreters execute at most as often as specified; and
+- retries do not duplicate registered handlers or domain events.
+
+Use fake environments and controlled promises. A deterministic test should decide exactly when every operation resolves.
 
 ## Exercise
-Implement a ReaderT transformer that can handle dependency injection with other monadic effects.
+
+Implement a profile update as `ReaderAsyncEither<Environment, ProfileError, Profile>`:
+
+1. find the profile;
+2. validate an update synchronously with `Either`;
+3. save it through the injected repository;
+4. translate transport failures to domain errors;
+5. propagate an `AbortSignal`;
+6. prove the save does not run after validation fails; and
+7. explain whether the production application should keep this local abstraction or use an RTK Query mutation.
 
 ## Resources
-- [Monad Transformers](https://en.wikibooks.org/wiki/Haskell/Monad_transformers)
-- [Functional Programming with Effects](https://www.functionalprogramming.com/)
+
+- [Monads in Functional Programming](../monads-in-functional-programming/)
+- [Functional Programming in Other Languages](../functional-programming-in-other-languages/)
+- [RTK Query Overview](https://redux-toolkit.js.org/rtk-query/overview)
+- [createAsyncThunk](https://redux-toolkit.js.org/api/createAsyncThunk)
+- [Listener Middleware](https://redux-toolkit.js.org/api/createListenerMiddleware)

@@ -1,9 +1,10 @@
 ---
-title: "The simplest FP TS Hello World"
+title: "The Simplest FP TypeScript Hello World"
 description: "This lecture demonstrates the simplest possible functional programming example in TypeScript - a pure function that processes data without side effects."
+layout: lecture
 ---
 
-# The simplest FP TS Hello World
+# The Simplest FP TypeScript Hello World
 
 This lecture demonstrates the simplest possible functional programming example in TypeScript - a pure function that processes data without side effects.
 
@@ -12,6 +13,7 @@ This lecture demonstrates the simplest possible functional programming example i
 ## The Simplest Functional Program
 
 ### Pure Function Example
+
 ```typescript
 // The simplest pure function
 const greet = (name: string): string => `Hello, ${name}!`;

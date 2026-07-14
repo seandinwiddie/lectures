@@ -1,0 +1,12 @@
+{
+  "aliveStatusCodes": [200, 206, 301, 302, 403, 429],
+  "ignorePatterns": [
+    { "pattern": "^https?://localhost" },
+    { "pattern": "^https?://(dev-)?api\\.example\\.com" },
+    { "pattern": "^https://seandinwiddie\\.github\\.io/lectures/" }
+  ],
+  "retryOn429": true,
+  "retryCount": 2,
+  "fallbackRetryDelay": "2s",
+  "timeout": "20s"
+}

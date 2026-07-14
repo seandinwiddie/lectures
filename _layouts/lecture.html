@@ -1,7 +1,88 @@
 ---
 layout: default
 ---
+{%- assign current_lecture = nil -%}
+{%- assign previous_lecture = nil -%}
+{%- assign previous_candidate = nil -%}
+{%- assign next_lecture = nil -%}
+{%- assign find_next = false -%}
+{%- for lecture in site.data.curriculum -%}
+  {%- if lecture.path == page.path -%}
+    {%- assign current_lecture = lecture -%}
+    {%- assign previous_lecture = previous_candidate -%}
+    {%- assign find_next = true -%}
+  {%- elsif find_next -%}
+    {%- assign next_lecture = lecture -%}
+    {%- break -%}
+  {%- else -%}
+    {%- assign previous_candidate = lecture -%}
+  {%- endif -%}
+{%- endfor -%}
+
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"LearningResource","name":{{ page.title | jsonify }},"description":{{ page.description | default: site.description | jsonify }},"url":"{{ page.url | absolute_url }}","learningResourceType":"Lecture","educationalLevel":"Intermediate","inLanguage":"en","isPartOf":{"@type":"Course","name":"Functional Programming Lectures","url":"{{ '/' | absolute_url }}"},"author":{"@type":"Person","@id":"https://sdin.dev/#person","name":"Sean Dinwiddie","url":"https://sdin.dev/"}}
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "LearningResource",
+      "@id": "{{ page.url | absolute_url }}#learning-resource",
+      "url": "{{ page.url | absolute_url }}",
+      "name": {{ page.title | jsonify }},
+      "description": {{ page.description | default: site.description | jsonify }},
+      "learningResourceType": "Lecture",
+      "educationalLevel": {{ current_lecture.difficulty | default: "Intermediate" | jsonify }},
+      "teaches": {{ current_lecture.outcomes | jsonify }},
+      "inLanguage": "en",
+      "isPartOf": { "@id": "{{ '/' | absolute_url }}#course" },
+      "author": {
+        "@type": "Person",
+        "@id": "https://sdin.dev/#person",
+        "name": "Sean Dinwiddie",
+        "url": "https://sdin.dev/"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "{{ page.url | absolute_url }}#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Functional Programming Lectures",
+          "item": "{{ '/' | absolute_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": {{ page.title | jsonify }},
+          "item": "{{ page.url | absolute_url }}"
+        }
+      ]
+    }
+  ]
+}
 </script>
+
+<nav class="curriculum-breadcrumbs" aria-label="Breadcrumb">
+  <ol>
+    <li><a href="{{ '/' | relative_url }}">Curriculum</a></li>
+    <li aria-current="page">{{ page.title }}</li>
+  </ol>
+</nav>
+
 {{ content }}
+
+<nav class="curriculum-pagination" aria-label="Lecture navigation">
+  <div>
+    {%- if previous_lecture -%}
+      <span>Previous</span>
+      <a rel="prev" href="{{ previous_lecture.url | relative_url }}">{{ previous_lecture.title }}</a>
+    {%- endif -%}
+  </div>
+  <div>
+    {%- if next_lecture -%}
+      <span>Next</span>
+      <a rel="next" href="{{ next_lecture.url | relative_url }}">{{ next_lecture.title }}</a>
+    {%- endif -%}
+  </div>
+</nav>

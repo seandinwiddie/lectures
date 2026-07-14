@@ -1,517 +1,436 @@
 ---
 title: "Modern Redux Architecture Patterns"
-description: "This lecture explores modern Redux architecture patterns for building scalable applications."
+description: "Design typed Redux Toolkit applications around state ownership, feature boundaries, RTK Query, thunks, listeners, and correct store lifetime."
+layout: lecture
 ---
 
 # Modern Redux Architecture Patterns
 
-This lecture explores modern Redux architecture patterns for building scalable applications.
+Modern Redux architecture is less about putting data in one store and more about making authority, events, effects, and feature boundaries obvious.
 
-> "Modern Redux architecture is about composition at scale: normalized state for performance, memoized selectors for efficiency, feature-based organization for maintainability. Each pattern solves a real scaling problem." - AI Insight
+## Architecture at a Glance
 
-## Domain-Driven Design
-
-### Feature-Based Organization
+```text
+User or integration event
+        ↓
+Event-oriented action
+        ↓
+Pure reducer transition
+        ↓
+Selector-derived view
+        ↓
+React render and next event
 ```
+
+RTK Query owns reusable server documents alongside this loop. Thunks drive imperative workflows, and listener middleware reacts to events over time.
+
+## State Ownership Boundaries
+
+Before creating a slice, classify the state:
+
+- Component: local drafts, disclosure state, focus, and one-tree interactions.
+- Router: pathname, route params, and query params.
+- Redux slice: shared durable client state and transitions with domain history.
+- RTK Query: request/response data shared by consumers.
+- Selector: values derived from other authoritative inputs.
+- External source: storage, browser APIs, devices, or specialized engines.
+
+Duplicating authority is more dangerous than choosing the "wrong" library. Keep URL filters in the router and pass them into selectors. Keep an input draft local until the user submits it.
+
+## Feature-Oriented Structure
+
+```text
 src/
-├── features/
-│   ├── users/
-│   │   ├── components/
-│   │   ├── hooks/
-│   │   ├── services/
-│   │   ├── types/
-│   │   ├── userSlice.ts
-│   │   └── index.ts
-│   ├── products/
-│   │   ├── components/
-│   │   ├── hooks/
-│   │   ├── services/
-│   │   ├── types/
-│   │   ├── productSlice.ts
-│   │   └── index.ts
-│   └── orders/
-│       ├── components/
-│       ├── hooks/
-│       ├── services/
-│       ├── types/
-│       ├── orderSlice.ts
-│       └── index.ts
-├── shared/
-│   ├── components/
-│   ├── hooks/
-│   ├── utils/
-│   └── types/
-└── app/
-    ├── store/
-    ├── providers/
-    └── App.tsx
+  app/
+    store.ts
+    hooks.ts
+    listenerMiddleware.ts
+    StoreProvider.tsx
+  services/
+    api.ts
+  features/
+    users/
+      usersSlice.ts
+      usersSelectors.ts
+      usersApi.ts
+      UsersList.tsx
+      __tests__/
+    notifications/
+      notificationsSlice.ts
+      notificationsListeners.ts
+  routes/
+    UsersPage.tsx
 ```
 
-### Feature Module Structure
-```typescript
-// features/users/index.ts
-export { default as userReducer } from './userSlice';
-export * from './userSlice';
-export * from './types';
-export * from './hooks';
-export * from './components';
-export * from './services';
-```
+Application wiring stays small. Feature folders contain domain logic, selectors, feature endpoints, UI, and tests. Shared API configuration lives near application infrastructure, while endpoints remain colocated with the feature that understands them.
 
-## State Normalization
+## Event-Oriented Slice Design
 
-> "Normalized state is the relational model applied to Redux: entities by ID in a flat structure. No nested updates, no duplication, O(1) lookups. GraphQL's cache and Redux both converge on this pattern for performance." - AI Insight
-
-### Normalized State Structure
-```typescript
-interface NormalizedState<T> {
-  entities: Record<string, T>;
-  ids: string[];
-  loading: boolean;
-  error: string | null;
+```ts
+type WorkspaceState = {
+  activeDocumentId: string | null
+  recentDocumentIds: string[]
 }
 
-interface UserState extends NormalizedState<User> {
-  selectedUserId: string | null;
-  filters: UserFilters;
+const initialState: WorkspaceState = {
+  activeDocumentId: null,
+  recentDocumentIds: [],
 }
 
-const initialState: UserState = {
-  entities: {},
-  ids: [],
-  loading: false,
-  error: null,
-  selectedUserId: null,
-  filters: {}
-};
-```
-
-### Normalization Utilities
-```typescript
-// utils/normalization.ts
-export const normalizeArray = <T extends { id: string | number }>(
-  array: T[]
-): { entities: Record<string, T>; ids: string[] } => {
-  const entities: Record<string, T> = {};
-  const ids: string[] = [];
-
-  array.forEach(item => {
-    const id = String(item.id);
-    entities[id] = item;
-    ids.push(id);
-  });
-
-  return { entities, ids };
-};
-
-export const denormalizeArray = <T>(
-  entities: Record<string, T>,
-  ids: string[]
-): T[] => {
-  return ids.map(id => entities[id]).filter(Boolean);
-};
-
-export const updateEntity = <T extends { id: string | number }>(
-  entities: Record<string, T>,
-  updates: Partial<T> & { id: string | number }
-): Record<string, T> => {
-  const id = String(updates.id);
-  return {
-    ...entities,
-    [id]: { ...entities[id], ...updates }
-  };
-};
-```
-
-## Advanced Selectors
-
-### Memoized Selectors
-```typescript
-// features/users/selectors.ts
-import { createSelector } from '@reduxjs/toolkit';
-import { RootState } from '../../app/store';
-
-const selectUserState = (state: RootState) => state.users;
-
-export const selectUserEntities = createSelector(
-  [selectUserState],
-  (userState) => userState.entities
-);
-
-export const selectUserIds = createSelector(
-  [selectUserState],
-  (userState) => userState.ids
-);
-
-export const selectAllUsers = createSelector(
-  [selectUserEntities, selectUserIds],
-  (entities, ids) => denormalizeArray(entities, ids)
-);
-
-export const selectUserById = createSelector(
-  [selectUserEntities, (state: RootState, userId: string) => userId],
-  (entities, userId) => entities[userId]
-);
-
-export const selectActiveUsers = createSelector(
-  [selectAllUsers],
-  (users) => users.filter(user => user.active)
-);
-
-export const selectUsersByRole = createSelector(
-  [selectAllUsers, (state: RootState, role: string) => role],
-  (users, role) => users.filter(user => user.role === role)
-);
-
-export const selectUserStats = createSelector(
-  [selectAllUsers],
-  (users) => ({
-    total: users.length,
-    active: users.filter(user => user.active).length,
-    inactive: users.filter(user => !user.active).length,
-    byRole: users.reduce((acc, user) => {
-      acc[user.role] = (acc[user.role] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>)
-  })
-);
-```
-
-## Middleware Patterns
-
-### Custom Middleware
-```typescript
-// middleware/logger.ts
-import { Middleware } from '@reduxjs/toolkit';
-
-export const loggerMiddleware: Middleware = store => next => action => {
-  console.group(action.type);
-  console.info('dispatching', action);
-  const result = next(action);
-  console.log('next state', store.getState());
-  console.groupEnd();
-  return result;
-};
-
-// middleware/analytics.ts
-export const analyticsMiddleware: Middleware = store => next => action => {
-  const result = next(action);
-  
-  // Track specific actions
-  if (action.type.endsWith('/fulfilled')) {
-    analytics.track('api_success', {
-      action: action.type,
-      payload: action.payload
-    });
-  }
-  
-  if (action.type.endsWith('/rejected')) {
-    analytics.track('api_error', {
-      action: action.type,
-      error: action.error
-    });
-  }
-  
-  return result;
-};
-```
-
-### Async Middleware
-```typescript
-// middleware/async.ts
-import { Middleware } from '@reduxjs/toolkit';
-
-interface AsyncAction {
-  type: string;
-  payload: Promise<unknown>;
-  meta?: {
-    onSuccess?: string;
-    onError?: string;
-  };
-}
-
-export const asyncMiddleware: Middleware = store => next => action => {
-  if (action.payload instanceof Promise) {
-    const asyncAction = action as AsyncAction;
-    
-    // Dispatch pending action
-    store.dispatch({ type: `${asyncAction.type}/pending` });
-    
-    return asyncAction.payload
-      .then(result => {
-        store.dispatch({ 
-          type: `${asyncAction.type}/fulfilled`, 
-          payload: result 
-        });
-        if (asyncAction.meta?.onSuccess) {
-          store.dispatch({ type: asyncAction.meta.onSuccess, payload: result });
-        }
-        return result;
-      })
-      .catch(error => {
-        store.dispatch({ 
-          type: `${asyncAction.type}/rejected`, 
-          error: error.message 
-        });
-        if (asyncAction.meta?.onError) {
-          store.dispatch({ type: asyncAction.meta.onError, error: error.message });
-        }
-        throw error;
-      });
-  }
-  
-  return next(action);
-};
-```
-
-## State Persistence
-
-### Persist Configuration
-```typescript
-// app/store/persistConfig.ts
-import { persistReducer, persistStore } from 'redux-persist';
-import storage from 'redux-persist/lib/storage';
-
-const userPersistConfig = {
-  key: 'users',
-  storage,
-  whitelist: ['entities', 'ids'], // Only persist these fields
-  blacklist: ['loading', 'error'] // Don't persist these fields
-};
-
-const productPersistConfig = {
-  key: 'products',
-  storage,
-  whitelist: ['entities', 'ids']
-};
-
-export const persistConfigs = {
-  userPersistConfig,
-  productPersistConfig
-};
-```
-
-### Store Configuration with Persistence
-```typescript
-// app/store/index.ts
-import { configureStore } from '@reduxjs/toolkit';
-import { persistReducer, persistStore } from 'redux-persist';
-import storage from 'redux-persist/lib/storage';
-import userReducer from '../../features/users/userSlice';
-import productReducer from '../../features/products/productSlice';
-import { persistConfigs } from './persistConfig';
-
-const persistedUserReducer = persistReducer(
-  persistConfigs.userPersistConfig,
-  userReducer
-);
-
-const persistedProductReducer = persistReducer(
-  persistConfigs.productPersistConfig,
-  productReducer
-);
-
-export const store = configureStore({
-  reducer: {
-    users: persistedUserReducer,
-    products: persistedProductReducer
-  },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({
-      serializableCheck: {
-        ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE']
-      }
-    })
-});
-
-export const persistor = persistStore(store);
-export type RootState = ReturnType<typeof store.getState>;
-export type AppDispatch = typeof store.dispatch;
-```
-
-## Error Boundaries
-
-### Redux Error Boundary
-```typescript
-// components/ReduxErrorBoundary.tsx
-import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { connect, ConnectedProps } from 'react-redux';
-import { clearErrors } from '../features/errors/errorSlice';
-
-const mapDispatch = { clearErrors };
-const connector = connect(null, mapDispatch);
-
-type PropsFromRedux = ConnectedProps<typeof connector>;
-
-interface Props extends PropsFromRedux {
-  children: ReactNode;
-  fallback?: React.ComponentType<{ error: Error; resetError: () => void }>;
-}
-
-interface State {
-  error: Error | null;
-}
-
-class ReduxErrorBoundaryClass extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = { error: null };
-  }
-
-  static getDerivedStateFromError(error: Error): State {
-    return { error };
-  }
-
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Uncaught error:', error, errorInfo);
-  }
-
-  resetError = () => {
-    this.setState({ error: null });
-    this.props.clearErrors();
-  };
-
-  render() {
-    const { error } = this.state;
-    const { children, fallback: Fallback } = this.props;
-
-    if (error) {
-      if (Fallback) {
-        return <Fallback error={error} resetError={this.resetError} />;
-      }
-      return (
-        <div>
-          <h2>Something went wrong</h2>
-          <p>{error.message}</p>
-          <button onClick={this.resetError}>Try again</button>
-        </div>
-      );
-    }
-
-    return (
-      <React.Suspense fallback={<div>Loading...</div>}>
-        {children}
-      </React.Suspense>
-    );
-  }
-}
-
-export const ReduxErrorBoundary = connector(ReduxErrorBoundaryClass);
-```
-
-## Performance Optimization
-
-### Selective Re-rendering
-```typescript
-// hooks/useSelector.ts
-import { useSelector, shallowEqual } from 'react-redux';
-import { RootState } from '../app/store';
-
-export const useAppSelector = <T>(
-  selector: (state: RootState) => T,
-  equalityFn?: (left: T, right: T) => boolean
-) => {
-  return useSelector(selector, equalityFn || shallowEqual);
-};
-
-// Usage
-const UserComponent: React.FC<{ userId: string }> = ({ userId }) => {
-  const user = useAppSelector(
-    state => state.users.entities[userId],
-    (left, right) => left?.id === right?.id && left?.name === right?.name
-  );
-
-  return <div>{user?.name}</div>;
-};
-```
-
-### Lazy Loading
-```typescript
-// features/users/lazySelectors.ts
-import { createSelector } from '@reduxjs/toolkit';
-
-export const createLazySelector = <State, T, R>(
-  selector: (state: State) => T,
-  transform: (data: T) => R
-) => {
-  let memoizedTransform: R | null = null;
-  
-  return createSelector(
-    [selector],
-    (data) => {
-      if (!memoizedTransform) {
-        memoizedTransform = transform(data);
-      }
-      return memoizedTransform;
-    }
-  );
-};
-```
-
-## Testing Patterns
-
-### Store Testing
-```typescript
-// tests/store.test.ts
-import { configureStore } from '@reduxjs/toolkit';
-import userReducer from '../features/users/userSlice';
-
-const createTestStore = (preloadedState = {}) => {
-  return configureStore({
-    reducer: {
-      users: userReducer
+const workspaceSlice = createSlice({
+  name: 'workspace',
+  initialState,
+  reducers: {
+    documentOpened(state, action: PayloadAction<{ id: string }>) {
+      state.activeDocumentId = action.payload.id
+      state.recentDocumentIds = [
+        action.payload.id,
+        ...state.recentDocumentIds.filter((id) => id !== action.payload.id),
+      ].slice(0, 10)
     },
-    preloadedState
-  });
-};
-
-describe('Store', () => {
-  it('should handle user actions', () => {
-    const store = createTestStore();
-    
-    const user = { id: '1', name: 'Alice', email: 'alice@example.com' };
-    store.dispatch(addUser(user));
-    
-    const state = store.getState();
-    expect(state.users.entities['1']).toEqual(user);
-    expect(state.users.ids).toContain('1');
-  });
-});
+    workspaceClosed(state) {
+      state.activeDocumentId = null
+    },
+  },
+})
 ```
 
-### Selector Testing
-```typescript
-// tests/selectors.test.ts
-import { selectAllUsers, selectActiveUsers } from '../features/users/selectors';
+The reducer combines the new event with previous state and preserves the invariant that recent IDs are unique. Computing that merge before dispatch would move reducer responsibility into a caller.
 
-describe('User Selectors', () => {
-  const mockState = {
-    users: {
-      entities: {
-        '1': { id: '1', name: 'Alice', active: true },
-        '2': { id: '2', name: 'Bob', active: false }
-      },
-      ids: ['1', '2']
-    }
-  };
+## Selector Layers
 
-  it('should select all users', () => {
-    const result = selectAllUsers(mockState);
-    expect(result).toHaveLength(2);
-  });
+Use simple selectors as the public read API for a feature. Compose memoized selectors when derivation is expensive or reference stability matters.
 
-  it('should select only active users', () => {
-    const result = selectActiveUsers(mockState);
-    expect(result).toHaveLength(1);
-    expect(result[0].name).toBe('Alice');
-  });
-});
+```ts
+const selectWorkspace = (state: RootState) => state.workspace
+const selectDocuments = (state: RootState) => state.documents.items
+
+export const selectActiveDocument = createSelector(
+  [selectWorkspace, selectDocuments],
+  (workspace, documents) =>
+    documents.find((item) => item.id === workspace.activeDocumentId) ?? null,
+)
 ```
+
+Do not store `activeDocument` when `activeDocumentId` plus the documents collection is authoritative.
+
+## RTK Query Service Boundaries
+
+Create one API root for one base URL:
+
+```ts
+// services/api.ts
+export const api = createApi({
+  reducerPath: 'api',
+  baseQuery: fetchBaseQuery({ baseUrl: '/api/' }),
+  endpoints: () => ({}),
+})
+```
+
+Inject endpoints from feature files:
+
+```ts
+// features/users/usersApi.ts
+export const usersApi = api.injectEndpoints({
+  endpoints: (build) => ({
+    getUser: build.query<User, string>({
+      query: (id) => `users/${id}`,
+    }),
+  }),
+})
+```
+
+Independent backends may have independent API roots. Multiple roots for the same backend fragment tags, subscriptions, and middleware behavior.
+
+## Side-Effect Architecture
+
+Choose by job:
+
+### RTK Query
+
+Use for server documents that need caching, request deduplication, invalidation, polling, or request-bound lifecycle behavior.
+
+### Thunks
+
+Use for an imperative sequence initiated from one call site, especially when it needs `dispatch` or `getState` and does not represent a reusable server cache.
+
+```ts
+export const workspaceExported = createAsyncThunk(
+  'workspace/export',
+  async (format: ExportFormat, { getState }) => {
+    const state = getState() as RootState
+    return exportWorkspace(selectWorkspaceForExport(state), format)
+  },
+)
+```
+
+### Listener middleware
+
+Use when behavior reacts to actions or state transitions over time.
+
+```ts
+startAppListening({
+  actionCreator: documentOpened,
+  effect: async (action, listenerApi) => {
+    listenerApi.cancelActiveListeners()
+    await listenerApi.delay(100)
+    listenerApi.dispatch(recentDocumentRecorded(action.payload))
+  },
+})
+```
+
+Prepend listener middleware before default serializability checks; concatenate RTK Query middleware.
+
+## Typed React Boundary
+
+```ts
+export type RootState = ReturnType<typeof store.getState>
+export type AppDispatch = typeof store.dispatch
+
+export const useAppDispatch = useDispatch.withTypes<AppDispatch>()
+export const useAppSelector = useSelector.withTypes<RootState>()
+```
+
+Components use typed hooks and feature selectors. Direct store imports belong only in explicit non-React integration boundaries.
+
+## Store Lifetime
+
+### Client-only SPA
+
+A module-level singleton represents the single browser session.
+
+```ts
+export const store = configureStore({ reducer })
+```
+
+### SSR-heavy application
+
+Create one store per request, then keep it stable in the client provider.
+
+```tsx
+export function StoreProvider({ children }: { children: ReactNode }) {
+  const [store] = useState(makeStore)
+  return <Provider store={store}>{children}</Provider>
+}
+```
+
+A server singleton can leak state across requests. Creating a store during every render loses state.
+
+## Entity Collections
+
+`createEntityAdapter` is useful for a normalized collection owned by a slice:
+
+```ts
+type Task = {
+  taskId: string
+  title: string
+}
+
+const tasksAdapter = createEntityAdapter<Task, string>({
+  selectId: (task) => task.taskId,
+})
+
+const tasksSlice = createSlice({
+  name: 'tasks',
+  initialState: tasksAdapter.getInitialState(),
+  reducers: {
+    tasksReceived: tasksAdapter.upsertMany,
+    taskRemoved: tasksAdapter.removeOne,
+  },
+})
+
+export const taskSelectors = tasksAdapter.getSelectors(
+  (state: RootState) => state.tasks,
+)
+```
+
+Adapters assume `entity.id` unless `selectId` defines another key. Do not normalize RTK Query documents by reflex. RTK Query is a document cache; use a normalized graph model only when graph identity is an actual requirement.
+
+## Persistence
+
+Persist the smallest stable client state. Avoid persisting transient status, derived data, sensitive values, or browser RTK Query caches by default. Version persisted schemas and define migration behavior.
+
+```ts
+type PersistedPreferences = {
+  version: 2
+  theme: 'light' | 'dark'
+}
+```
+
+## Lazy Features
+
+Lazy reducer or endpoint injection can reduce initial work in a large application. Keep the root type aware of lazy slices and avoid hiding ownership behind runtime magic.
+
+```ts
+// app/rootReducer.ts
+import { combineSlices } from '@reduxjs/toolkit'
+import { workspaceSlice } from '../features/workspace/workspaceSlice'
+
+export interface LazyLoadedSlices {}
+
+export const rootReducer = combineSlices(workspaceSlice)
+  .withLazyLoadedSlices<LazyLoadedSlices>()
+```
+
+```ts
+// features/tasks/tasksSlice.ts
+import type { WithSlice } from '@reduxjs/toolkit'
+import { rootReducer } from '../../app/rootReducer'
+
+declare module '../../app/rootReducer' {
+  export interface LazyLoadedSlices extends WithSlice<typeof tasksSlice> {}
+}
+
+export const injectedTasksSlice = tasksSlice.injectInto(rootReducer)
+```
+
+`withLazyLoadedSlices` makes the future state shape explicit. `injectInto` returns a slice whose selectors understand the injected reducer path. RTK Query feature endpoints should likewise extend the existing API root with `injectEndpoints`.
+
+For async lifecycle reducers that genuinely belong to a slice, RTK 2 also offers `buildCreateSlice` with `create.asyncThunk`. Keep reusable server cache in RTK Query; use the slice-local creator for an imperative lifecycle whose pending, fulfilled, and rejected transitions belong to that slice.
+
+## ECS Integration Boundary
+
+An entity-component-system fits a domain with entity identities, composable data components, and systems operating over component sets. Games, simulations, and editors often qualify.
+
+Do not use ECS to model route parameters, ordinary forms, basic CRUD screens, or the RTK Query cache. If an ECS world is authoritative, expose events or selected projections to Redux instead of duplicating the world in slices.
+
+## Debugging Model
+
+1. Was the intended event dispatched?
+2. Did the reducer accept the transition from the current state?
+3. Does the selector produce the expected view?
+4. Is the component subscribed to that selector result?
+5. For RTK Query, are the endpoint args, tags, and active subscriptions correct?
+6. For listeners, are matching and cancellation correct?
+7. For thunks, where did the imperative workflow reject or branch?
+
+### Guard effect-driven thunks at the thunk boundary
+
+React StrictMode can run effects twice during development. If a non-cache thunk
+is dispatched from an effect, a component check alone is not enough:
+
+```ts
+export const reportPrepared = createAsyncThunk(
+  'reports/prepared',
+  prepareReport,
+  {
+    condition(_request, { getState }) {
+      const state = getState() as RootState
+      return state.reports.status === 'idle'
+    },
+  },
+)
+```
+
+RTK Query hooks already deduplicate identical active query subscriptions, so do
+not rebuild that cache behavior with effect-driven fetch thunks.
+
+### Treat serializability warnings as design feedback
+
+```ts
+// Wrong: Date and Set are not ordinary serializable state.
+const wrongState = {
+  lastSavedAt: new Date(),
+  selectedIds: new Set<string>(),
+}
+
+// Correct: store serializable domain values.
+const state = {
+  lastSavedAtIso: new Date().toISOString(),
+  selectedIds: [] as string[],
+}
+```
+
+The timestamp is generated outside the reducer and carried by an event. Do not
+silence a warning until the boundary has been understood.
+
+### Narrow subscriptions and preserve references
+
+Select the values a component renders rather than an entire slice in a parent.
+When using RTK Query's `selectFromResult`, avoid returning a freshly copied
+array such as `[...data]`; that defeats memoization even when cached data did
+not change.
+
+### Interpret invalidation with cache subscriptions
+
+When a mutation invalidates a tag, active query subscribers refetch. Inactive
+entries are removed and fetch again only when another consumer subscribes.
+Check tag identity and subscription state before concluding that invalidation
+failed.
+
+## Migration Architecture
+
+Modernize a legacy application in vertical steps:
+
+1. replace `createStore` with `configureStore` while old reducers still run;
+2. migrate each touched reducer to `createSlice`;
+3. move touched React components from `connect` to typed hooks;
+4. replace hand-written server loading state with RTK Query where its document cache fits; and
+5. use RTK codemods for mechanical builder changes, then review semantics by hand.
+
+Do not carry removed RTK 1 configuration forms into new code:
+
+```ts
+// Removed forms
+configureStore({ reducer, middleware: [logger] })
+createSlice({
+  name: 'legacy',
+  initialState,
+  reducers: {},
+  extraReducers: {
+    [requestFinished.type]: requestReducer,
+  },
+})
+
+// RTK 2 forms
+configureStore({
+  reducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(logger),
+})
+
+createSlice({
+  name: 'current',
+  initialState,
+  reducers: {},
+  extraReducers: (builder) => {
+    builder.addCase(requestFinished, requestReducer)
+  },
+})
+```
+
+Incremental migration means shipping coherent vertical changes, not preserving
+obsolete import paths with new compatibility layers.
+
+## Testing Architecture
+
+- Reducer tests exercise event sequences and invariants.
+- Selector tests cover derived outputs.
+- Endpoint tests cover request contracts, tags, and cache behavior.
+- Thunk tests cover imperative orchestration.
+- Listener tests cover matching, cancellation, and emitted actions.
+- Component tests cover local interactions and rendered outcomes.
+- End-to-end tests cover a small number of critical cross-feature journeys.
 
 ## Exercise
-Build a complete e-commerce application using modern Redux architecture patterns with feature-based organization, normalized state, and proper error handling.
+
+Design a collaborative editor architecture. Assign ownership for:
+
+- the current route document ID;
+- an unsaved title draft;
+- shared client preferences;
+- server document content;
+- a debounced autosave reaction;
+- an export command;
+- a simulation canvas that may or may not justify ECS.
+
+Document why each owner and tool fits, then implement one vertical feature with typed hooks and tests. Add a lazy task feature, diagnose one duplicate-work or invalidation scenario, and write the forward-only migration order for a legacy version of the feature.
 
 ## Resources
+
 - [Redux Style Guide](https://redux.js.org/style-guide/)
-- [Redux Toolkit Best Practices](https://redux-toolkit.js.org/usage/usage-guide)
-- [Normalizing State Shape](https://redux.js.org/usage/structuring-reducers/normalizing-state-shape)
+- [Redux Toolkit Usage Guide](https://redux-toolkit.js.org/usage/usage-guide)
+- [combineSlices and Lazy Injection](https://redux-toolkit.js.org/api/combineSlices)
+- [Migrating to Modern Redux](https://redux-toolkit.js.org/usage/migrating-to-modern-redux)
+- [RTK Query Overview](https://redux-toolkit.js.org/rtk-query/overview)
+- [Canonical Maintenance Strategy](../technology-maintenance.md)

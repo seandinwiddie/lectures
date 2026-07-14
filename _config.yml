@@ -3,12 +3,27 @@ description: >-
   A comprehensive curriculum for mastering functional programming with
   TypeScript and Redux — from pure functions to monads and modern Redux
   architecture.
-author: Sean Dinwiddie
+author:
+  name: Sean Dinwiddie
+  twitter: seandinwiddie
 lang: en
-# GitHub Pages project-site defaults; switch to a custom domain (e.g. learn.sdin.dev) via CNAME + DNS if desired
+# Canonical GitHub Pages project-site settings. A host or base-path migration
+# must update these values together with canonical metadata and validation rules.
 url: "https://seandinwiddie.github.io"
 baseurl: "/lectures"
 theme: minima
+logo: /assets/lecture-mark.svg
+header_pages:
+  - technology-maintenance.md
+twitter:
+  username: seandinwiddie
+  card: summary_large_image
+social:
+  name: Sean Dinwiddie
+  links:
+    - https://sdin.dev/
+    - https://github.com/seandinwiddie
+    - https://www.linkedin.com/in/seandinwiddie/
 plugins:
   - jekyll-seo-tag
   - jekyll-sitemap
@@ -18,7 +33,13 @@ relative_links:
   collections: true
 defaults:
   - scope: { path: "" }
-    values: { layout: "lecture" }
+    values:
+      layout: default
+      image:
+        path: /assets/functional-programming-lectures-social.png
+        width: 1200
+        height: 630
+        alt: Functional Programming Lectures by Sean Dinwiddie
 exclude:
   - Gemfile
   - Gemfile.lock
@@ -28,4 +49,6 @@ exclude:
   - LICENSE
   - README.md
   - .markdownlint.json
+  - .markdown-link-check.json
   - .github
+  - scripts

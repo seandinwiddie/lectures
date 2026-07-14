@@ -1,6 +1,7 @@
 ---
 title: "Basic Functional Programming TypeScript Knowledge"
 description: "This lecture introduces the fundamental concepts of functional programming using TypeScript."
+layout: lecture
 ---
 
 # Basic Functional Programming TypeScript Knowledge
@@ -117,6 +118,7 @@ console.log(sayGoodbye('Bob')); // "Goodbye, Bob!"
 ### 1. map() - Transform Elements
 
 The `map` function is like a factory that transforms every item in a list. You give it a function that describes how to change each item, and it gives you back a new list with all the transformed items. It never changes the original list - it always creates a new one. This is perfect for functional programming!
+
 ```typescript
 const numbers = [1, 2, 3, 4, 5];
 
@@ -142,6 +144,7 @@ console.log(names); // ['Alice', 'Bob']
 ### 2. filter() - Select Elements
 
 The `filter` function is like a sieve that lets through only the items you want. You give it a function that returns true or false for each item, and it gives you back a new list with only the items where your function returned true. It's great for finding specific items in a list without changing the original.
+
 ```typescript
 const numbers = [1, 2, 3, 4, 5, 6];
 
@@ -169,6 +172,7 @@ console.log(activeUsers); // [{ name: 'Alice', age: 25, active: true }, { name: 
 ### 3. reduce() - Accumulate Values
 
 The `reduce` function is like a machine that combines all the items in a list into a single result. You give it a function that describes how to combine two items, and it works through the entire list to give you one final answer. It's perfect for things like adding up numbers, counting items, or grouping data together.
+
 ```typescript
 const numbers = [1, 2, 3, 4, 5];
 
@@ -204,6 +208,7 @@ console.log(groupedByCity);
 ### 4. Chaining Methods
 
 Method chaining is like connecting pipes in a factory - you can take the output of one operation and feed it directly into the next operation. This lets you build complex data processing pipelines step by step. Each step takes the result from the previous step and transforms it further, making your code easy to read and understand.
+
 ```typescript
 interface User {
   name: string;
@@ -232,6 +237,7 @@ console.log(result); // ['Charlie']
 ### Simple Composition
 
 Function composition is like connecting pipes - you take the output of one function and feed it into another function. The `compose` function does this automatically. Think of it like a math problem: if you have f(x) and g(x), composition gives you f(g(x)). The `pipe` function does the same thing but reads more naturally from left to right, like reading English.
+
 ```typescript
 // Compose two functions - mathematical composition: f(g(x))
 /**
@@ -277,6 +283,7 @@ console.log(processData(5)); // "11"
 ### Data Processing Pipeline
 
 This example shows how you might work with real data in an application. The `orders` array represents data you might get from a database or API. We'll use this data to demonstrate how functional programming techniques can help you process and analyze information in a clean, predictable way.
+
 ```typescript
 interface Order {
   id: number;
@@ -295,6 +302,7 @@ const orders: Order[] = [
 ### Validation Pipeline
 
 This example shows how you can break down a complex task (validating an email) into smaller, focused functions. Each function does one specific check, and then you combine them all together using `pipe`. This makes your code easier to test and understand - you can test each validation step separately, and the pipeline makes it clear what order the checks happen in.
+
 ```typescript
 // Step 1: Validate email format using regex
 const validateEmail = (email: string): string | null => {
@@ -322,6 +330,7 @@ console.log(validateAndNormalize('invalid')); // null
 ### 1. Keep Functions Small and Focused
 
 The best functions are like good tools - they do one thing really well. When you try to make a function do too many things, it becomes hard to understand, test, and fix. The example shows how to break down a big, messy function into smaller, focused functions that each have a clear purpose.
+
 ```typescript
 // ❌ Too many responsibilities - violates single responsibility principle
 const processUser = (user: any) => {
@@ -349,6 +358,7 @@ const processUser = pipe(validateUser, transformUser);
 ### 2. Avoid Side Effects
 
 Side effects are things your function does besides returning a value - like printing to the console, saving to a database, or changing global variables. Pure functions don't have side effects, which makes them predictable and easy to test. The example shows how removing side effects makes your function more reliable.
+
 ```typescript
 // ❌ Side effects in pure functions - makes testing and debugging harder
 const calculateTotal = (items: any[]): number => {
@@ -366,6 +376,7 @@ const calculateTotal = (items: any[]): number => {
 ### 3. Use Descriptive Names
 
 Good function names are like good book titles - they tell you exactly what the function does. Avoid short, unclear names like `fn` or `process`. Instead, use names that describe the function's purpose, like `getPositiveNumbers` or `doubleNumbers`. This makes your code self-documenting and easier for other people (including future you) to understand.
+
 ```typescript
 // ❌ Unclear names - hard to understand what the function does
 const fn = (arr: number[]): number[] => arr.filter(x => x > 0).map(x => x * 2);
@@ -377,15 +388,19 @@ const processNumbers = pipe(getPositiveNumbers, doubleNumbers);
 ```
 
 ## Exercise
+
 Create a pure function that processes a list of products and returns the total price of items that are in stock and cost less than $100.
 
 Define:
+
 ```ts
 type Product = { id: number; name: string; price: number; inStock: boolean };
 ```
+
 Implement `totalAffordableInStock(products: Product[]): number`.
 
 ### Unit tests
+
 ```typescript
 // Exercise: totalAffordableInStock
 describe('totalAffordableInStock', () => {
@@ -409,5 +424,6 @@ describe('totalAffordableInStock', () => {
 ```
 
 ## Resources
+
 - [Eloquent JavaScript - Chapter 5: Higher-Order Functions](https://eloquentjavascript.net/05_higher_order.html)
 - [Functional Programming in JavaScript](https://www.freecodecamp.org/news/functional-programming-in-javascript/)

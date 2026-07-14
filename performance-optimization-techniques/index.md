@@ -1,13 +1,16 @@
 ---
 title: "Performance Optimization Techniques"
 description: "This lecture explores performance optimization techniques in functional programming."
+layout: lecture
 ---
 
 # Performance Optimization Techniques
 
 This lecture explores performance optimization techniques in functional programming.
 
-> "Functional programming enables performance optimizations that imperative code cannot: memoization works because of purity, lazy evaluation works because of immutability, and structural sharing works because data never changes." - AI Insight
+Functional programming does not make performance automatic. Purity and
+immutability make some optimizations easier to justify, but measurement still
+decides whether memoization, laziness, or structural sharing is worthwhile.
 
 ## Memoization
 
@@ -15,7 +18,11 @@ This lecture explores performance optimization techniques in functional programm
 
 ### Basic Memoization
 
-Memoization is like having a smart memory that remembers the results of expensive calculations. Since pure functions always return the same result for the same inputs, you can safely store the result and return it immediately the next time you call the function with the same input. This is especially useful for recursive functions like factorial, where the same calculations are repeated many times.
+Memoization stores the result of a function call and reuses it for an equivalent
+input. This is sound only when the function is pure and the cache's equality
+rule matches the function's input semantics. The following cache uses `Map`
+identity: primitive values compare by value, while objects compare by reference.
+
 ```typescript
 const memoize = <T, U>(fn: (arg: T) => U) => {
   const cache = new Map<T, U>();
@@ -39,25 +46,40 @@ console.log(factorial(5)); // Computed: 120
 console.log(factorial(5)); // Cached: 120
 ```
 
+This teaching implementation has no eviction policy. Production caches need a
+bounded lifetime when the input space can grow indefinitely.
+
 ### Multi-Argument Memoization
 
-When functions take multiple arguments, you need a way to create a unique key for each combination of arguments. The `JSON.stringify` approach converts the arguments into a string that can be used as a cache key. This lets you memoize functions with any number of arguments, making them much faster when called repeatedly with the same inputs.
+Serializing arguments is not a general cache-key strategy: serialization can
+fail, discard information, or treat semantically equivalent objects as
+different. A small and predictable alternative is a one-entry cache. It is
+useful when a selector or calculation is commonly called repeatedly with the
+same argument references.
+
 ```typescript
-const memoizeMulti = <T extends any[], U>(fn: (...args: T) => U) => {
-  const cache = new Map<string, U>();
-  return (...args: T): U => {
-    const key = JSON.stringify(args);
-    if (cache.has(key)) {
-      return cache.get(key)!;
+const memoizeLast = <Args extends unknown[], Result>(
+  fn: (...args: Args) => Result
+) => {
+  let cache: { args: Args; result: Result } | undefined;
+
+  return (...args: Args): Result => {
+    const previous = cache;
+    if (
+      previous !== undefined
+      && previous.args.length === args.length
+      && args.every((arg, index) => Object.is(arg, previous.args[index]))
+    ) {
+      return previous.result;
     }
+
     const result = fn(...args);
-    cache.set(key, result);
+    cache = { args, result };
     return result;
   };
 };
 
-// Example: Memoized addition
-const add = memoizeMulti((a: number, b: number): number => a + b);
+const add = memoizeLast((a: number, b: number): number => a + b);
 ```
 
 ## Lazy Evaluation
@@ -66,54 +88,90 @@ const add = memoizeMulti((a: number, b: number): number => a + b);
 
 ### Lazy Lists
 
-Lazy lists are like infinite sequences that only compute values when you actually need them. Instead of creating all the values upfront (which could be infinite and crash your program), lazy lists create a promise to compute each value when it's requested. This is perfect for working with potentially infinite data like number sequences, where you only need a few values at a time.
+Lazy lists compute a node only when a consumer requests it. Both the node and
+its tail must be deferred; accepting an already-built tail would recursively
+construct an infinite sequence before a consumer could read its first value.
+This implementation also memoizes each forced node so repeated reads do not
+repeat the computation.
+
 ```typescript
+type LazyNode<T> = Readonly<{
+  head: T;
+  tail: () => LazyList<T>;
+}> | null;
+
 class LazyList<T> {
-  private constructor(private thunk: () => { head: T; tail: LazyList<T> } | null) {}
+  private forced = false;
+  private cached: LazyNode<T> | undefined;
+
+  private constructor(private readonly evaluate: () => LazyNode<T>) {}
+
+  private force(): LazyNode<T> {
+    if (!this.forced) {
+      this.cached = this.evaluate();
+      this.forced = true;
+    }
+    return this.cached ?? null;
+  }
 
   static empty<T>(): LazyList<T> {
     return new LazyList(() => null);
   }
 
-  static cons<T>(head: T, tail: LazyList<T>): LazyList<T> {
+  static cons<T>(head: T, tail: () => LazyList<T>): LazyList<T> {
     return new LazyList(() => ({ head, tail }));
   }
 
-  static fromArray<T>(arr: T[]): LazyList<T> {
-    if (arr.length === 0) return LazyList.empty();
-    return LazyList.cons(arr[0], LazyList.fromArray(arr.slice(1)));
+  static fromArray<T>(
+    values: ReadonlyArray<T>,
+    index = 0
+  ): LazyList<T> {
+    if (index >= values.length) return LazyList.empty();
+    const head = values[index]!;
+    return LazyList.cons(head, () => LazyList.fromArray(values, index + 1));
   }
 
-  head(): T | null {
-    const result = this.thunk();
-    return result ? result.head : null;
+  head(): T | undefined {
+    return this.force()?.head;
   }
 
-  tail(): LazyList<T> | null {
-    const result = this.thunk();
-    return result ? result.tail : null;
+  tail(): LazyList<T> | undefined {
+    return this.force()?.tail();
   }
 
   map<U>(fn: (value: T) => U): LazyList<U> {
-    const result = this.thunk();
-    if (!result) return LazyList.empty();
-    return LazyList.cons(fn(result.head), result.tail.map(fn));
+    return new LazyList<U>(() => {
+      const node = this.force();
+      return node === null
+        ? null
+        : {
+            head: fn(node.head),
+            tail: () => node.tail().map(fn)
+          };
+    });
   }
 
   take(n: number): T[] {
-    if (n <= 0) return [];
-    const result = this.thunk();
-    if (!result) return [];
-    return [result.head, ...result.tail.take(n - 1)];
+    const limit = Math.max(0, Math.floor(n));
+    const values: T[] = [];
+    let current: LazyList<T> = this;
+
+    while (values.length < limit) {
+      const node = current.force();
+      if (node === null) break;
+      values.push(node.head);
+      current = node.tail();
+    }
+
+    return values;
   }
 }
 
 // Example: Infinite sequence
-const naturals = (() => {
-  const generate = (n: number): LazyList<number> => 
-    LazyList.cons(n, generate(n + 1));
-  return generate(0);
-})();
+const naturalsFrom = (n: number): LazyList<number> =>
+  LazyList.cons(n, () => naturalsFrom(n + 1));
+
+const naturals = naturalsFrom(0);
 
 console.log(naturals.take(5)); // [0, 1, 2, 3, 4]
 ```
@@ -122,159 +180,185 @@ console.log(naturals.take(5)); // [0, 1, 2, 3, 4]
 
 ### Efficient Data Processing
 
-Streams are like lazy lists but optimized for processing large amounts of data efficiently. They only compute the values you actually need, which can save enormous amounts of memory and processing time when working with large datasets. Streams are perfect for data processing pipelines where you might only need the first few results or want to process data one piece at a time.
+JavaScript generators provide a native pull-based stream abstraction. The
+following transforms are lazy: they request source values only as the consumer
+iterates. Generator objects are single-use, so create a new generator when a
+pipeline must run again.
+
 ```typescript
-interface Stream<T> {
-  head(): T | null;
-  tail(): Stream<T>;
-  isEmpty(): boolean;
+function* mapIterable<A, B>(
+  source: Iterable<A>,
+  transform: (value: A) => B
+): Generator<B> {
+  for (const value of source) {
+    yield transform(value);
+  }
 }
 
-class StreamImpl<T> implements Stream<T> {
-  private constructor(
-    private _head: T | null,
-    private _tail: () => Stream<T>
-  ) {}
-
-  static empty<T>(): Stream<T> {
-    return new StreamImpl<T>(null, () => StreamImpl.empty());
-  }
-
-  static cons<T>(head: T, tail: () => Stream<T>): Stream<T> {
-    return new StreamImpl(head, tail);
-  }
-
-  head(): T | null {
-    return this._head;
-  }
-
-  tail(): Stream<T> {
-    return this._tail();
-  }
-
-  isEmpty(): boolean {
-    return this._head === null;
-  }
-
-  map<U>(fn: (value: T) => U): Stream<U> {
-    if (this.isEmpty()) return StreamImpl.empty();
-    return StreamImpl.cons(
-      fn(this.head()!),
-      () => this.tail().map(fn)
-    );
-  }
-
-  filter(predicate: (value: T) => boolean): Stream<T> {
-    if (this.isEmpty()) return StreamImpl.empty();
-    const head = this.head()!;
-    if (predicate(head)) {
-      return StreamImpl.cons(head, () => this.tail().filter(predicate));
+function* filterIterable<T>(
+  source: Iterable<T>,
+  predicate: (value: T) => boolean
+): Generator<T> {
+  for (const value of source) {
+    if (predicate(value)) {
+      yield value;
     }
-    return this.tail().filter(predicate);
-  }
-
-  take(n: number): T[] {
-    if (n <= 0 || this.isEmpty()) return [];
-    return [this.head()!, ...this.tail().take(n - 1)];
   }
 }
+
+const take = <T>(source: Iterable<T>, count: number): T[] => {
+  const limit = Math.max(0, Math.floor(count));
+  const values: T[] = [];
+  if (limit === 0) return values;
+
+  for (const value of source) {
+    values.push(value);
+    if (values.length >= limit) break;
+  }
+  return values;
+};
+
+function* naturalNumbers(): Generator<number> {
+  let value = 0;
+  while (true) yield value++;
+}
+
+const evenSquares = mapIterable(
+  filterIterable(naturalNumbers(), (n) => n % 2 === 0),
+  (n) => n * n
+);
+
+console.log(take(evenSquares, 4)); // [0, 4, 16, 36]
 ```
 
 ## Tail Call Optimization
 
 ### Recursive Functions
 
-Tail call optimization is a technique that prevents stack overflow in recursive functions. A tail call is when a function calls itself as the very last thing it does. In this case, the computer can reuse the same stack frame instead of creating a new one for each recursive call. The trampoline pattern is a way to simulate tail call optimization in languages that don't support it natively.
+In a runtime with proper tail calls, a tail-position recursive call can reuse the
+current stack frame. Portable JavaScript cannot rely on that optimization, so a
+tail-recursive function may still overflow. A trampoline represents each next
+step as data and advances it with an ordinary loop.
+
 ```typescript
 // Non-tail recursive (can cause stack overflow)
-const factorial = (n: number): number => {
+const naiveFactorial = (n: number): number => {
   if (n <= 1) return 1;
-  return n * factorial(n - 1); // Not tail recursive
+  return n * naiveFactorial(n - 1);
 };
 
-// Tail recursive (can be optimized)
-const factorialTail = (n: number, acc: number = 1): number => {
+// Tail-position recursion is still not portably stack-safe in JavaScript.
+const tailRecursiveFactorial = (n: number, acc = 1): number => {
   if (n <= 1) return acc;
-  return factorialTail(n - 1, n * acc); // Tail recursive
+  return tailRecursiveFactorial(n - 1, n * acc);
 };
 
-// Tail recursive with trampoline
-const trampoline = <T>(fn: (...args: any[]) => T | (() => T)) => {
-  let result = fn();
-  while (typeof result === 'function') {
-    result = result();
+type Bounce<T> =
+  | Readonly<{ done: true; value: T }>
+  | Readonly<{ done: false; next: () => Bounce<T> }>;
+
+const done = <T>(value: T): Bounce<T> => ({ done: true, value });
+const call = <T>(next: () => Bounce<T>): Bounce<T> => ({
+  done: false,
+  next
+});
+
+const trampoline = <T>(initial: Bounce<T>): T => {
+  let current = initial;
+  while (!current.done) {
+    current = current.next();
   }
-  return result;
+  return current.value;
 };
 
-const factorialTrampoline = (n: number): number => {
-  const factorialHelper = (n: number, acc: number = 1): number | (() => number) => {
-    if (n <= 1) return acc;
-    return () => factorialHelper(n - 1, n * acc);
-  };
-  return trampoline(() => factorialHelper(n));
-};
+const factorialBounce = (n: number, acc = 1): Bounce<number> =>
+  n <= 1
+    ? done(acc)
+    : call(() => factorialBounce(n - 1, n * acc));
+
+const factorialTrampoline = (n: number): number =>
+  trampoline(factorialBounce(n));
+
+console.log(factorialTrampoline(5)); // 120
 ```
 
 ## Immutable Data Structures
 
 ### Efficient Updates
 
-Immutable data structures are designed to be efficient even when you need to make changes. Instead of copying the entire structure, they use clever techniques like tree structures to share unchanged parts between the old and new versions. This gives you the safety of immutability without the performance penalty of copying everything. The persistent vector is a great example of this approach.
+Persistent data structures return a new version while retaining the old one.
+They can share unchanged nodes instead of copying the entire structure. A
+persistent linked stack is a small, complete example: `push` allocates one node
+and shares the previous stack as its tail.
+
 ```typescript
-// Persistent Vector (simplified)
-class Vector<T> {
+type StackNode<T> = Readonly<{
+  value: T;
+  next: StackNode<T> | null;
+}>;
+
+class PersistentStack<T> {
   private constructor(
-    private size: number,
-    private root: Node<T> | null,
-    private tail: T[]
+    private readonly topNode: StackNode<T> | null,
+    readonly size: number
   ) {}
 
-  static empty<T>(): Vector<T> {
-    return new Vector(0, null, []);
+  static empty<T>(): PersistentStack<T> {
+    return new PersistentStack<T>(null, 0);
   }
 
-  push(value: T): Vector<T> {
-    if (this.tail.length < 32) {
-      const newTail = [...this.tail, value];
-      return new Vector(this.size + 1, this.root, newTail);
-    }
-    // Implementation for larger vectors would use a tree structure
-    return new Vector(this.size + 1, this.root, [value]);
+  push(value: T): PersistentStack<T> {
+    return new PersistentStack(
+      { value, next: this.topNode },
+      this.size + 1
+    );
   }
 
-  get(index: number): T | undefined {
-    if (index < 0 || index >= this.size) return undefined;
-    if (index >= this.size - this.tail.length) {
-      return this.tail[index - (this.size - this.tail.length)];
+  peek(): T | undefined {
+    return this.topNode?.value;
+  }
+
+  toArray(): T[] {
+    const values: T[] = [];
+    let node = this.topNode;
+    while (node !== null) {
+      values.push(node.value);
+      node = node.next;
     }
-    // Note: Full implementation would traverse the tree structure here
-    // For this simplified example, we only check the tail
-    return undefined;
+    return values;
   }
 }
 
-interface Node<T> {
-  children: (Node<T> | null)[];
-}
+const empty = PersistentStack.empty<number>();
+const one = empty.push(1);
+const two = one.push(2);
+
+console.log(one.toArray()); // [1] - the old version is unchanged
+console.log(two.toArray()); // [2, 1]
 ```
 
 ## Performance Monitoring
 
 ### Function Performance
 
-Performance monitoring helps you understand how fast your functions are running and identify bottlenecks. The `measurePerformance` function wraps any function and automatically measures how long it takes to execute. This is essential for optimizing functional programs because it helps you identify which operations are taking the most time and where you should focus your optimization efforts.
+Performance monitoring helps identify bottlenecks before optimization. This
+wrapper measures synchronous execution time and reports it even when the
+wrapped function throws. Use an async-aware timer for promises and a benchmark
+harness for statistically meaningful comparisons.
+
 ```typescript
-const measurePerformance = <T extends any[], U>(
-  fn: (...args: T) => U,
+const measurePerformance = <Args extends unknown[], Result>(
+  fn: (...args: Args) => Result,
   name: string
 ) => {
-  return (...args: T): U => {
+  return (...args: Args): Result => {
     const start = performance.now();
-    const result = fn(...args);
-    const end = performance.now();
-    console.log(`${name} took ${end - start}ms`);
-    return result;
+    try {
+      return fn(...args);
+    } finally {
+      const duration = performance.now() - start;
+      console.log(`${name} took ${duration}ms`);
+    }
   };
 };
 
@@ -295,24 +379,43 @@ console.log(expensiveOperation(1000000));
 
 ### Memory Usage
 
-Memory monitoring is just as important as performance monitoring, especially in functional programming where you might create many intermediate objects. The `measureMemory` function tracks how much memory your functions use, helping you identify memory leaks or inefficient memory usage patterns. This is crucial for applications that need to run for long periods or handle large amounts of data.
+JavaScript does not expose a portable, deterministic per-function heap metric.
+Chromium exposes a non-standard approximation, but garbage collection can make
+the delta noisy or negative. Treat this helper as a diagnostic hint and use the
+runtime's memory profiler for real analysis.
+
 ```typescript
-const measureMemory = <T extends any[], U>(
-  fn: (...args: T) => U
+type ChromiumPerformance = Performance & {
+  memory?: { usedJSHeapSize: number };
+};
+
+const usedHeapSize = (): number | undefined =>
+  (performance as ChromiumPerformance).memory?.usedJSHeapSize;
+
+const measureApproximateHeap = <Args extends unknown[], Result>(
+  fn: (...args: Args) => Result
 ) => {
-  return (...args: T): U => {
-    const startMemory = (performance as any).memory?.usedJSHeapSize || 0;
+  return (...args: Args): {
+    result: Result;
+    approximateBytes: number | undefined;
+  } => {
+    const before = usedHeapSize();
     const result = fn(...args);
-    const endMemory = (performance as any).memory?.usedJSHeapSize || 0;
-    console.log(`Memory used: ${endMemory - startMemory} bytes`);
-    return result;
+    const after = usedHeapSize();
+    return {
+      result,
+      approximateBytes: before === undefined || after === undefined
+        ? undefined
+        : after - before
+    };
   };
 };
 ```
 
 ## Exercise
+
 Implement a memoized version of the Fibonacci function that uses a persistent data structure for caching, and compare its performance with a naive recursive implementation.
 
 ## Resources
-- [Functional Programming Performance](https://www.functionalprogramming.com/)
+
 - [Optimizing Functional Programs](https://www.cs.kent.ac.uk/people/staff/dat/miranda/whyfp90.pdf)

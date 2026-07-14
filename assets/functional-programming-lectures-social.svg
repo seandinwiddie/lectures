@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Functional Programming Lectures</title>
+  <desc id="desc">A dark code-inspired social card for Sean Dinwiddie's functional programming curriculum</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f1419"/>
+      <stop offset="1" stop-color="#171b24"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#background)"/>
+  <rect x="54" y="54" width="1092" height="522" rx="26" fill="none" stroke="#2d3640" stroke-width="4"/>
+  <circle cx="104" cy="102" r="10" fill="#ff8f40"/>
+  <circle cx="138" cy="102" r="10" fill="#ffd173"/>
+  <circle cx="172" cy="102" r="10" fill="#aad94c"/>
+  <text x="96" y="252" fill="#73d0ff" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="42">const curriculum = compose(</text>
+  <text x="146" y="328" fill="#e6e1cf" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="62" font-weight="700">FUNCTIONAL PROGRAMMING</text>
+  <text x="146" y="404" fill="#ffb454" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="62" font-weight="700">LECTURES</text>
+  <text x="96" y="480" fill="#73d0ff" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="42">);</text>
+  <text x="96" y="540" fill="#b3b1ad" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="28">TypeScript · Redux Toolkit · RTK Query · FP</text>
+</svg>

@@ -1,4 +1,4 @@
-name: Lint
+name: Verify curriculum
 
 on:
   push:
@@ -7,21 +7,29 @@ on:
     branches: [ main, master ]
 
 jobs:
-  lint:
+  verify:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
     steps:
-      - uses: actions/checkout@v3
-      
+      - name: Check out repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: '18'
-          
-      - name: Install dependencies
-        run: npm install
-        
-      - name: Lint Markdown
-        run: npm run lint
-        
-      - name: Check Links
-        run: npm run check-links
+          node-version: '24'
+          cache: npm
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@6e5d382445ae5590b7449d8b3bc8cb1c2c27f617 # v1.317.0
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Verify source and rendered site
+        run: npm run build

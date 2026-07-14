@@ -1,0 +1,257 @@
+:root {
+  --curriculum-ink: #e6e1cf;
+  --curriculum-muted: #b3b1ad;
+  --curriculum-panel: #171b24;
+  --curriculum-line: #2d3640;
+  --curriculum-link: #73d0ff;
+  --curriculum-accent: #ffb454;
+}
+
+.skip-link {
+  background: #fff;
+  color: #111;
+  left: 1rem;
+  padding: 0.75rem 1rem;
+  position: fixed;
+  top: -5rem;
+  z-index: 1000;
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
+
+a:focus-visible {
+  outline: 3px solid #0969da;
+  outline-offset: 3px;
+}
+
+.curriculum-breadcrumbs ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+  margin-left: 0;
+  padding-left: 0;
+}
+
+.curriculum-breadcrumbs li + li::before {
+  color: #6c7680;
+  content: "/";
+  margin-right: 0.5rem;
+}
+
+.curriculum-pagination {
+  border-top: 1px solid #d8d8d8;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+}
+
+.curriculum-pagination div:last-child {
+  text-align: right;
+}
+
+.curriculum-pagination span,
+.curriculum-pagination a {
+  display: block;
+}
+
+.curriculum-pagination span {
+  color: #666;
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background: #0f1419;
+    color: var(--curriculum-ink);
+  }
+
+  a,
+  a:visited {
+    color: var(--curriculum-link);
+  }
+
+  a:hover,
+  a:focus-visible {
+    color: var(--curriculum-accent);
+  }
+
+  a:focus-visible {
+    outline-color: var(--curriculum-accent);
+  }
+
+  .site-title,
+  .site-title:visited {
+    color: var(--curriculum-ink);
+  }
+
+  .site-nav .page-link {
+    color: var(--curriculum-link);
+  }
+
+  .site-nav .menu-icon > svg {
+    fill: var(--curriculum-ink);
+  }
+
+  .site-header,
+  .site-footer,
+  .curriculum-pagination {
+    border-color: var(--curriculum-line);
+  }
+
+  .footer-col-wrapper,
+  .post-meta,
+  blockquote {
+    color: var(--curriculum-muted);
+  }
+
+  blockquote {
+    border-color: var(--curriculum-line);
+  }
+
+  code,
+  pre {
+    background: var(--curriculum-panel);
+    border-color: var(--curriculum-line);
+    color: var(--curriculum-ink);
+  }
+
+  .highlight,
+  .highlighter-rouge .highlight {
+    background: var(--curriculum-panel);
+    color: var(--curriculum-ink);
+  }
+
+  .highlight [class] {
+    background-color: transparent;
+    color: inherit;
+  }
+
+  .highlight .c,
+  .highlight .c1,
+  .highlight .cm,
+  .highlight .cp,
+  .highlight .cs {
+    color: var(--curriculum-muted);
+  }
+
+  .highlight .k,
+  .highlight .kd,
+  .highlight .kp,
+  .highlight .kr,
+  .highlight .kt,
+  .highlight .ow {
+    color: #ff8f40;
+  }
+
+  .highlight .s,
+  .highlight .s1,
+  .highlight .s2,
+  .highlight .sb,
+  .highlight .sc,
+  .highlight .sd,
+  .highlight .se,
+  .highlight .sh,
+  .highlight .si,
+  .highlight .sr,
+  .highlight .ss,
+  .highlight .sx {
+    color: #aad94c;
+  }
+
+  .highlight .na,
+  .highlight .nb,
+  .highlight .nc,
+  .highlight .ne,
+  .highlight .nf,
+  .highlight .nn,
+  .highlight .nt,
+  .highlight .nv,
+  .highlight .nx,
+  .highlight .vc,
+  .highlight .vg,
+  .highlight .vi {
+    color: #ffd173;
+  }
+
+  .highlight .il,
+  .highlight .m,
+  .highlight .mf,
+  .highlight .mh,
+  .highlight .mi,
+  .highlight .mo {
+    color: var(--curriculum-link);
+  }
+
+  .highlight .err,
+  .highlight .gd,
+  .highlight .gr,
+  .highlight .gt {
+    background-color: transparent;
+    color: #ff8f40;
+  }
+
+  .highlight .gi {
+    background-color: transparent;
+    color: #aad94c;
+  }
+
+  .highlight .gd .x,
+  .highlight .gi .x {
+    background-color: transparent;
+    color: inherit;
+  }
+
+  table {
+    color: var(--curriculum-ink);
+    border-color: var(--curriculum-line);
+  }
+
+  table tr:nth-child(even),
+  table th {
+    background-color: var(--curriculum-panel);
+  }
+
+  table th,
+  table td {
+    border-color: var(--curriculum-line);
+  }
+
+  .curriculum-pagination span {
+    color: var(--curriculum-muted);
+  }
+}
+
+@media (max-width: 600px) {
+  .site-nav {
+    background: transparent;
+    border: 0;
+    clear: both;
+    float: none;
+    line-height: 1.5;
+    position: static;
+    text-align: left;
+  }
+
+  .site-nav .page-link {
+    display: inline-block;
+    margin: 0;
+    padding: 0.5rem 0;
+  }
+}
+
+@media (max-width: 42rem) {
+  .curriculum-pagination {
+    grid-template-columns: 1fr;
+  }
+
+  .curriculum-pagination div:last-child {
+    text-align: left;
+  }
+}

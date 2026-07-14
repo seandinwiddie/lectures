@@ -1,175 +1,312 @@
 ---
 title: "Monads in Functional Programming"
-description: "This lecture introduces monads as a way to handle side effects and complex computations in functional programming."
+description: "Model expected absence and recoverable failure with lawful, serializable Maybe and Either values derived from production functional cores."
+layout: lecture
 ---
 
 # Monads in Functional Programming
 
-This lecture introduces monads as a way to handle side effects and complex computations in functional programming.
+`Maybe` and `Either` make control flow explicit in data. Their value is not the vocabulary alone; it is the guarantee that mapping, chaining, and matching behave consistently across every branch.
 
-> "Monads are programmable semicolons: they define the sequence of operations in a way that handles effects like errors, nullability, or asynchrony without breaking functional purity. Once you understand them, you see them everywhere." - AI Insight
+This lecture uses the shared contract implemented by the ForbocAI Rust, TypeScript, GDScript, and Unreal C++ functional cores.
 
-## What are Monads?
+## Learning Goals
 
-Monads are like smart containers that wrap values and provide a consistent way to work with operations that might fail, have side effects, or produce multiple results. Think of them as boxes with special rules for how you can interact with what's inside. They help you handle uncertainty and complexity in a predictable way.
+By the end of this lecture, you should be able to:
 
-### Maybe Monad
+- choose between absence, recoverable failure, and a broken invariant;
+- implement `map`, `chain`, and exhaustive `match` over tagged data;
+- state and test the functor and monad laws;
+- traverse collections without sentinel values; and
+- keep rich functional helpers out of serializable Redux state.
 
-The Maybe monad is like a smart box that might or might not contain a value. Instead of using `null` or `undefined` (which can cause errors), Maybe forces you to handle both the success and failure cases explicitly. The `map` function transforms the value if it exists, and `bind` lets you chain operations that might also fail. This makes your code safer and more predictable.
-```typescript
-class Maybe<T> {
-  private constructor(private value: T | null) {}
+## Three Failure Classes
 
-  static just<T>(value: T): Maybe<T> {
-    return new Maybe(value);
-  }
+| Situation | Representation | Example |
+| --- | --- | --- |
+| Expected absence with no diagnostic | `Maybe<T>` | An optional target is not selected. |
+| Recoverable failure with useful context | `Either<E, T>` | A command fails domain validation. |
+| Broken programmer invariant | assertion or exception at a boundary | Required configuration was never installed. |
 
-  static nothing<T>(): Maybe<T> {
-    return new Maybe<T>(null);
-  }
+Do not turn every error into `Nothing`; that discards information. Do not throw for ordinary domain outcomes; that hides a branch from the type.
 
-  map<U>(fn: (value: T) => U): Maybe<U> {
-    return this.value === null 
-      ? Maybe.nothing<U>()
-      : Maybe.just(fn(this.value));
-  }
+## Model Maybe as Plain Tagged Data
 
-  bind<U>(fn: (value: T) => Maybe<U>): Maybe<U> {
-    return this.value === null 
-      ? Maybe.nothing<U>()
-      : fn(this.value);
-  }
+```ts
+export type Maybe<T> =
+  | { readonly _tag: 'Just'; readonly value: T }
+  | { readonly _tag: 'Nothing' }
 
-  getOrElse(defaultValue: T): T {
-    return this.value === null ? defaultValue : this.value;
-  }
+export const just = <T>(value: T): Maybe<T> => ({
+  _tag: 'Just',
+  value,
+})
+
+export const nothing = <T>(): Maybe<T> => ({
+  _tag: 'Nothing',
+})
+
+export const maybeMap = <A, B>(
+  value: Maybe<A>,
+  transform: (value: A) => B,
+): Maybe<B> =>
+  value._tag === 'Just' ? just(transform(value.value)) : nothing<B>()
+
+export const maybeChain = <A, B>(
+  value: Maybe<A>,
+  next: (value: A) => Maybe<B>,
+): Maybe<B> =>
+  value._tag === 'Just' ? next(value.value) : nothing<B>()
+
+export const maybeMatch = <A, R>(
+  value: Maybe<A>,
+  cases: {
+    just: (value: A) => R
+    nothing: () => R
+  },
+): R =>
+  value._tag === 'Just' ? cases.just(value.value) : cases.nothing()
+```
+
+The tagged union is serializable only when `T` is recursively serializable; the
+same rule applies to both `E` and `T` in `Either<E, T>`. A production TypeScript
+core may wrap the same behavior in factory objects with `.map()`, `.chain()`,
+and `.match()` methods, but those function-valued wrappers should remain
+ephemeral rather than enter Redux state or actions.
+
+### Map versus chain
+
+Use `map` when the next step cannot add absence:
+
+```ts
+const displayName = maybeMap(selectedUser, (user) => user.name.trim())
+```
+
+Use `chain` when the next step already returns `Maybe`:
+
+```ts
+const safeDivide = (numerator: number, denominator: number): Maybe<number> =>
+  denominator === 0 ? nothing<number>() : just(numerator / denominator)
+
+const result = maybeChain(just(10), (value) => safeDivide(value, 2))
+```
+
+Using `map` for `safeDivide` would produce `Maybe<Maybe<number>>`. `chain` flattens that repeated context by one level.
+
+### Collapse at a boundary
+
+```ts
+const label = maybeMatch(result, {
+  just: (value) => `Result: ${value}`,
+  nothing: () => 'No result',
+})
+```
+
+Keep transformations inside the context. Collapse with `match` when a UI, protocol, log, or other boundary needs a concrete output.
+
+## Model Recoverable Failure with Either
+
+```ts
+export type Either<E, T> =
+  | { readonly _tag: 'Left'; readonly error: E }
+  | { readonly _tag: 'Right'; readonly value: T }
+
+export const left = <E, T>(error: E): Either<E, T> => ({
+  _tag: 'Left',
+  error,
+})
+
+export const right = <E, T>(value: T): Either<E, T> => ({
+  _tag: 'Right',
+  value,
+})
+
+export const eitherMap = <E, A, B>(
+  result: Either<E, A>,
+  transform: (value: A) => B,
+): Either<E, B> =>
+  result._tag === 'Right'
+    ? right<E, B>(transform(result.value))
+    : left<E, B>(result.error)
+
+export const eitherMapLeft = <E, F, T>(
+  result: Either<E, T>,
+  transformError: (error: E) => F,
+): Either<F, T> =>
+  result._tag === 'Left'
+    ? left<F, T>(transformError(result.error))
+    : right<F, T>(result.value)
+
+export const eitherChain = <E, A, B>(
+  result: Either<E, A>,
+  next: (value: A) => Either<E, B>,
+): Either<E, B> =>
+  result._tag === 'Right' ? next(result.value) : left<E, B>(result.error)
+```
+
+`eitherMapLeft` is a boundary tool. It can translate a parser error, engine error, or transport error into the domain's error vocabulary before feature logic sees it.
+
+```ts
+type ParseError = { kind: 'invalid-number'; input: string }
+
+const parseInteger = (input: string): Either<ParseError, number> => {
+  const value = Number.parseInt(input, 10)
+  return Number.isNaN(value)
+    ? left({ kind: 'invalid-number', input })
+    : right(value)
 }
+
+const doubled = eitherMap(parseInteger('21'), (value) => value * 2)
 ```
 
-### Either Monad
+## Laws Make Refactoring Safe
 
-The Either monad is like a smart box that can contain either a success value or an error message. It's perfect for operations that might fail, like parsing numbers or making API calls. Instead of throwing errors or returning null, Either makes you handle both success and error cases explicitly. The `map` function transforms success values while preserving errors, and `bind` lets you chain operations that might also fail.
-```typescript
-class Either<L, R> {
-  private constructor(
-    private leftValue: L | null,
-    private rightValue: R | null,
-    private isLeft: boolean
-  ) {}
+An implementation is not lawful because its methods have familiar names. Test the equations.
 
-  static left<L, R>(value: L): Either<L, R> {
-    return new Either(value, null, true);
-  }
+### Functor identity
 
-  static right<L, R>(value: R): Either<L, R> {
-    return new Either(null, value, false);
-  }
-
-  map<U>(fn: (value: R) => U): Either<L, U> {
-    return this.isLeft 
-      ? Either.left<L, U>(this.leftValue!)
-      : Either.right<L, U>(fn(this.rightValue!));
-  }
-
-  bind<U>(fn: (value: R) => Either<L, U>): Either<L, U> {
-    return this.isLeft 
-      ? Either.left<L, U>(this.leftValue!)
-      : fn(this.rightValue!);
-  }
-
-  fold<U>(onLeft: (left: L) => U, onRight: (right: R) => U): U {
-    return this.isLeft
-      ? onLeft(this.leftValue!)
-      : onRight(this.rightValue!);
-  }
-}
+```text
+map(value, identity) == value
 ```
 
-## Monad Laws
+### Functor composition
 
-> "Monad laws aren't academic pedantry—they're guarantees. When your types obey the laws, refactoring is safe, composition works as expected, and your abstractions don't leak. Laws enable fearless refactoring." - AI Insight
-
-### Left Identity
-
-Monads follow specific mathematical laws that ensure they work predictably. The left identity law says that if you put a value in a monad and then bind a function to it, it's the same as just calling that function directly with the value. This might sound abstract, but it ensures that monads don't change the meaning of your operations - they just add safety and structure.
-```typescript
-// return a >>= f ≡ f a
-const leftIdentity = <T, U>(a: T, f: (x: T) => Maybe<U>): boolean => {
-  const lhs = Maybe.just(a).bind(f);
-  const rhs = f(a);
-  return lhs.getOrElse(null) === rhs.getOrElse(null);
-};
+```text
+map(value, x => g(f(x))) == map(map(value, f), g)
 ```
 
-### Right Identity
+### Monad left identity
 
-The right identity law says that if you bind a function that just puts a value back into a monad, you get the same result as if you hadn't done anything. This ensures that monads don't add unnecessary complexity - they only add value when you need the extra safety or structure they provide.
-```typescript
-// m >>= return ≡ m
-const rightIdentity = <T>(m: Maybe<T>): boolean => {
-  const lhs = m.bind(x => Maybe.just(x));
-  return lhs.getOrElse(null) === m.getOrElse(null);
-};
+```text
+chain(just(x), f) == f(x)
 ```
 
-### Associativity
+### Monad right identity
 
-The associativity law says that the order in which you group your monadic operations doesn't matter - you get the same result either way. This is like how addition is associative: (a + b) + c = a + (b + c). This law ensures that you can chain monadic operations in any order and get predictable results.
-```typescript
-// (m >>= f) >>= g ≡ m >>= (\x -> f x >>= g)
-const associativity = <T, U, V>(
-  m: Maybe<T>,
-  f: (x: T) => Maybe<U>,
-  g: (x: U) => Maybe<V>
+```text
+chain(value, just) == value
+```
+
+### Monad associativity
+
+```text
+chain(chain(value, f), g)
+==
+chain(value, x => chain(f(x), g))
+```
+
+Use branch-aware equality in tests instead of extracting with a fake `null` default:
+
+```ts
+const maybeEquals = <T>(
+  leftValue: Maybe<T>,
+  rightValue: Maybe<T>,
+  equals: (left: T, right: T) => boolean = Object.is,
 ): boolean => {
-  const lhs = m.bind(f).bind(g);
-  const rhs = m.bind(x => f(x).bind(g));
-  return lhs.getOrElse(null) === rhs.getOrElse(null);
-};
+  if (leftValue._tag === 'Nothing') return rightValue._tag === 'Nothing'
+  if (rightValue._tag === 'Nothing') return false
+  return equals(leftValue.value, rightValue.value)
+}
+
+it('obeys Maybe left identity', () => {
+  const reciprocal = (value: number): Maybe<number> =>
+    value === 0 ? nothing<number>() : just(1 / value)
+
+  expect(
+    maybeEquals(maybeChain(just(4), reciprocal), reciprocal(4)),
+  ).toBe(true)
+})
 ```
 
-## Real-World Examples
+Property-based tests are stronger than one example: generate present and absent values, arbitrary pure transformations, and functions that return both branches.
 
-### Safe Division
+## Traverse a Collection
 
-This example shows how the Maybe monad handles division by zero safely. Instead of throwing an error or returning undefined, the `safeDivide` function returns a Maybe that might contain a result or might be empty. We can chain multiple division operations together, and if any step fails (like division by zero), the whole chain safely returns the default value.
-```typescript
-const safeDivide = (a: number, b: number): Maybe<number> => {
-  return b === 0 ? Maybe.nothing() : Maybe.just(a / b);
-};
+`traverse` turns many local optional computations into one collection-level decision:
 
-const result = Maybe.just(10)
-  .bind(x => safeDivide(x, 2))
-  .bind(x => safeDivide(x, 5))
-  .getOrElse(0);
+```ts
+export const traverseMaybe = <A, B>(
+  values: readonly A[],
+  transform: (value: A) => Maybe<B>,
+): Maybe<B[]> =>
+  values.reduce<Maybe<B[]>>(
+    (accumulator, value) =>
+      maybeChain(accumulator, (results) =>
+        maybeMap(transform(value), (result) => [...results, result]),
+      ),
+    just<B[]>([]),
+  )
 
-console.log(result); // 1
+const parsed = traverseMaybe(['10', '20', '30'], (input) => {
+  const value = Number.parseInt(input, 10)
+  return Number.isNaN(value) ? nothing<number>() : just(value)
+})
 ```
 
-### Error Handling
+The output is `Just([10, 20, 30])` only if every element succeeds. There are no `undefined` holes or sentinel values.
 
-This example shows how the Either monad handles parsing errors gracefully. Instead of throwing an exception when parsing fails, the `parseNumber` function returns an Either that contains either a success value or an error message. We can then transform the success value with `map` and handle both success and error cases explicitly with `fold`, making our error handling predictable and safe.
-```typescript
-const parseNumber = (str: string): Either<string, number> => {
-  const num = parseInt(str);
-  return isNaN(num) 
-    ? Either.left('Invalid number')
-    : Either.right(num);
-};
+The Unreal core provides this behavior for both standard vectors and `TArray`; Rust naturally expresses it with `Option`, `Result`, and iterators; GDScript must enforce its tagged dictionary shapes at runtime.
 
-const result = parseNumber('123')
-  .map(x => x * 2)
-  .fold(
-    error => `Error: ${error}`,
-    value => `Result: ${value}`
-  );
+## Validation: Fail Fast or Accumulate?
 
-console.log(result); // "Result: 246"
+The production functional cores use validators shaped like:
+
+```text
+T -> Either<E, T>
 ```
+
+They thread each successful value into the next validator and preserve the first `Left`. This is ordered, fail-fast validation.
+
+If a form must show every error at once, an accumulating validation type is a different abstraction. Do not silently change an `Either` pipeline's contract by concatenating errors in one implementation but not the others.
+
+## Native Carrier or Custom ADT?
+
+The two Rust cores illustrate a real design decision.
+
+| Strategy | Benefit | Cost |
+| --- | --- | --- |
+| Alias `Maybe<T> = Option<T>` and `Either<E,T> = Result<T,E>` | Native interop and zero conversion | Callers can bypass the shared vocabulary. |
+| Define `Just/Nothing` and `Left/Right` enums | Stable cross-language naming and controlled surface | More code and explicit boundary conversion. |
+
+Neither is universally superior. Choose the authority boundary, document it, and test the same public behavior.
+
+## Keep Effects out of the Carrier Laws
+
+Mapping and chaining are predictable only when callbacks obey the intended contract. Types cannot guarantee that a callback is pure.
+
+- Memoizers mutate hidden caches.
+- `tap` deliberately runs an observation or effect.
+- Async executors invoke callbacks and require cancellation and settlement rules.
+- A configuration interpreter may mutate a fresh local result.
+
+These are useful tools, but they do not make reducers or selectors safe places for network requests, logging, current timestamps, random IDs, or engine calls.
+
+In an RTK application:
+
+- keep serializable tagged data in slices;
+- derive views with selectors;
+- use RTK Query for reusable server documents;
+- use thunks for imperative workflows;
+- use listener middleware for reactions over time; and
+- keep an ECS world authoritative for ECS-shaped domain state.
 
 ## Exercise
-Implement a List monad that can handle computations that produce multiple results.
+
+Implement the same target-selection workflow with `Maybe` and `Either` in two host languages:
+
+1. lift a nullable target ID into `Maybe`;
+2. chain a lookup that may return `Nothing`;
+3. validate distance and visibility with fail-fast `Either`;
+4. traverse a party of targets so one invalid member fails the whole operation;
+5. collapse the result to a UI label with exhaustive matching; and
+6. property-test the functor and monad laws.
+
+Document which values are safe to store in Redux and which remain host-only wrappers.
 
 ## Resources
-- [Monads in JavaScript](https://blog.klipse.tech/javascript/2016/08/31/monads-javascript.html)
-- [Functional Programming with Monads](https://en.wikibooks.org/wiki/Haskell/Understanding_monads)
+
+- [Rust Option](https://doc.rust-lang.org/std/option/enum.Option.html)
+- [Rust Result](https://doc.rust-lang.org/std/result/enum.Result.html)
+- [Discriminated Unions in TypeScript](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#discriminated-unions)
+- [Functional Programming in Other Languages](../functional-programming-in-other-languages/)
+- [Advanced Monad Transformers](../advanced-monad-transformers/)
