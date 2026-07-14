@@ -1,3 +1,7 @@
+---
+title: "Monads in Functional Programming"
+---
+
 # Monads in Functional Programming
 
 This lecture introduces monads as a way to handle side effects and complex computations in functional programming.

@@ -1,3 +1,7 @@
+---
+title: "The simplest FP TS Hello World"
+---
+
 # The simplest FP TS Hello World
 
 This lecture demonstrates the simplest possible functional programming example in TypeScript - a pure function that processes data without side effects.

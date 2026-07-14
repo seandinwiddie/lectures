@@ -1,3 +1,7 @@
+---
+title: "ES6+ Features for Functional Programming"
+---
+
 # ES6+ Features for Functional Programming
 
 This lecture explores how modern TypeScript features enhance functional programming capabilities.

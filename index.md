@@ -1,3 +1,19 @@
+---
+title: "Functional Programming Lectures"
+---
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Course",
+  "name": "Functional Programming Lectures",
+  "description": "A comprehensive curriculum for mastering functional programming with TypeScript and Redux, from pure functions to monads and modern Redux architecture.",
+  "provider": { "@type": "Person", "@id": "https://sdin.dev/#person", "name": "Sean Dinwiddie", "url": "https://sdin.dev/" },
+  "inLanguage": "en",
+  "about": ["Functional Programming", "TypeScript", "Redux", "Redux Toolkit", "Monads", "Software Architecture"]
+}
+</script>
+
 # Functional Programming Lectures
 
 ## Overview

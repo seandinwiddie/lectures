@@ -1,3 +1,7 @@
+---
+title: "Basic TypeScript knowledge"
+---
+
 # Basic TypeScript knowledge
 
 This lecture gives you just enough TypeScript to move comfortably through the rest of the functional programming curriculum. You will learn the core of the type system, how to type functions precisely, and how strict typing reinforces immutability and pure functions.

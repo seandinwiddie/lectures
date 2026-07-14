@@ -1,3 +1,7 @@
+---
+title: "Practical Applications of Functional Programming"
+---
+
 # Practical Applications of Functional Programming
 
 This lecture explores real-world applications of functional programming principles in modern software development.

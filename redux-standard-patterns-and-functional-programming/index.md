@@ -1,3 +1,7 @@
+---
+title: "Redux Standard Patterns & Functional Programming"
+---
+
 # Redux Standard Patterns & Functional Programming
 
 Redux follows functional programming principles at its core. This lecture explores how Redux patterns align with functional programming concepts. While this covers traditional Redux patterns, Redux Toolkit (RTK) and RTK Query are the modern, official approach that supersedes these patterns in production applications.

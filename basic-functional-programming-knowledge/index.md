@@ -1,3 +1,7 @@
+---
+title: "Basic Functional Programming TypeScript Knowledge"
+---
+
 # Basic Functional Programming TypeScript Knowledge
 
 This lecture introduces the fundamental concepts of functional programming using TypeScript.

@@ -1,3 +1,7 @@
+---
+title: "Performance Optimization Techniques"
+---
+
 # Performance Optimization Techniques
 
 This lecture explores performance optimization techniques in functional programming.

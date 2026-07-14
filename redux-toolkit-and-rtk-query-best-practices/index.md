@@ -1,3 +1,7 @@
+---
+title: "Redux Toolkit & RTK Query Best Practices"
+---
+
 # Redux Toolkit & RTK Query Best Practices
 
 This lecture explores best practices for using Redux Toolkit and RTK Query in functional programming applications.

@@ -1,3 +1,7 @@
+---
+title: "FP Maintenance Strategy (Extensive)"
+---
+
 # FP Maintenance Strategy (Extensive)
 
 This document provides comprehensive guidelines for maintaining the codebase using functional programming (FP) principles combined with Redux Toolkit (RTK) and RTK Query. It serves as the comprehensive reference for architectural decisions, coding patterns, testing strategies, and best practices across the **entire application stack**—frontend, backend, and database.

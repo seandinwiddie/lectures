@@ -1,3 +1,7 @@
+---
+title: "What is a function?"
+---
+
 # What is a function?
 
 This lecture introduces the fundamental concept of functions in TypeScript and how they form the basis of functional programming. This is where your journey into lean, modular functional programming begins. You'll learn to write functions that are pure, testable, and composable - the building blocks of maintainable codebases.

@@ -1,3 +1,7 @@
+---
+title: "Functional Composition"
+---
+
 # Functional Composition
 
 This lecture explores advanced function composition techniques in functional programming.

@@ -1,3 +1,7 @@
+---
+title: "Advanced Monad Transformers"
+---
+
 # Advanced Monad Transformers
 
 This lecture explores monad transformers for combining multiple monadic effects.

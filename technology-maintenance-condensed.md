@@ -1,3 +1,7 @@
+---
+title: "FP Maintenance Strategy (Condensed)"
+---
+
 # FP Maintenance Strategy (Condensed)
 
 This document provides essential guidelines for maintaining the codebase using functional programming (FP) principles combined with Redux Toolkit (RTK) and RTK Query. For detailed patterns and examples, see [Standard Version](./technology-maintenance.md). For comprehensive examples and complete reference, see [Extensive Version](./technology-maintenance-extensive.md).

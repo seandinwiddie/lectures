@@ -1,3 +1,7 @@
+---
+title: "TypeScript and Functional Programming"
+---
+
 # TypeScript and Functional Programming
 
 This lecture explores how TypeScript enhances functional programming with type safety and better developer experience.

@@ -5,3 +5,10 @@ node_modules/
 .vscode/
 *.swp
 *~
+
+# Jekyll
+_site/
+.jekyll-cache/
+.jekyll-metadata
+vendor/
+Gemfile.lock
