@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "A comprehensive curriculum for mastering functional programming with TypeScript and Redux",
   "scripts": {
-    "lint": "markdownlint '**/*.md' --ignore node_modules --ignore _site",
-    "lint:fix": "markdownlint '**/*.md' --ignore node_modules --ignore _site --fix",
+    "lint": "markdownlint '**/*.md' --ignore node_modules --ignore vendor --ignore _site",
+    "lint:fix": "markdownlint '**/*.md' --ignore node_modules --ignore vendor --ignore _site --fix",
     "check:curriculum": "node scripts/check-curriculum.mjs",
     "check:markdown-links": "node scripts/check-markdown-links.mjs",
     "check:external-links": "node scripts/check-external-links.mjs",
