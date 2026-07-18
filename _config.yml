@@ -53,3 +53,4 @@ exclude:
   - .markdown-link-check.json
   - .github
   - scripts
+  - skills
