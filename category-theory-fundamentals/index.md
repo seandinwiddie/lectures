@@ -177,6 +177,47 @@ const naturalityHolds = <A, B>(
 );
 ```
 
+## Applicative Functors
+
+Between a functor and a monad sits the applicative. A functor maps a plain
+function over one wrapped value. An applicative applies a *wrapped* function to a
+*wrapped* value, which lets you combine several independent wrapped values with an
+ordinary multi-argument function.
+
+The distinction from a monad is the one that matters in practice: a monad's
+`chain` makes each step *depend* on the previous value and short-circuits on the
+first failure; an applicative's `ap` treats its arguments as *independent* and can
+therefore run all of them and combine their outcomes.
+
+```typescript
+const apMaybe = <A, B>(
+  wrappedFn: Maybe<Morphism<A, B>>,
+  wrappedValue: Maybe<A>
+): Maybe<B> => wrappedFn.kind === 'nothing' || wrappedValue.kind === 'nothing'
+  ? nothing
+  : just(wrappedFn.value(wrappedValue.value));
+
+const liftA2Maybe = <A, B, C>(
+  combine: (a: A) => (b: B) => C,
+  first: Maybe<A>,
+  second: Maybe<B>
+): Maybe<C> => apMaybe(mapMaybe(first, combine), second);
+
+// Applicative identity law: applying a wrapped identity changes nothing.
+const applicativeIdentity = <A>(
+  value: Maybe<A>,
+  equals: Equal<A>
+): boolean => maybeEquals(apMaybe(just(identity), value), value, equals);
+```
+
+`Maybe`'s applicative still short-circuits (either argument being `Nothing`
+yields `Nothing`), because `Maybe` carries no error to accumulate. The power of
+the applicative appears with a carrier that *does* — a `Validation` whose `ap`
+concatenates error lists. That is the abstraction the
+[monads lecture](../monads-in-functional-programming/) develops for form and
+config validation, and its extra behavioral law is that `ap` accumulates and
+never short-circuits.
+
 ## Monadic Unit, Join, and Chain
 
 A monad adds `unit` (called `just` here) and `join` to a functor. `join`
@@ -230,6 +271,64 @@ const monadAssociativity = <A, B, C>(
   equals
 );
 ```
+
+## Monoids
+
+A monoid is the simplest structure in this lecture and one of the most reused: a
+type with an associative binary operation `concat` and an identity element
+`empty`. It is the algebra of *combining many values of one type into one*.
+
+```typescript
+interface Monoid<A> {
+  readonly empty: A;
+  readonly concat: (left: A, right: A) => A;
+}
+
+const sumMonoid: Monoid<number> = { empty: 0, concat: (a, b) => a + b };
+const stringMonoid: Monoid<string> = { empty: '', concat: (a, b) => a + b };
+const arrayMonoid = <A>(): Monoid<ReadonlyArray<A>> => ({
+  empty: [],
+  concat: (a, b) => [...a, ...b],
+});
+const allMonoid: Monoid<boolean> = { empty: true, concat: (a, b) => a && b };
+```
+
+### Monoid laws
+
+```typescript
+const monoidLeftIdentity = <A>(m: Monoid<A>, value: A, equals: Equal<A>): boolean =>
+  equals(m.concat(m.empty, value), value);
+
+const monoidRightIdentity = <A>(m: Monoid<A>, value: A, equals: Equal<A>): boolean =>
+  equals(m.concat(value, m.empty), value);
+
+const monoidAssociativity = <A>(
+  m: Monoid<A>,
+  a: A, b: A, c: A,
+  equals: Equal<A>
+): boolean =>
+  equals(m.concat(m.concat(a, b), c), m.concat(a, m.concat(b, c)));
+```
+
+Associativity is what makes `foldMap` correct regardless of grouping — and what
+licenses evaluating a large combination in parallel and merging the partial
+results:
+
+```typescript
+const foldMap = <A, M>(
+  monoid: Monoid<M>,
+  transform: Morphism<A, M>,
+  values: ReadonlyArray<A>
+): M => values.reduce((accumulator, value) =>
+  monoid.concat(accumulator, transform(value)), monoid.empty);
+
+const totalLength = foldMap(sumMonoid, (word: string) => word.length, ['fp', 'laws']);
+// 6
+```
+
+An empty input returns `empty`, never a special-cased `null` — the identity
+element *is* the base case. This is why `allPass([])` is `true` and `anyPass([])`
+is `false`: they are `foldMap` over the boolean-and and boolean-or monoids.
 
 ## Real-World Applications
 
@@ -310,6 +409,15 @@ const processUser = (
   (user) => ({ ...user, name: user.name.toUpperCase() })
 );
 ```
+
+This `validateUser` is **fail-fast**: the first failing check returns and the
+rest never run, so the caller sees one error at a time. That is monadic
+sequencing, and it is correct when a later check genuinely cannot run until an
+earlier one passes. When the checks are independent — as `id`, `name`, and
+`email` are here — the applicative shape is preferable: run every check and
+concatenate the errors through the `Validation` monoid so the user sees all three
+problems at once. The functor collects, the applicative combines, the monad
+sequences; choosing among them is choosing how failure composes.
 
 ## Exercise
 

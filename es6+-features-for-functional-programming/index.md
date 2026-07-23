@@ -242,6 +242,31 @@ const max = Math.max(...values);
 console.log(max); // 5
 ```
 
+#### Spread is how you update without mutating
+
+This is the single most important use of spread in functional code: an "update"
+never changes the original, it produces a *new* value with the change applied.
+
+```typescript
+const user = { name: 'Alice', age: 25, roles: ['member'] };
+
+// Wrong — mutates the shared object; other holders see the change.
+user.age = 26;
+user.roles.push('admin');
+
+// Right — a new object; the original is untouched and still valid.
+const olderUser = { ...user, age: 26 };
+const promotedUser = { ...user, roles: [...user.roles, 'admin'] };
+```
+
+Note the nested spread on `roles`: a top-level `{ ...user }` copies the object
+but *shares* the inner array reference, so the array must be spread too. Immutable
+updates are shallow by default. This "copy-and-change" move is what lets Redux
+compare states by reference, what makes time-travel debugging possible, and what
+guarantees a function that receives your object cannot alter it behind your back.
+When the nesting gets deep enough that stacked spreads become noisy, that is the
+signal to reach for a lens (covered later), not to fall back to mutation.
+
 ### Rest Operator
 
 The rest operator (also `...`) is the opposite of spread - instead of spreading things out, it collects things together. It's like gathering scattered items into a basket. In function parameters, it collects all the arguments into an array. In destructuring, it collects all the remaining items into a new array or object.

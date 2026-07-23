@@ -275,6 +275,34 @@ Every operation has already started, so finding the first `Left` in the result a
 
 A type such as `AsyncEither` does not answer those policy questions by itself.
 
+### Traverse a collection of effects
+
+`traverse`/`sequence` is the rung of the ladder that turns many effectful values
+into one effect over a collection: `Array<AsyncEither<E, A>>` becomes
+`AsyncEither<E[], A[]>`. Collapsing the array is exactly where the fail-fast
+versus accumulate decision from validation reappears — this time over a set of
+concurrent operations.
+
+```ts
+// Applicative traversal: start all, then accumulate every error.
+const sequenceAsyncEitherAll = async <E, A>(
+  operations: readonly AsyncEither<E, A>[],
+): Promise<Either<readonly E[], readonly A[]>> => {
+  const settled = await Promise.all(operations)
+  const errors = settled.flatMap((r) => (r._tag === 'Left' ? [r.error] : []))
+  const values = settled.flatMap((r) => (r._tag === 'Right' ? [r.value] : []))
+  return errors.length > 0
+    ? left<readonly E[], readonly A[]>(errors)
+    : right<readonly E[], readonly A[]>(values)
+}
+```
+
+This accumulates because the operations are independent — the same reason
+`Validation` accumulates. A fail-fast traversal is a different function: it stops
+launching work at the first `Left` and is monadic, not applicative. Name which
+one you mean; the two disagree precisely when more than one operation fails, and
+that disagreement is a policy decision, not an implementation detail.
+
 ## Cancellation Belongs in the Effect Contract
 
 ```ts

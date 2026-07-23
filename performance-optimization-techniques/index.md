@@ -231,6 +231,61 @@ const evenSquares = mapIterable(
 console.log(take(evenSquares, 4)); // [0, 4, 16, 36]
 ```
 
+## Transducers
+
+Chaining array methods — `values.filter(even).map(square)` — is readable but
+allocates a fresh intermediate array at every stage. For a large source or a long
+chain, that allocation is the cost. A transducer removes it: it expresses `map`
+and `filter` as transformations of a *reducer*, so the whole pipeline composes
+into one reducer and the source is traversed exactly once, with no intermediate
+collections.
+
+```typescript
+type Reducer<Acc, Value> = (acc: Acc, value: Value) => Acc;
+
+// A transducer turns a reducer over Out into a reducer over In.
+type Transducer<In, Out> =
+  <Acc>(next: Reducer<Acc, Out>) => Reducer<Acc, In>;
+
+const mapping =
+  <In, Out>(transform: (value: In) => Out): Transducer<In, Out> =>
+  (next) => (acc, value) => next(acc, transform(value));
+
+const filtering =
+  <T>(predicate: (value: T) => boolean): Transducer<T, T> =>
+  (next) => (acc, value) => predicate(value) ? next(acc, value) : acc;
+
+// Transducers read left-to-right but each wraps the next reducer.
+const composeTransducers =
+  <A, B, C>(first: Transducer<A, B>, second: Transducer<B, C>): Transducer<A, C> =>
+  (next) => first(second(next));
+```
+
+The payoff is that the composed pipeline is independent of the output
+collection — the same `xform` can sum, push to an array, or feed a stream:
+
+```typescript
+const evenSquaresSum = (source: Iterable<number>): number => {
+  const xform = composeTransducers(
+    filtering<number>((n) => n % 2 === 0),
+    mapping<number, number>((n) => n * n),
+  );
+  const step = xform((acc: number, value: number) => acc + value);
+
+  let total = 0;
+  for (const value of source) total = step(total, value); // one pass, zero intermediates
+  return total;
+};
+
+console.log(evenSquaresSum([1, 2, 3, 4, 5])); // 20  (2² + 4²)
+```
+
+The single `for` at the drive point is the one loop this technique needs — the
+same shape as the trampoline driver below. Everything above it is pure
+composition. Reach for transducers when profiling shows intermediate-array
+allocation in a hot map/filter chain; a short chain over a small array does not
+need them.
+
 ## Tail Call Optimization
 
 ### Recursive Functions

@@ -138,6 +138,42 @@ const parseNumber = (str: string): Either<string, number> => {
 };
 ```
 
+### Tag the Union and Match It Exhaustively
+
+`Maybe<T> = T | null` is the simplest possible model, and it is enough for a
+single optional value. It stops being enough the moment values nest: a
+`Maybe<Maybe<T>>` collapses to `T | null | null`, so "present but holding null"
+and "absent" become indistinguishable. The rest of this curriculum therefore
+uses a **discriminated union** — a shared `_tag` field the compiler can narrow
+on — which is the representation the monads, composition, and category-theory
+lectures build on.
+
+```typescript
+type Maybe<T> =
+  | { readonly _tag: 'Just'; readonly value: T }
+  | { readonly _tag: 'Nothing' };
+
+const just = <T>(value: T): Maybe<T> => ({ _tag: 'Just', value });
+const nothing: Maybe<never> = { _tag: 'Nothing' };
+
+// match forces both branches to be handled and returns one output type.
+const match = <T, R>(
+  maybe: Maybe<T>,
+  onJust: (value: T) => R,
+  onNothing: () => R,
+): R => (maybe._tag === 'Just' ? onJust(maybe.value) : onNothing());
+
+const label = (user: Maybe<string>): string =>
+  match(user, (name) => `Hello, ${name}`, () => 'Guest');
+```
+
+Two properties make this worth the extra field. First, `Just(null)` and
+`Nothing` are now distinct values. Second, `match` is *exhaustive*: if you later
+add a third variant to the union, every `match` that does not handle it becomes a
+type error, so the compiler routes you to each decision site. That is the payoff
+of tagging — the type system enforces that no case is silently forgotten, which a
+bare `T | null` and a scattered set of `if (x !== null)` checks cannot give you.
+
 ### Generic Constraints
 
 Sometimes you want your generic functions to work with any type, but only if that type has certain properties. Constraints let you say "this generic type must have these specific features." For example, you might want a function that works with anything that has a `length` property, or anything that can be compared with `>`.

@@ -300,6 +300,35 @@ const expensiveCalculation = memoize((n: number): number => {
 });
 ```
 
+### Push Effects to the Edges
+
+A whole program cannot be pure — it eventually has to read the network, write a
+file, or draw to the screen. The functional answer is not to avoid effects but to
+*locate* them: keep a pure core that only computes values, and push every effect
+to a thin shell at the boundary.
+
+```typescript
+// Pure core — decides WHAT should happen, returns a value.
+type Command = { readonly kind: 'save'; readonly payload: string };
+
+const planSave = (draft: string): Command => ({
+  kind: 'save',
+  payload: draft.trim(),
+});
+
+// Effectful shell — the only place that DOES something.
+const runCommand = async (command: Command): Promise<void> => {
+  await fetch('/api/save', { method: 'POST', body: command.payload });
+};
+```
+
+The core (`planSave`) is testable with plain equality — no mocks, no network.
+The shell (`runCommand`) is small and quarantined. This split — *pure core,
+imperative shell* — is why the purity in this section scales: the parts you
+reason about hardest stay pure, and the parts that touch the world stay small
+enough to see. Every later lecture (reducers, selectors, ETL cores) is an
+application of this one boundary.
+
 ## Higher-Order Functions
 
 > "Higher-order functions are the core of functional abstraction: they treat functions as data, enabling patterns like map, filter, reduce, and middleware that would require complex inheritance in OOP." - AI Insight

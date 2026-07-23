@@ -363,6 +363,62 @@ Creating a new array with `[...data]` on every selection defeats memoization.
 Likewise, keep dates, sets, class instances, promises, and other non-serializable
 values out of ordinary Redux state; store a serializable representation instead.
 
+## Common Mistakes
+
+The concrete shapes behind the prose warnings above.
+
+### Two API roots for one backend
+
+```ts
+// Wrong — a second createApi for the same base URL fragments invalidation.
+export const usersApi = createApi({ reducerPath: 'api', baseQuery, endpoints: () => ({}) })
+export const postsApi = createApi({ reducerPath: 'api', baseQuery, endpoints: () => ({}) })
+
+// Correct — one root, extended per feature.
+export const api = createApi({ reducerPath: 'api', baseQuery, endpoints: () => ({}) })
+export const usersApi = api.injectEndpoints({ endpoints: (build) => ({ /* ... */ }) })
+export const postsApi = api.injectEndpoints({ endpoints: (build) => ({ /* ... */ }) })
+```
+
+One API slice per base URL keeps tags, dedupe, and middleware in a single cache.
+
+### Patching the cache from a component
+
+```tsx
+// Wrong — the patch drifts from the mutation that should own it.
+useEffect(() => {
+  dispatch(api.util.updateQueryData('getUsers', undefined, (draft) => {
+    draft.push(newUser)
+  }))
+}, [dispatch])
+
+// Correct — optimistic update lives in the mutation's onQueryStarted, with rollback.
+async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+  const patch = dispatch(api.util.updateQueryData('getUsers', undefined, (draft) => {
+    draft.push(arg)
+  }))
+  try { await queryFulfilled } catch { patch.undo() }
+}
+```
+
+Cache edits belong to the request lifecycle so success and rollback stay coupled.
+
+### Registering the reducer but not the middleware
+
+```ts
+// Wrong — hooks will not manage cache lifecycles without the middleware.
+configureStore({ reducer: { [api.reducerPath]: api.reducer } })
+
+// Correct — both the reducer and the middleware.
+configureStore({
+  reducer: { [api.reducerPath]: api.reducer },
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(api.middleware),
+})
+```
+
+RTK Query needs the reducer for cache state and the middleware for subscriptions,
+refetching, and invalidation.
+
 ## Testing
 
 - Test reducers with event sequences and invariant cases.

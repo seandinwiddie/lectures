@@ -144,6 +144,49 @@ A TypeScript generic describes a compile-time contract. Only a decoder checks
 whether an HTTP response, saved file, message, or engine payload satisfies that
 contract at runtime.
 
+### Accumulate Every Error with Validation
+
+`decodeUsers` above is **fail-fast**: it returns at the first bad element, so a
+response with ten malformed records reports one error and hides the other nine.
+That is the right behavior for *dependent* steps, but decoding a list is a set of
+*independent* checks — the natural shape is applicative, collecting every failure.
+
+`Validation<E, T>` is `Either`'s shape with an accumulating combine and no
+`chain`. Traversing the array with it reports all offending indices at once:
+
+```ts
+export type Validation<E, T> =
+  | { readonly _tag: 'Failure'; readonly errors: readonly E[] }
+  | { readonly _tag: 'Success'; readonly value: T }
+
+// Traverse: Array<A> + (A -> Either<E, B>) -> Validation<E, B[]>, accumulating.
+export const decodeUsersAll = (
+  input: unknown,
+): Validation<string, readonly User[]> => {
+  if (!Array.isArray(input)) {
+    return { _tag: 'Failure', errors: ['Expected an array of users'] }
+  }
+
+  return input.reduce<Validation<string, User[]>>((acc, value, index) => {
+    const decoded = decodeUser(value)
+    const label = `users[${index}]: `
+    // Both sides collected: keep accumulating errors, keep building values.
+    if (decoded._tag === 'Left') {
+      const errors = acc._tag === 'Failure' ? acc.errors : []
+      return { _tag: 'Failure', errors: [...errors, label + decoded.error.message] }
+    }
+    return acc._tag === 'Failure'
+      ? acc
+      : { _tag: 'Success', value: [...acc.value, decoded.value] }
+  }, { _tag: 'Success', value: [] })
+}
+```
+
+Choose per boundary: fail-fast `Either` when the caller acts on the first problem
+(a pipeline that cannot continue), accumulating `Validation` when a human needs to
+see every problem at once (a form, an import file, a config). The two agree until
+more than one thing is wrong, and that difference is a product decision.
+
 ## Web Development
 
 ### React and RTK Query

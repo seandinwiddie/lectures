@@ -37,6 +37,24 @@ Before creating a slice, classify the state:
 
 Duplicating authority is more dangerous than choosing the "wrong" library. Keep URL filters in the router and pass them into selectors. Keep an input draft local until the user submits it.
 
+### A decision procedure for one piece of state
+
+Ask these in order and stop at the first "yes":
+
+1. **Can it be derived from other state?** → it is not state. Compute it in a
+   selector.
+2. **Should it survive a refresh or be shareable as a link?** → the router owns
+   it (pathname, params, query).
+3. **Is it a server document reused across the app?** → RTK Query owns it.
+4. **Is it read or changed by more than one unrelated component, with transitions
+   worth recording as history?** → a Redux slice owns it.
+5. **Otherwise** → keep it local to the component.
+
+Ownership is not permanent. When local state starts being read by a sibling, or a
+derived value becomes expensive, that is the signal to move it up a level — not a
+reason to have put it in Redux pre-emptively. Choose the smallest owner that
+satisfies the question, and move it only when a real second reader appears.
+
 ## Feature-Oriented Structure
 
 ```text
@@ -144,7 +162,20 @@ Independent backends may have independent API roots. Multiple roots for the same
 
 ## Side-Effect Architecture
 
-Choose by job:
+Choose by job. One axis separates the two general-purpose tools: **who starts the
+work?** If *you* start it from a call site — a click handler, another thunk — it
+is imperative, and a thunk fits. If it should run *in response to* actions or
+state changes that happen later, it is reactive, and listener middleware fits.
+RTK Query is the specialized case: server documents that need a cache.
+
+| Question | Tool |
+| --- | --- |
+| Cached server document? | RTK Query |
+| You call it imperatively (needs `dispatch`/`getState`, not a reusable cache)? | Thunk |
+| It reacts to later actions or state transitions (debounce, cancel, workflow)? | Listener middleware |
+
+Effects never belong in reducers or selectors — those stay pure. The tools below
+are where effects live.
 
 ### RTK Query
 

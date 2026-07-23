@@ -121,6 +121,28 @@ Use `Maybe` when absence needs no explanation. Use `Either` when the caller need
 
 Surface names can differ—`maybe_map`, `fmap`, and `.map()` all appear in the cores. The laws determine whether they mean the same thing.
 
+### The shared vocabulary, by host
+
+The same operation carries a host-appropriate name — snake_case in Rust and C,
+camelCase in TypeScript, fixed helpers in GDScript — while the semantics are
+identical. A conformance comment written against one column applies verbatim to
+the others.
+
+| Concept | TypeScript | Rust / C | GDScript |
+| --- | --- | --- | --- |
+| wrap present / transform | `just` / `map`, `fmap` | `just` / `maybe_map` | `just` / `maybe_map` |
+| dependent step | `chain`, `mbind` | `maybe_chain`, `mbind` | `maybe_chain` |
+| exhaustive branch | `match`, `ematch` | `maybe_match`, `ematch` | `maybe_match` |
+| adapt a null boundary | `fromNullable` | `from_nullable` | `from_nullable` |
+| left-to-right composition | `pipe` | `pipe!` / `pipe` | value-threading `pipe` |
+| fix arity | `curry`, `partial` | `curry2`, `partial_apply` | `curry2` / `curry3` |
+| predicate routing | `multiMatch` | `multi_match` | `multi_match` |
+| key routing | `createDispatcher` | `Dispatcher` | `Dispatcher` |
+| unbounded iteration | `trampoline` | `trampoline` (`Bounce`) | `trampoline` |
+
+Because only the names move, the portable specification is the laws below plus
+this vocabulary — not any one language's syntax.
+
 ### Functor laws
 
 ```text
@@ -227,6 +249,35 @@ const runValidation = <T, E>(
 ```
 
 If a product needs all validation errors at once, use a different algebra that accumulates errors. Do not claim a fail-fast `Either` pipeline provides accumulation.
+
+That algebra is the applicative `Validation<E, T>`: `Either`'s shape, but with an
+`ap` that concatenates error lists through a monoid and *no* `chain`. It is the
+correct tool whenever the checks are independent — a form's fields, a config's
+keys — and it is a genuine cross-core parity target, not merely an alternative to
+mention. The rule that decides between the two is the same in every host: `chain`
+(monad) sequences dependent steps and short-circuits; `ap` (applicative) runs
+independent checks and accumulates. Keep that choice identical across the SDKs so
+one language's core does not fail fast where another accumulates.
+
+```ts
+type ValidationData<E, T> =
+  | { readonly _tag: 'Failure'; readonly errors: readonly E[] }
+  | { readonly _tag: 'Success'; readonly value: T }
+
+const apV = <E, A, B>(
+  vf: ValidationData<E, (a: A) => B>,
+  va: ValidationData<E, A>,
+): ValidationData<E, B> =>
+  vf._tag === 'Success' && va._tag === 'Success'
+    ? { _tag: 'Success', value: vf.value(va.value) }
+    : {
+        _tag: 'Failure',
+        errors: [
+          ...(vf._tag === 'Failure' ? vf.errors : []),
+          ...(va._tag === 'Failure' ? va.errors : []),
+        ],
+      }
+```
 
 ## Functional Core, Imperative Shell
 

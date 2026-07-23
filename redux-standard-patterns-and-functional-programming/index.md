@@ -212,6 +212,40 @@ When the UI is wrong, inspect the boundaries in this order:
 
 Redux DevTools is most useful when actions describe real events. The log becomes a domain history instead of a stream of anonymous setters.
 
+### Read the common warning signals
+
+A handful of symptoms map to specific stages of the loop. Recognize them before
+reaching for a debugger:
+
+| Symptom | Usual cause | Fix |
+| --- | --- | --- |
+| The same request fires several times | components subscribe with unstable query arguments, so RTK Query cannot dedupe | pass stable arguments; let RTK Query own dedupe and subscriptions |
+| Data is stale after a mutation | the mutation does not invalidate the tags the query provides | align `providesTags` / `invalidatesTags` |
+| A component re-renders on unrelated changes | it subscribes too broadly — a whole slice instead of the value it renders | select the smallest value; derive with a memoized selector |
+| "A non-serializable value was detected" | a class, `Map`, `Date`, or a rich functional wrapper entered state or an action | keep state plain and serializable; lift into `Maybe`/`Either` at the selector edge |
+| A selector recomputes every render | it returns a fresh array/object each call | wrap the derivation in `createSelector` for reference stability |
+
+### Guard transitions against stale state
+
+A reducer that accepts every lifecycle action can move a slice into an impossible
+state or let a stale response win. Read the current state before applying a
+transition:
+
+```ts
+// Wrong — a late or duplicate response overwrites regardless of current status.
+builder.addCase(todosFetched.fulfilled, (state, action) => {
+  state.status = 'succeeded'
+  state.items = action.payload
+})
+
+// Correct — only the pending request may complete.
+builder.addCase(todosFetched.fulfilled, (state, action) => {
+  if (state.status !== 'pending') return
+  state.status = 'succeeded'
+  state.items = action.payload
+})
+```
+
 ## Historical Pattern versus Modern Default
 
 | Concern | Historical teaching form | Modern default |

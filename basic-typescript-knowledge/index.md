@@ -209,6 +209,36 @@ function handleResult<T>(result: Result<T>): string {
 type Identified<T> = T & { id: string };
 ```
 
+The `status` field above is a **discriminant** — a shared literal-typed field the
+compiler uses to narrow the union to one member. This exact shape is the
+foundation of functional error handling: `Maybe<T>` is a two-member discriminated
+union (`Just` | `Nothing`) and `Either<E, T>` is `Left` | `Right`. You already
+know how to build them.
+
+The one upgrade worth making now is to let the compiler prove you handled every
+case. Give the fallthrough branch the `never` type; if a new member is added to
+the union later, that branch stops compiling and points you at the gap:
+
+```typescript
+const assertNever = (value: never): never => {
+  throw new Error(`Unhandled case: ${JSON.stringify(value)}`);
+};
+
+function describe<T>(result: Result<T>): string {
+  switch (result.status) {
+    case "loading": return "Loading...";
+    case "failure": return `Error: ${result.error}`;
+    case "success": return `Data: ${JSON.stringify(result.data)}`;
+    default: return assertNever(result); // compile error if a case is missing
+  }
+}
+```
+
+This exhaustiveness check is what makes a discriminated union safer than a bag of
+optional fields: adding a state forces every reader to acknowledge it. Later
+lectures wrap this same idea in a `match` helper so the check reads as an
+expression instead of a `switch`.
+
 ### Type Guards and Predicates
 
 Sometimes you need to check what type something is at runtime (when your code is actually running). Type guards are special functions that help TypeScript understand what type something is after you check it. They're like giving TypeScript a hint: "Hey, I just checked this, and now I know it's definitely a cat, not just any animal."

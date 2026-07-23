@@ -205,6 +205,31 @@ console.log(groupedByCity);
 // { NYC: [{ name: 'Alice', age: 25, city: 'NYC' }, { name: 'Charlie', age: 35, city: 'NYC' }], LA: [{ name: 'Bob', age: 30, city: 'LA' }] }
 ```
 
+#### Every `for` loop is a fold in disguise
+
+`map`, `filter`, and `reduce` are not just conveniences — they *replace* the `for`
+loop entirely. A loop mixes three things: iteration, a mutable accumulator, and
+the logic you care about. A fold names the logic and hides the rest.
+
+```typescript
+// Imperative — a mutable total and manual iteration.
+let total = 0;
+for (let i = 0; i < numbers.length; i++) {
+  total += numbers[i];
+}
+
+// Functional — the fold owns iteration; you supply only the combine step.
+const total2 = numbers.reduce((acc, n) => acc + n, 0);
+```
+
+The rule that follows: in functional code you do not write `for` or `while` to
+walk a collection — you `map` to transform, `filter` to select, and `reduce` to
+combine. `reduce` is the most general of the three (you can define `map` and
+`filter` in terms of it), which is why understanding it well is the key to
+replacing almost every loop you would otherwise reach for. The seed value (`0`
+here) is not decoration — it is the answer for an empty list and the identity of
+the combining operation.
+
 ### 4. Chaining Methods
 
 Method chaining is like connecting pipes in a factory - you can take the output of one operation and feed it directly into the next operation. This lets you build complex data processing pipelines step by step. Each step takes the result from the previous step and transforms it further, making your code easy to read and understand.

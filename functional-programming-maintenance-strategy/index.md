@@ -347,6 +347,14 @@ if (result.success) {
 }
 ```
 
+This `Result` is fail-fast: it returns the first failing field. When the three
+checks are independent — as they are here — an accumulating `Validation` that
+reports every failing field at once is the more maintainable contract, because a
+user fixing a form should not have to resubmit once per error. Reach for
+fail-fast only when a later check genuinely cannot run until an earlier one
+passes. Choosing between them is a maintenance decision, not a detail: the two
+behave identically until more than one thing is wrong.
+
 ### Error Boundaries
 
 ```tsx
@@ -483,16 +491,52 @@ const processUser = pipe(
 );
 ```
 
+## The Non-Negotiables
+
+A maintainable functional codebase enforces a small set of rules that are not
+matters of taste. Treat these as the spine of every review:
+
+1. **Zero classes in domain logic.** Factory functions returning data plus
+   closures — no `new`, no `this`, no inheritance. Framework and reflection
+   boundaries (React error boundaries, engine types) are the documented exception
+   and stay thin.
+2. **At most two data parameters.** A third is a signal to *split* the function,
+   not to bundle the arguments into an options object — the object hides the
+   arity while the function still does too much.
+3. **No statement `if`/`for`/`while`/`switch` in the pure core.** Route by shape
+   (`match`), by key (dispatch table), or by predicate; iterate with folds;
+   express unbounded iteration as a trampoline. Reserve ternaries for leaf values.
+4. **The functional core depends on nothing.** Other layers may import it; it
+   imports no other layer, so it stays testable in isolation and free of cycles.
+5. **No lazy wrapper nouns** — `Manager`, `Helper`, `Util(s)`, `Bag`. They hide
+   the role; name the composition boundary instead.
+
+## Anti-Patterns to Catch in Review
+
+| Pattern | Why it fails | Fix |
+| --- | --- | --- |
+| Options object to dodge the arity limit | Hides the arity; the function still does too much | Split the function; curry the stable inputs |
+| `Either` / early-return for form validation | Reports one error, discards the rest | `Validation` with an accumulating `ap` |
+| Ternary chain replacing an `if` chain | Same branch, worse readability | `match` / dispatch table / fold |
+| Class wrapping a closure bundle | Reintroduces `new`, `this`, inheritance | Factory returning data + closures |
+| `Manager` / `Helper` / `Utils` | Hides the role | Name the composition boundary |
+| Every error collapsed into `Nothing` | Discards the diagnostic | `Either` / `Validation` with context |
+| Rich functional wrappers in serializable state | Breaks serialization and time-travel | Plain data in state; lift at the edge |
+| Nested `compose(compose(...))` | Hand-composed arity plumbing | `pipe3` / `pipe4` / `fold` |
+| Manual recursion / `for` over a collection | Reimplements a fold, badly | `map` / `filter` / `fold` / `traverse` |
+
 ## Code Review Checklist
 
-- [ ] Pure domain functions and reducers are effect-free; effectful functions are isolated at explicit boundaries
-- [ ] Functions are small and focused
-- [ ] Types are properly defined
-- [ ] Error handling is explicit
-- [ ] Tests cover edge cases
-- [ ] Documentation is complete
-- [ ] Performance is acceptable
-- [ ] Code follows functional patterns
+- [ ] Domain functions and reducers are pure; effects are isolated at explicit boundaries
+- [ ] No class in domain logic; factories return data plus closures
+- [ ] Every function takes at most two data parameters; over-arity was split, not bundled
+- [ ] Branches are `match` / dispatch / predicate; loops are folds; ternaries are leaf-only
+- [ ] The error type is chosen deliberately (`Maybe` vs `Either` vs `Validation`); independent validation accumulates
+- [ ] State holds plain serializable data; rich wrappers are lifted at the edge
+- [ ] The functional core imports no framework, store, or engine layer
+- [ ] Tests cover edge cases, laws, and documented postconditions
+- [ ] Names describe roles, not `Manager`/`Helper`/`Util`
+- [ ] Documentation and performance are acceptable
 
 ## Exercise
 
