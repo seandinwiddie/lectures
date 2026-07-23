@@ -15,8 +15,10 @@ This lecture uses the shared contract implemented by the ForbocAI Rust, TypeScri
 By the end of this lecture, you should be able to:
 
 - choose between absence, recoverable failure, and a broken invariant;
+- place a problem on the Functor / Applicative / Monad / Monoid / Traversable ladder and reach for the weakest tool that solves it;
 - implement `map`, `chain`, and exhaustive `match` over tagged data;
-- state and test the functor and monad laws;
+- state and test the functor, applicative, and monad laws;
+- choose applicative `Validation` when independent errors must all be reported, and monadic `Either` when each step depends on the previous one;
 - traverse collections without sentinel values; and
 - keep rich functional helpers out of serializable Redux state.
 
@@ -66,7 +68,15 @@ export const maybeMatch = <A, R>(
   },
 ): R =>
   value._tag === 'Just' ? cases.just(value.value) : cases.nothing()
+
+export const fromNullable = <T>(value: T | null | undefined): Maybe<T> =>
+  value === null || value === undefined ? nothing<T>() : just(value)
 ```
+
+`fromNullable` is the boundary lift: it is the single place a `null` or
+`undefined` from the outside world becomes a `Nothing`, so no downstream code has
+to repeat the null check. Every `if (x != null)` ladder in imperative code
+collapses into one `fromNullable` followed by `map`/`chain`.
 
 The tagged union is serializable only when `T` is recursively serializable; the
 same rule applies to both `E` and `T` in `Either<E, T>`. A production TypeScript
@@ -159,6 +169,33 @@ const parseInteger = (input: string): Either<ParseError, number> => {
 const doubled = eitherMap(parseInteger('21'), (value) => value * 2)
 ```
 
+## Choose the Weakest Abstraction: The Primitive Ladder
+
+`Maybe` and `Either` are two rungs of a larger ladder. Pick the *weakest*
+abstraction that still solves the problem — weaker means more laws hold, so you
+get more guarantees and more reuse. Climb only when the problem forces it.
+
+| Need | Abstraction | Operation |
+| --- | --- | --- |
+| Transform the value inside a container | **Functor** | `map` |
+| Combine N *independent* containers and collect every failure | **Applicative** | `ap` |
+| Sequence *dependent* steps, short-circuiting on the first failure | **Monad** | `chain` |
+| Collapse many same-type values into one | **Monoid** | `concat` + `empty` |
+| Flip `Array<Maybe<T>>` into `Maybe<Array<T>>` | **Traversable** | `traverse` |
+
+```text
+Transforming values inside a container?
+  one function, one container    -> Functor  (map)
+  N independent containers       -> Applicative (ap)
+  each step depends on the last  -> Monad  (chain)
+Combining same-type values?      -> Monoid  (concat)
+Container-of-containers to flip? -> Traversable (traverse)
+```
+
+The single most-violated rung is the Applicative/Monad boundary, covered below
+under Validation. When you find yourself reaching for `chain` where the steps do
+not actually depend on each other, you probably want `ap`.
+
 ## Laws Make Refactoring Safe
 
 An implementation is not lawful because its methods have familiar names. Test the equations.
@@ -194,6 +231,21 @@ chain(chain(value, f), g)
 ==
 chain(value, x => chain(f(x), g))
 ```
+
+### Applicative identity and accumulation
+
+```text
+ap(of(identity), value) == value
+```
+
+Beyond identity, an applicative carries one behavioral law that types cannot
+express but tests must: `ap` **accumulates and never short-circuits**. Given two
+`Failure` values, the combined result contains *both* error lists. This is the
+law that separates `Validation` from `Either`, and the reason the next section
+exists.
+
+Associativity across these laws is not pedantry — it is the license to fold in
+any order and to evaluate independent branches in parallel.
 
 Use branch-aware equality in tests instead of extracting with a fake `null` default:
 
@@ -249,15 +301,117 @@ The Unreal core provides this behavior for both standard vectors and `TArray`; R
 
 ## Validation: Fail Fast or Accumulate?
 
-The production functional cores use validators shaped like:
+This is the Applicative/Monad boundary from the ladder, made concrete — and the
+most-violated distinction in real codebases.
 
-```text
-T -> Either<E, T>
+- **Monad (`Either` + `chain`) = dependent + short-circuit.** Step 2 needs step
+  1's *value*; the first `Left` wins and the rest never run. Correct when later
+  steps genuinely cannot proceed without the earlier result — read a file, *then*
+  parse it, *then* validate the schema.
+- **Applicative (`Validation` + `ap`) = independent + accumulate.** Every check
+  runs; every failure is collected. Correct when the checks do not depend on each
+  other — a form's name, email, and age are validated independently, and the user
+  deserves to see *all* the problems at once, not one per submit.
+
+Threading independent field checks through `eitherChain` reports one error and
+discards the rest. That is the wrong shape for anything a human has to fix.
+
+`Validation<E, T>` has `Either`'s shape, but its `ap` accumulates errors and it
+deliberately has **no `chain`** — omitting `chain` is what stops the type from
+silently short-circuiting.
+
+```ts
+export type Validation<E, T> =
+  | { readonly _tag: 'Failure'; readonly errors: readonly E[] }
+  | { readonly _tag: 'Success'; readonly value: T }
+
+export const success = <T>(value: T): Validation<never, T> => ({
+  _tag: 'Success',
+  value,
+})
+
+export const failure = <E>(...errors: E[]): Validation<E, never> => ({
+  _tag: 'Failure',
+  errors,
+})
+
+const errorsOf = <E>(
+  ...values: readonly Validation<E, unknown>[]
+): readonly E[] =>
+  values.flatMap((value) => (value._tag === 'Failure' ? value.errors : []))
+
+// Combine two independent checks, collecting every error.
+export const ap = <E, A, B>(
+  validatedFn: Validation<E, (value: A) => B>,
+  validatedValue: Validation<E, A>,
+): Validation<E, B> =>
+  validatedFn._tag === 'Success' && validatedValue._tag === 'Success'
+    ? success(validatedFn.value(validatedValue.value))
+    : failure(...errorsOf(validatedFn, validatedValue))
 ```
 
-They thread each successful value into the next validator and preserve the first `Left`. This is ordered, fail-fast validation.
+`liftA2`/`liftA3` lift an ordinary constructor over several `Validation` values.
+Every field check runs; the `Failure` carries all of them:
 
-If a form must show every error at once, an accumulating validation type is a different abstraction. Do not silently change an `Either` pipeline's contract by concatenating errors in one implementation but not the others.
+```ts
+const mkUser = (name: string) => (email: string) => (age: number): User =>
+  ({ name, email, age })
+
+const validate = (input: RawUser): Validation<string, User> =>
+  ap(ap(ap(success(mkUser), checkName(input)), checkEmail(input)), checkAge(input))
+
+// Failure(['name too short', 'email invalid', 'age must be positive'])
+```
+
+The fail-fast `Either` pipeline and the accumulating `Validation` pipeline are
+two different contracts. Choose deliberately per use case, and — the original
+warning still stands — do not silently change one pipeline's contract by
+concatenating errors in one language's core but preserving the first `Left` in
+another. Cross-core behavior must match.
+
+## Common Pitfalls
+
+### Using `Either` for form or config validation
+
+```ts
+// Wrong — chain short-circuits; the user fixes one error per submit.
+const validate = (u: RawUser): Either<string, User> =>
+  eitherChain(checkName(u), () =>
+    eitherChain(checkEmail(u), () => checkAge(u)))
+
+// Correct — ap accumulates; every failing field is reported at once.
+const validate = (u: RawUser): Validation<string, User> =>
+  ap(ap(ap(success(mkUser), checkName(u)), checkEmail(u)), checkAge(u))
+```
+
+Independent checks are applicative. `Either`'s `chain` is for dependent steps.
+
+### Collapsing every error into `Nothing`
+
+```ts
+// Wrong — discards the reason the parse failed.
+const parseConfig = (raw: string): Maybe<Config> => tryParse(raw)
+
+// Correct — Left carries the diagnostic the caller needs.
+const parseConfig = (raw: string): Either<ConfigError, Config> => tryParse(raw)
+```
+
+`Nothing` is right only for expected absence with no diagnostic. When the caller
+needs to know *why*, use `Either` or `Validation`.
+
+### Storing rich wrappers in serializable state
+
+```ts
+// Wrong — a tagged wrapper in a Redux slice breaks serialization and time-travel.
+const initialState = { selected: nothing<Id>() }
+
+// Correct — plain data in state; lift at the selector edge.
+const initialState = { selected: null as Id | null }
+const selectSelected = (s: State): Maybe<Id> => fromNullable(s.selected)
+```
+
+Redux state holds plain, serializable data. Lift into `Maybe`/`Either`/`Validation`
+at the selector or reducer boundary, never inside the store.
 
 ## Native Carrier or Custom ADT?
 

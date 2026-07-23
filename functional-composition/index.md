@@ -131,8 +131,7 @@ type Meter = readonly [current: number, maximum: number]
 
 const selectFillRatio = converge2<Meter, number, number, number>(
   (current, maximum) => {
-    if (maximum <= 0) return 0
-    const ratio = current / maximum
+    const ratio = maximum > 0 ? current / maximum : 0
     return Number.isNaN(ratio) ? 0 : Math.min(1, Math.max(0, ratio))
   },
   ([current]) => current,
@@ -143,6 +142,12 @@ const selectFillRatio = converge2<Meter, number, number, number>(
 The postcondition is actually `0 <= result <= 1`: the implementation guards a
 zero or negative maximum, normalizes a `NaN` ratio, and clamps both ends. A
 division-by-zero guard alone would not satisfy that contract.
+
+Note the shape of the guard: a leaf ternary (`maximum > 0 ? current / maximum : 0`),
+not a statement `if`. A ratio is a small value selection, which is exactly where a
+ternary is the right tool. Statement-level `if`/`for`/`while` do not belong inside
+a composed transformation — the next section is about the constructs that replace
+them for anything larger than a leaf value.
 
 ### Compose an ECS admission predicate
 
@@ -187,9 +192,37 @@ Host constraints matter:
 
 In a hot ECS or rendering path, measure closure allocation and dynamic dispatch before adopting a point-free style.
 
+### Arity: split, don't bundle
+
+Keep functions to two data parameters. When a function grows a third, the fix is
+to *split it*, not to bundle the arguments into one payload object — an object
+hides the arity behind a wrapper while the function still does too much work.
+
+```ts
+// Wrong — an options bag disguises a four-job function.
+const renderRow = (opts: {
+  row: Row; theme: Theme; locale: Locale; onClick: Handler
+}) => { /* ... */ }
+
+// Right — curry the stable inputs, split the independent responsibility out.
+const renderRow =
+  (theme: Theme, locale: Locale) =>
+  (row: Row): VNode =>
+    layout(theme, format(locale, row))
+```
+
+Currying, partial application, functions-as-arguments, and folds are the tools
+that keep arity honest. A grouping struct is a code smell asking you to find the
+smaller functions hiding inside the large one.
+
 ## Match, Dispatch, or Broadcast?
 
-Choose a branching model by its semantics.
+Choose a branching model by its semantics. The governing rule first: **do not
+mechanically replace an `if` with a ternary chain** — a ternary chain is an `if`
+that learned to hide, with the same branching and worse readability. Decompose by
+*data shape* ("what shape is this?" → `match`), by *key* ("which handler?" →
+dispatch table), or by *predicate* ("what property holds?" → `both`/`allPass`
+fed to ordered matching). Reserve ternaries for small leaf value expressions.
 
 ### Match a closed value
 
@@ -304,6 +337,50 @@ Calling the trampoline function recursively is not stack-safe unless the languag
 The current Unreal `ue_fp.hpp` helper recursively re-enters its trampoline, so
 it should not be used for unbounded work until its interpreter is iterative like
 the example above.
+
+## Common Pitfalls
+
+### Hand-composed `compose(compose(...))`
+
+```ts
+// Wrong — arity plumbing composed by hand.
+const run = compose2(h, compose2(g, f))
+
+// Right — a typed arity helper, or a fold over the stages.
+const run = pipe3(f, g, h)
+```
+
+Nesting composers to reach the arity you need is the plumbing a `pipe3`/`pipe4`
+helper — or a `fold` over an array of stages — exists to remove.
+
+### Point-free everything
+
+```ts
+// Wrong — tacit style past the point of clarity.
+const process = pipe2(flip(concatWith)(suffix), compose2(trim, toLower))
+
+// Right — name the parameter where it reveals intent.
+const process = (raw: string) => `${trim(toLower(raw))}${suffix}`
+```
+
+Point-free is a tool for revealing intent, not a goal. When removing the
+parameter obscures what a stage does, put it back.
+
+### Manual recursion over a bounded collection
+
+```ts
+// Wrong — reimplements a fold, badly, and risks the stack.
+function sum(xs: number[], i = 0): number {
+  if (i >= xs.length) return 0
+  return xs[i] + sum(xs, i + 1)
+}
+
+// Right — fold over the collection.
+const sum = (xs: number[]): number => xs.reduce((total, x) => total + x, 0)
+```
+
+Bounded iteration is a fold. Reserve the trampoline for genuinely *unbounded*
+work, where expressing the step as `Call`/`Done` data is what keeps it stack-safe.
 
 ## Test the Contract
 

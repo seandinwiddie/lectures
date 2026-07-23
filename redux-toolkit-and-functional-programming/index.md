@@ -37,6 +37,32 @@ src/
 
 Application wiring belongs in `app/`. Domain events, state transitions, selectors, UI, and tests stay with the feature that owns them.
 
+## The One-Way Data-Flow Loop
+
+Every feature in this lecture is one turn of the same loop. Hold it in mind as
+you read the code:
+
+```text
+UI event  ->  dispatch(action)  ->  reducer  ->  new state  ->  selector  ->  render
+   ^                                                                            |
+   +----------------------------------------------------------------------------+
+```
+
+Each stage is a pure function of its input, and only the reducer changes state.
+Two consequences drive every decision below:
+
+- **Actions describe events, not setters.** `todoToggled({ id })` says *what
+  happened*; the reducer decides the resulting state. A `setTodos(nextArray)`
+  action pushes that decision into the UI and throws away the intent.
+- **State holds facts; selectors derive views.** If a value can be computed from
+  existing state, compute it in a selector instead of storing a second copy that
+  can drift.
+
+The reducer is the one place that combines current state with incoming data, so
+if a transition depends on what is already in the store, dispatch the new data
+and let the reducer own the merge — never merge in the component and dispatch the
+result.
+
 ## Build a Typed Slice
 
 ```ts
@@ -366,6 +392,93 @@ configureStore({
 ```
 
 Use the builder callback for `extraReducers`; the object form is no longer supported. Avoid compatibility shims that preserve obsolete imports when callers can move directly to the new source of truth.
+
+## Common Mistakes
+
+These are the recurring errors this feature's structure is designed to prevent.
+Each pairs the wrong shape with the current one.
+
+### Mutating selected state outside a reducer
+
+```ts
+// Wrong — objects read from the store are still store state.
+const todo = selectSelectedTodo(store.getState())
+if (todo) todo.completed = true
+
+// Correct — dispatch an event; the reducer owns the transition.
+store.dispatch(todoToggled({ id: 't1' }))
+```
+
+Immer's mutation syntax is safe *only* inside slice reducers. Mutating a selected
+object anywhere else breaks immutability and the assumptions React-Redux makes
+about when to re-render.
+
+Source: Redux style guide; RTK `immer-reducers`
+
+### Setter-style actions instead of event-style actions
+
+```ts
+// Wrong — the component computed the next state and the action just carries it.
+const next = [...selectTodos(store.getState()), newTodo]
+store.dispatch(setTodos(next))
+
+// Correct — describe the event; the reducer computes the next state.
+store.dispatch(todoAdded({ id, text, ownerId }))
+```
+
+Event actions record intent and keep the transition testable in one place.
+Setter actions scatter that logic across every caller.
+
+Source: Redux style guide (model actions as events)
+
+### Reading the store directly in a component
+
+```tsx
+// Wrong — bypasses the subscription boundary; the component will not re-render.
+import { store } from '../../app/store'
+const todos = store.getState().todos.items
+
+// Correct — subscribe through the typed hook.
+const todos = useAppSelector(selectTodos)
+```
+
+Direct store access is an escape hatch for non-React integrations, not the UI
+default.
+
+Source: Redux style guide; RTK `migrating-to-modern-redux`
+
+### Storing derived values in state
+
+```ts
+// Wrong — completedTodos drifts the moment items changes.
+type TodosState = { items: Todo[]; completedTodos: Todo[] }
+
+// Correct — keep the raw facts; derive the view with a memoized selector.
+export const selectCompletedTodos = createSelector([selectTodos], (todos) =>
+  todos.filter((todo) => todo.completed))
+```
+
+Derived state is a second source of truth that will eventually disagree with the
+first.
+
+Source: Redux style guide (keep state minimal, derive the rest)
+
+### `connect` and `createStore` in new code
+
+```ts
+// Wrong — legacy wiring; throws away RTK's defaults and typing ergonomics.
+export default connect(mapState, mapDispatch)(TodoList)
+export const store = createStore(rootReducer, applyMiddleware(thunk))
+
+// Correct — hooks + configureStore are the RTK 2 baseline.
+export const store = configureStore({ reducer: { todos: todosSlice.reducer } })
+// ...and read/write through useAppSelector / useAppDispatch.
+```
+
+`connect` and manual `createStore` still run, but they are migration history, not
+the baseline for new features.
+
+Source: RTK `migrating-to-modern-redux`
 
 ## Exercise
 
