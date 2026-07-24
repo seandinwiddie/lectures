@@ -8,7 +8,7 @@
       <div class="footer-col footer-col-1">
         <ul class="contact-list">
           {%- assign author_name = site.author.name | default: site.author | default: site.title -%}
-          <li class="p-name">{{ author_name | escape }}</li>
+          <li class="p-name"><a href="https://seandinwiddie.com" rel="author">{{ author_name | escape }}</a></li>
           {%- if site.email -%}
             <li><a class="u-email" href="mailto:{{ site.email }}">{{ site.email }}</a></li>
           {%- endif -%}
