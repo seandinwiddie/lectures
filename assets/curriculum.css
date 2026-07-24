@@ -1,31 +1,181 @@
+/* ===== sdin.dev theme — Ayu Mirage palette + Dank Mono ===== */
+/* Ported from https://sdin.dev to match the site's colors and fonts.
+   Applied unconditionally (dark by default), overriding the minima base. */
 :root {
-  --curriculum-ink: #e6e1cf;
-  --curriculum-muted: #b3b1ad;
-  --curriculum-panel: #171b24;
-  --curriculum-line: #2d3640;
-  --curriculum-link: #73d0ff;
-  --curriculum-accent: #ffb454;
+  --ayu-bg-from: #1c212b;
+  --ayu-bg-to:   #161a22;
+  --ayu-panel:   #232834;
+  --ayu-deep:    #12151c;
+  --ayu-border:  #3a4152;
+  --ayu-divider: #2b3140;
+  --ayu-fg:      #cccac2;
+  --ayu-ink:     #1f2430;
+  --ayu-amber:   #ffcc66;
+  --ayu-amber-2: #ffd580;
+  --ayu-cyan:    #5ccfe6;
+  --ayu-cyan-2:  #73d0ff;
+  --ayu-green:   #bae67e;
+  --ayu-salmon:  #f28779;
+  --ayu-orange:  #ffa759;
+  --ayu-gold:    #ffd580;
+  --ayu-purple:  #d4bfff;
+  --ayu-mint:    #95e6cb;
+  --ayu-comment: #8f98a5;
+  --ayu-blue:    #73d0ff;
+  --ayu-shadow:  rgba(0, 0, 0, 0.38);
+
+  /* Curriculum aliases (kept for local rules) */
+  --curriculum-ink: var(--ayu-fg);
+  --curriculum-muted: var(--ayu-comment);
+  --curriculum-panel: var(--ayu-panel);
+  --curriculum-line: var(--ayu-border);
+  --curriculum-link: var(--ayu-cyan-2);
+  --curriculum-accent: var(--ayu-amber);
 }
 
+/* ===== Typography — Dank Mono ("dm") everywhere ===== */
+html {
+  background: var(--ayu-bg-to);
+  color-scheme: dark;
+  scroll-behavior: smooth;
+  scroll-padding-top: 4rem;
+  font-family: "dm", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+
+body {
+  background:
+    radial-gradient(circle at 18% 0%, rgba(212, 191, 255, 0.08), transparent 34rem),
+    linear-gradient(var(--ayu-bg-from), var(--ayu-bg-to));
+  background-attachment: fixed;
+  color: var(--ayu-fg);
+  font-family: "dm", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+
+body, p, a,
+h1, h2, h3, h4, h5, h6, nav, button, input, textarea, select, optgroup,
+code, pre, kbd, samp {
+  font-family: "dm", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--ayu-amber-2);
+}
+
+a, a:visited { color: var(--curriculum-link); }
+a:hover, a:focus-visible { color: var(--curriculum-accent); }
+a { text-underline-offset: 0.2em; }
+
+::selection {
+  background: rgba(115, 208, 255, 0.28);
+  color: #fff;
+}
+
+/* Signature top accent bar (from sdin.dev) */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 1000;
+  height: 3px;
+  background: linear-gradient(90deg, var(--ayu-orange), var(--ayu-amber), var(--ayu-green), var(--ayu-cyan), var(--ayu-purple));
+  pointer-events: none;
+}
+
+/* ===== Site chrome ===== */
+.site-title, .site-title:visited {
+  color: var(--ayu-fg);
+  font-weight: 600;
+}
+.site-nav .page-link { color: var(--curriculum-link); }
+.site-nav .menu-icon > svg { fill: var(--ayu-fg); }
+
+.site-header,
+.site-footer {
+  border-color: var(--ayu-divider);
+  background: transparent;
+}
+
+.footer-col-wrapper,
+.post-meta,
+.footer-heading { color: var(--ayu-comment); }
+
+blockquote {
+  color: var(--ayu-comment);
+  border-color: var(--ayu-cyan);
+}
+
+/* ===== Code ===== */
+:not(pre) > code {
+  background: var(--ayu-panel);
+  border: 1px solid var(--ayu-border);
+  border-radius: 4px;
+  color: var(--ayu-mint);
+  padding: 0.1em 0.35em;
+}
+
+pre {
+  background: var(--ayu-deep);
+  border: 1px solid var(--ayu-border);
+  border-top: 3px solid var(--ayu-cyan);
+  border-radius: 6px;
+  box-shadow: 0 18px 42px var(--ayu-shadow);
+  color: var(--ayu-fg);
+}
+pre > code {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  padding: 0;
+}
+
+/* Rouge syntax highlighting — Ayu Mirage */
+.highlight, .highlighter-rouge .highlight {
+  background: var(--ayu-deep);
+  color: var(--ayu-fg);
+}
+.highlight [class] { background-color: transparent; color: inherit; }
+.highlight .c, .highlight .c1, .highlight .cm, .highlight .cp, .highlight .cs { color: var(--ayu-comment); font-style: italic; }
+.highlight .k, .highlight .kd, .highlight .kp, .highlight .kr, .highlight .kt, .highlight .ow { color: var(--ayu-orange); }
+.highlight .s, .highlight .s1, .highlight .s2, .highlight .sb, .highlight .sc, .highlight .sd,
+.highlight .se, .highlight .sh, .highlight .si, .highlight .sr, .highlight .ss, .highlight .sx { color: var(--ayu-green); }
+.highlight .na, .highlight .nb, .highlight .nc, .highlight .ne, .highlight .nf, .highlight .nn,
+.highlight .nt, .highlight .nv, .highlight .nx, .highlight .vc, .highlight .vg, .highlight .vi { color: var(--ayu-gold); }
+.highlight .il, .highlight .m, .highlight .mf, .highlight .mh, .highlight .mi, .highlight .mo { color: var(--ayu-purple); }
+.highlight .err, .highlight .gr, .highlight .gt { background-color: transparent; color: var(--ayu-salmon); }
+.highlight .gd { background-color: transparent; color: var(--ayu-salmon); }
+.highlight .gi { background-color: transparent; color: var(--ayu-green); }
+.highlight .gd .x, .highlight .gi .x { background-color: transparent; color: inherit; }
+
+/* ===== Tables ===== */
+table {
+  color: var(--ayu-fg);
+  border-color: var(--ayu-border);
+}
+table tr:nth-child(even), table th {
+  background-color: var(--ayu-panel);
+}
+table th, table td { border-color: var(--ayu-border); }
+
+/* ===== Accessibility ===== */
 .skip-link {
-  background: #fff;
-  color: #111;
+  background: var(--ayu-amber);
+  color: var(--ayu-ink);
   left: 1rem;
   padding: 0.75rem 1rem;
   position: fixed;
   top: -5rem;
-  z-index: 1000;
+  z-index: 1001;
+  font-weight: 600;
+}
+.skip-link:focus { top: 1rem; }
+
+a:focus-visible, button:focus-visible {
+  outline: 2px solid var(--ayu-cyan-2);
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 
-.skip-link:focus {
-  top: 1rem;
-}
-
-a:focus-visible {
-  outline: 3px solid #0969da;
-  outline-offset: 3px;
-}
-
+/* ===== Breadcrumbs ===== */
 .curriculum-breadcrumbs ol {
   display: flex;
   flex-wrap: wrap;
@@ -36,13 +186,14 @@ a:focus-visible {
 }
 
 .curriculum-breadcrumbs li + li::before {
-  color: #6c7680;
+  color: var(--ayu-comment);
   content: "/";
   margin-right: 0.5rem;
 }
 
+/* ===== Pagination ===== */
 .curriculum-pagination {
-  border-top: 1px solid #d8d8d8;
+  border-top: 1px solid var(--ayu-divider);
   display: grid;
   gap: 1rem;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -50,182 +201,17 @@ a:focus-visible {
   padding-top: 1.5rem;
 }
 
-.curriculum-pagination div:last-child {
-  text-align: right;
-}
+.curriculum-pagination div:last-child { text-align: right; }
 
 .curriculum-pagination span,
-.curriculum-pagination a {
-  display: block;
-}
+.curriculum-pagination a { display: block; }
 
 .curriculum-pagination span {
-  color: #666;
+  color: var(--ayu-comment);
   font-size: 0.875rem;
   margin-bottom: 0.25rem;
   text-transform: uppercase;
-}
-
-@media (prefers-color-scheme: dark) {
-  body {
-    background: #0f1419;
-    color: var(--curriculum-ink);
-  }
-
-  a,
-  a:visited {
-    color: var(--curriculum-link);
-  }
-
-  a:hover,
-  a:focus-visible {
-    color: var(--curriculum-accent);
-  }
-
-  a:focus-visible {
-    outline-color: var(--curriculum-accent);
-  }
-
-  .site-title,
-  .site-title:visited {
-    color: var(--curriculum-ink);
-  }
-
-  .site-nav .page-link {
-    color: var(--curriculum-link);
-  }
-
-  .site-nav .menu-icon > svg {
-    fill: var(--curriculum-ink);
-  }
-
-  .site-header,
-  .site-footer,
-  .curriculum-pagination {
-    border-color: var(--curriculum-line);
-  }
-
-  .footer-col-wrapper,
-  .post-meta,
-  blockquote {
-    color: var(--curriculum-muted);
-  }
-
-  blockquote {
-    border-color: var(--curriculum-line);
-  }
-
-  code,
-  pre {
-    background: var(--curriculum-panel);
-    border-color: var(--curriculum-line);
-    color: var(--curriculum-ink);
-  }
-
-  .highlight,
-  .highlighter-rouge .highlight {
-    background: var(--curriculum-panel);
-    color: var(--curriculum-ink);
-  }
-
-  .highlight [class] {
-    background-color: transparent;
-    color: inherit;
-  }
-
-  .highlight .c,
-  .highlight .c1,
-  .highlight .cm,
-  .highlight .cp,
-  .highlight .cs {
-    color: var(--curriculum-muted);
-  }
-
-  .highlight .k,
-  .highlight .kd,
-  .highlight .kp,
-  .highlight .kr,
-  .highlight .kt,
-  .highlight .ow {
-    color: #ff8f40;
-  }
-
-  .highlight .s,
-  .highlight .s1,
-  .highlight .s2,
-  .highlight .sb,
-  .highlight .sc,
-  .highlight .sd,
-  .highlight .se,
-  .highlight .sh,
-  .highlight .si,
-  .highlight .sr,
-  .highlight .ss,
-  .highlight .sx {
-    color: #aad94c;
-  }
-
-  .highlight .na,
-  .highlight .nb,
-  .highlight .nc,
-  .highlight .ne,
-  .highlight .nf,
-  .highlight .nn,
-  .highlight .nt,
-  .highlight .nv,
-  .highlight .nx,
-  .highlight .vc,
-  .highlight .vg,
-  .highlight .vi {
-    color: #ffd173;
-  }
-
-  .highlight .il,
-  .highlight .m,
-  .highlight .mf,
-  .highlight .mh,
-  .highlight .mi,
-  .highlight .mo {
-    color: var(--curriculum-link);
-  }
-
-  .highlight .err,
-  .highlight .gd,
-  .highlight .gr,
-  .highlight .gt {
-    background-color: transparent;
-    color: #ff8f40;
-  }
-
-  .highlight .gi {
-    background-color: transparent;
-    color: #aad94c;
-  }
-
-  .highlight .gd .x,
-  .highlight .gi .x {
-    background-color: transparent;
-    color: inherit;
-  }
-
-  table {
-    color: var(--curriculum-ink);
-    border-color: var(--curriculum-line);
-  }
-
-  table tr:nth-child(even),
-  table th {
-    background-color: var(--curriculum-panel);
-  }
-
-  table th,
-  table td {
-    border-color: var(--curriculum-line);
-  }
-
-  .curriculum-pagination span {
-    color: var(--curriculum-muted);
-  }
+  letter-spacing: 0.04em;
 }
 
 @media (max-width: 600px) {
@@ -247,11 +233,11 @@ a:focus-visible {
 }
 
 @media (max-width: 42rem) {
-  .curriculum-pagination {
-    grid-template-columns: 1fr;
-  }
+  .curriculum-pagination { grid-template-columns: 1fr; }
+  .curriculum-pagination div:last-child { text-align: left; }
+}
 
-  .curriculum-pagination div:last-child {
-    text-align: left;
-  }
+/* Respect reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
 }

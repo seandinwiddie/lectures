@@ -1,12 +1,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0f1419">
+  <meta name="theme-color" content="#1f2430">
   {%- seo -%}
   {%- feed_meta -%}
   {%- if page.robots %}
   <meta name="robots" content="{{ page.robots | escape }}">
   {%- endif %}
+  <link rel="stylesheet" href="{{ '/assets/dank-mono.css' | relative_url }}">
   <link rel="stylesheet" href="{{ '/assets/main.css' | relative_url }}">
   <link rel="stylesheet" href="{{ '/assets/curriculum.css' | relative_url }}">
   <link rel="icon" href="{{ '/assets/lecture-mark.svg' | relative_url }}" type="image/svg+xml">
