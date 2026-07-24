@@ -99,10 +99,25 @@ body::before {
 .post-meta,
 .footer-heading { color: var(--ayu-comment); }
 
-/* Align footer columns at the top: drop the heading's default top margin
-   and the list's default top margin so the right and left columns line up. */
-.footer-col > .footer-heading { margin-top: 0; }
-.footer-col .contact-list { margin-top: 0; }
+/* Lay out the footer columns with flexbox so they top-align regardless of
+   the minima theme's floated, fixed-percent-width columns. sdin.dev sits on
+   the left; "Functional Programming Lectures" + description sits on the right,
+   both starting level at the top. */
+.footer-col-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+.footer-col {
+  float: none;
+  width: auto;
+  padding: 0;
+}
+.footer-col > .footer-heading,
+.footer-col .contact-list,
+.footer-col > p { margin-top: 0; }
 
 blockquote {
   color: var(--ayu-comment);
