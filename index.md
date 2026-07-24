@@ -106,6 +106,14 @@ TypeScript will be the language of choice for this course.
 2. **[Redux Toolkit and RTK Query Best Practices](./redux-toolkit-and-rtk-query-best-practices/index.md)** - RTK and RTK Query
 3. **[Modern Redux Architecture Patterns](./modern-redux-architecture-patterns/index.md)** - Scalable Redux patterns
 
+## Install the Skill
+
+The working contract taught across this curriculum is distilled into a coding-agent skill in its own repository: [functional-programming-composition/fp](https://github.com/functional-programming-composition/fp). Install it directly:
+
+```bash
+npx skills@latest add functional-programming-composition/fp
+```
+
 ## Programming Glossary
 
 - expression: A piece of code that produces a value. Expressions can be evaluated and always return a result (e.g., `2 + 3`, `Math.max(a, b)`, `user.name`).
