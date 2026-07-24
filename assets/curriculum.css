@@ -99,6 +99,11 @@ body::before {
 .post-meta,
 .footer-heading { color: var(--ayu-comment); }
 
+/* Align footer columns at the top: drop the heading's default top margin
+   and the list's default top margin so the right and left columns line up. */
+.footer-col > .footer-heading { margin-top: 0; }
+.footer-col .contact-list { margin-top: 0; }
+
 blockquote {
   color: var(--ayu-comment);
   border-color: var(--ayu-cyan);
