@@ -73,7 +73,7 @@ for (const file of htmlFiles) {
   if (/\bclass=["'][^"']*\bnav-trigger\b/i.test(html)) {
     fail(`${relative}: contains the inaccessible checkbox navigation control.`);
   }
-  if (!/<li\b[^>]*\bclass=["']p-name["'][^>]*>(?:<a\b[^>]*>)?Sean Dinwiddie(?:<\/a>)?<\/li>/i.test(html)) {
+  if (!/<(?:li|h2)\b[^>]*\bclass=["'][^"']*\bp-name\b[^"']*["'][^>]*>(?:<a\b[^>]*>)?Sean Dinwiddie(?:<\/a>)?<\/(?:li|h2)>/i.test(html)) {
     fail(`${relative}: footer author metadata is malformed.`);
   }
   if (count(html, /<main\b/gi) !== 1) fail(`${relative}: expected exactly one main landmark.`);
