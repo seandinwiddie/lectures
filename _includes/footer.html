@@ -8,7 +8,7 @@
     <div class="footer-col-wrapper">
       <div class="footer-col footer-col-1">
         <ul class="contact-list">
-          <li>{{ site.title | escape }}</li>
+          <li>{{ site.description | escape }}</li>
           {%- if site.email -%}
             <li><a class="u-email" href="mailto:{{ site.email }}">{{ site.email }}</a></li>
           {%- endif -%}
@@ -20,7 +20,7 @@
       </div>
 
       <div class="footer-col footer-col-3">
-        <p>{{ site.description | escape }}</p>
+        <p>{{ site.title | escape }}</p>
         <p><a href="https://sdin.dev/" rel="author">sdin.dev</a></p>
       </div>
     </div>
