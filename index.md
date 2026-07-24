@@ -116,76 +116,76 @@ npx skills@latest add functional-programming-composition/fp
 
 ## Programming Glossary
 
-- expression: A piece of code that produces a value. Expressions can be evaluated and always return a result (e.g., `2 + 3`, `Math.max(a, b)`, `user.name`).
+- **Expression:** A piece of code that produces a value. Expressions can be evaluated and always return a result (e.g., `2 + 3`, `Math.max(a, b)`, `user.name`).
 
-- statement: A complete instruction that performs an action. Statements don't return values but execute code (e.g., `if (condition) { ... }`, `return value;`, `const x = 5;`).
+- **Statement:** A complete instruction that performs an action. Statements don't return values but execute code (e.g., `if (condition) { ... }`, `return value;`, `const x = 5;`).
 
-- declaration: Code that introduces a new variable, function, or type into scope. Declarations create bindings but don't necessarily execute code.
+- **Declaration:** Code that introduces a new variable, function, or type into scope. Declarations create bindings but don't necessarily execute code.
 
-- assignment: The process of storing a value in a variable. In functional programming, assignments are often avoided in favor of immutable declarations.
+- **Assignment:** The process of storing a value in a variable. In functional programming, assignments are often avoided in favor of immutable declarations.
 
-- variable: A named container that stores a value. In functional programming, variables are often immutable to prevent side effects and ensure referential transparency.
+- **Variable:** A named container that stores a value. In functional programming, variables are often immutable to prevent side effects and ensure referential transparency.
 
-- const: A variable that is immutable. In functional programming, variables should be immutable to prevent side effects and ensure referential transparency. `const` is a better choice than `let` because it's more explicit and less error-prone.
+- **Const:** A variable that is immutable. In functional programming, variables should be immutable to prevent side effects and ensure referential transparency. `const` is a better choice than `let` because it's more explicit and less error-prone.
 
-- gate: A logical operator that controls data flow (AND, OR, NOT). Gates are pure functions that combine boolean values.
+- **Gate:** A logical operator that controls data flow (AND, OR, NOT). Gates are pure functions that combine boolean values.
 
-- boolean: A data type with only two possible values: true or false. Booleans are fundamental to conditional logic and functional programming.
+- **Boolean:** A data type with only two possible values: true or false. Booleans are fundamental to conditional logic and functional programming.
 
-- number: A numeric data type for mathematical operations. In functional programming, numbers are immutable and operations return new values.
+- **Number:** A numeric data type for mathematical operations. In functional programming, numbers are immutable and operations return new values.
 
-- string: A sequence of characters representing text. Strings are immutable in most functional programming contexts.
+- **String:** A sequence of characters representing text. Strings are immutable in most functional programming contexts.
 
-- array: An ordered collection of elements. Arrays are fundamental to functional programming for data transformation operations.
+- **Array:** An ordered collection of elements. Arrays are fundamental to functional programming for data transformation operations.
 
-- object: A collection of key-value pairs representing a real-world entity. In functional programming, objects should be immutable.
+- **Object:** A collection of key-value pairs representing a real-world entity. In functional programming, objects should be immutable.
 
-- method: A function that belongs to an object or class. Methods can access the object's state and modify it (though this is avoided in functional programming).
+- **Method:** A function that belongs to an object or class. Methods can access the object's state and modify it (though this is avoided in functional programming).
 
-- function: A reusable block of code that takes inputs (parameters) and returns an output. In functional programming, functions should be pure - same input always produces same output with no side effects.
+- **Function:** A reusable block of code that takes inputs (parameters) and returns an output. In functional programming, functions should be pure - same input always produces same output with no side effects.
 
-- type: A classification of data that defines what operations can be performed on it. Types provide compile-time safety and documentation.
+- **Type:** A classification of data that defines what operations can be performed on it. Types provide compile-time safety and documentation.
 
-- argument: The actual value passed to a function when it's called. Arguments are the concrete data that functions operate on.
+- **Argument:** The actual value passed to a function when it's called. Arguments are the concrete data that functions operate on.
 
-- parameter: The placeholder variable in a function definition that receives arguments. Parameters define the function's interface and expected input types.
+- **Parameter:** The placeholder variable in a function definition that receives arguments. Parameters define the function's interface and expected input types.
 
-- attribute: A property or characteristic of an object. In functional programming, object attributes should be immutable to prevent side effects.
+- **Attribute:** A property or characteristic of an object. In functional programming, object attributes should be immutable to prevent side effects.
 
-- return: A statement that exits a function and provides a value back to the caller. Return values should be the only way functions communicate results.
+- **Return:** A statement that exits a function and provides a value back to the caller. Return values should be the only way functions communicate results.
 
-- side effect: Any change to the system outside the function (modifying global state, making API calls, logging). Pure functions avoid side effects.
+- **Side effect:** Any change to the system outside the function (modifying global state, making API calls, logging). Pure functions avoid side effects.
 
-- event: A signal that something has happened in the system (user interaction, timer completion, data arrival). Events are the foundation of reactive programming.
+- **Event:** A signal that something has happened in the system (user interaction, timer completion, data arrival). Events are the foundation of reactive programming.
 
-- listener: A function that waits for and responds to events. Listeners are pure functions that process event data without side effects.
+- **Listener:** A function that waits for and responds to events. Listeners are pure functions that process event data without side effects.
 
-- handler: A function that processes a specific event or action. Handlers should be pure functions that transform input data into output data.
+- **Handler:** A function that processes a specific event or action. Handlers should be pure functions that transform input data into output data.
 
-- callback: A function passed as an argument to another function, to be executed later. Callbacks enable asynchronous programming and function composition.
+- **Callback:** A function passed as an argument to another function, to be executed later. Callbacks enable asynchronous programming and function composition.
 
-- promise: An object representing the eventual completion (or failure) of an asynchronous operation. Promises provide a clean way to handle async operations functionally.
+- **Promise:** An object representing the eventual completion (or failure) of an asynchronous operation. Promises provide a clean way to handle async operations functionally.
 
-- async/await: Syntactic sugar for working with promises. Async functions return promises, and await pauses execution until a promise resolves.
+- **Async/await:** Syntactic sugar for working with promises. Async functions return promises, and await pauses execution until a promise resolves.
 
-- symbol: A unique, immutable primitive value used as object property keys. Symbols provide a way to create truly private properties.
+- **Symbol:** A unique, immutable primitive value used as object property keys. Symbols provide a way to create truly private properties.
 
-- null: A special value representing the intentional absence of any object value. In functional programming, null is often replaced with Maybe/Option types.
+- **Null:** A special value representing the intentional absence of any object value. In functional programming, null is often replaced with Maybe/Option types.
 
-- undefined: A value assigned to variables that have been declared but not initialized. Undefined represents an unassigned value.
+- **Undefined:** A value assigned to variables that have been declared but not initialized. Undefined represents an unassigned value.
 
-- NaN: "Not a Number" - a special numeric value representing an undefined or unrepresentable mathematical result.
+- **NaN:** "Not a Number" - a special numeric value representing an undefined or unrepresentable mathematical result.
 
-- interface: A TypeScript construct that defines the shape of an object. Interfaces describe contracts that objects must fulfill.
+- **Interface:** A TypeScript construct that defines the shape of an object. Interfaces describe contracts that objects must fulfill.
 
-- class: A blueprint for creating objects with shared properties and methods. Classes are less common in functional programming, which prefers plain objects and functions.
+- **Class:** A blueprint for creating objects with shared properties and methods. Classes are less common in functional programming, which prefers plain objects and functions.
 
-- set: A collection of unique values with no duplicates. Sets are useful for functional programming operations like union, intersection, and difference.
+- **Set:** A collection of unique values with no duplicates. Sets are useful for functional programming operations like union, intersection, and difference.
 
-- loop: A control structure that repeats code execution. In functional programming, loops are often replaced with higher-order functions like map, filter, and reduce.
+- **Loop:** A control structure that repeats code execution. In functional programming, loops are often replaced with higher-order functions like map, filter, and reduce.
 
-- condition: A boolean expression that determines program flow. Conditions are used in if statements and ternary operators.
+- **Condition:** A boolean expression that determines program flow. Conditions are used in if statements and ternary operators.
 
-- iteration: The process of repeating a set of instructions. In functional programming, iteration is handled through recursion or higher-order functions.
+- **Iteration:** The process of repeating a set of instructions. In functional programming, iteration is handled through recursion or higher-order functions.
 
-- recursion: A function calling itself to solve a problem by breaking it into smaller subproblems. Recursion is fundamental to functional programming.
+- **Recursion:** A function calling itself to solve a problem by breaking it into smaller subproblems. Recursion is fundamental to functional programming.
