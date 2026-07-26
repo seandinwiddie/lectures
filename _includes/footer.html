@@ -3,10 +3,10 @@
 
   <div class="wrapper">
     {%- assign author_name = site.author.name | default: site.author | default: site.title -%}
-    <h2 class="footer-heading p-name"><a href="https://seandinwiddie.com" rel="author">{{ author_name | escape }}</a></h2>
 
     <div class="footer-col-wrapper">
       <div class="footer-col footer-col-1">
+        <h2 class="footer-heading p-name"><a href="https://seandinwiddie.com" rel="author">{{ author_name | escape }}</a></h2>
         <ul class="contact-list">
           <li><a href="https://sdin.dev/" rel="author">sdin.dev</a></li>
           {%- if site.email -%}
