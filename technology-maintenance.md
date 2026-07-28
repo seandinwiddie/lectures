@@ -1,6 +1,7 @@
 ---
 title: "FP and Modern Redux Maintenance Strategy"
 description: "A practical maintenance guide for functional TypeScript applications using modern Redux Toolkit, RTK Query, typed hooks, and explicit state ownership."
+layout: article
 ---
 
 # FP and Modern Redux Maintenance Strategy

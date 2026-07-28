@@ -31,14 +31,24 @@ layout: default
       "description": {{ page.description | default: site.description | jsonify }},
       "learningResourceType": "Lecture",
       "educationalLevel": {{ current_lecture.difficulty | default: "Intermediate" | jsonify }},
+      "timeRequired": "{% case current_lecture.difficulty %}{% when "Beginner" %}PT30M{% when "Intermediate" %}PT45M{% else %}PT60M{% endcase %}",
       "teaches": {{ current_lecture.outcomes | jsonify }},
+      "audience": { "@type": "Audience", "audienceType": "developer" },
       "inLanguage": "en",
       "isPartOf": { "@id": "{{ '/' | absolute_url }}#course" },
-      "author": {
-        "@type": "Person",
-        "@id": "https://sdin.dev/#person",
-        "name": "Sean Dinwiddie",
-        "url": "https://sdin.dev/"
+      "author": { "@id": "https://sdin.dev/#person" },
+      "copyrightHolder": { "@id": "https://sdin.dev/#person" },
+      "copyrightYear": "2025",
+      "license": "https://creativecommons.org/licenses/by/4.0/",
+      "image": {
+        "@type": "ImageObject",
+        "url": "{{ '/assets/functional-programming-lectures-social.png' | absolute_url }}",
+        "width": 1200,
+        "height": 630
+      },
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "{{ page.url | absolute_url }}"
       }
     },
     {

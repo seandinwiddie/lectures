@@ -3,6 +3,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#1f2430">
   {%- seo -%}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "@id": "https://sdin.dev/#person",
+    "name": "Sean Dinwiddie",
+    "url": "https://sdin.dev/",
+    "sameAs": {{ site.social.links | jsonify }}
+  }
+  </script>
   {%- feed_meta -%}
   {%- if page.robots %}
   <meta name="robots" content="{{ page.robots | escape }}">

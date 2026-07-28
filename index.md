@@ -15,6 +15,15 @@ layout: default
   "provider": { "@type": "Person", "@id": "https://sdin.dev/#person", "name": "Sean Dinwiddie", "url": "https://sdin.dev/" },
   "inLanguage": "en",
   "about": ["Functional Programming", "TypeScript", "Redux", "Redux Toolkit", "Monads", "Software Architecture"],
+  "teaches": [
+    "Master functional programming from pure functions to monads and category theory",
+    "Apply Redux Toolkit and RTK Query in production applications",
+    "Design maintainable software with explicit state ownership and functional composition"
+  ],
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "{{ '/' | absolute_url }}"
+  },
   "hasPart": [
     {%- for lecture in site.data.curriculum -%}
     {
