@@ -6,6 +6,18 @@ layout: lecture
 
 # Performance Optimization Techniques
 
+## Production source ladder
+
+Start with bounded work and narrow projections. Introduce caches and batching only after the ownership and invalidation rules are visible.
+
+| Level | Concept | Production source |
+| --- | --- | --- |
+| Intermediate | Deriving only the data a view renders | [Mission-operation view-model selectors in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/registry/missions/operations/operationsSelectors.ts) |
+| Intermediate | Bounded network work with a timeout | [HTTP capability in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/http.js) |
+| Advanced | Short-TTL snapshot caching and in-flight request coalescing | [Observatory cache entity in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/entities/observatoryStore.js) |
+| Advanced | Auto-batching and middleware order at the store boundary | [Store configuration in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/store.ts) |
+| Advanced | Automated selector-memoization review | [Redux selector checker in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/scripts/redux/selectorMemoization.mjs) |
+
 This lecture explores performance optimization techniques in functional programming.
 
 Functional programming does not make performance automatic. Purity and

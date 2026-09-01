@@ -6,6 +6,18 @@ layout: lecture
 
 # Basic Functional Programming TypeScript Knowledge
 
+## Production source ladder
+
+These examples turn the chapter's small transformations into an application-scale functional core without changing the underlying rules.
+
+| Level | Concept | Production source |
+| --- | --- | --- |
+| Beginner | Immutable mapping and folding | [Color ramps and contrast derivation in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeColorMath.ts) |
+| Beginner | Projection instead of mutation | [Theme-to-platform projections in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeProjections.ts) |
+| Intermediate | Reducer-owned immutable transitions | [Theme-selection slice in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/entities/bridge/spectrum/themeSelection/themeSelectionSlice.ts) |
+| Intermediate | Named predicate and dispatch rules | [Request policy decisions in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/security.js) |
+| Advanced | Pure transformations surrounded by injected effects | [GitHub aggregation service in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/github.js) |
+
 This lecture introduces the fundamental concepts of functional programming using TypeScript.
 
 > "Immutability and pure functions eliminate entire categories of bugs. When data never changes and functions have no side effects, debugging becomes straightforward and reasoning about code becomes intuitive." - AI Insight

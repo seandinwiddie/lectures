@@ -6,6 +6,19 @@ layout: lecture
 
 # Redux Toolkit and RTK Query Best Practices
 
+## Production source ladder
+
+Each example has one owner: the store owns client transitions, RTK Query owns server documents, selectors own derivation, and listeners own reactive effects.
+
+| Level | Concept | Production source |
+| --- | --- | --- |
+| Intermediate | One API slice registered once in the store | [Store wiring](https://github.com/seandinwiddie/portfolio/blob/main/src/store.ts) and [API root](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/substrate/kernel/api/apiApi.ts) in `portfolio` |
+| Intermediate | Response normalization at the endpoint boundary | [Initial-state transformation in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/substrate/kernel/api/apiApi.ts) |
+| Intermediate | Narrow query subscriptions with `selectFromResult` | [Observatory query composition in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/registry/observatory/signalArray/signalArrayThunks.ts) |
+| Advanced | Query fulfillment initializes client-owned preference state | [Theme listener workflow in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/bridge/spectrum/themeSelection/themeSelectionListeners.ts) |
+| Advanced | Listener middleware placed before serializability checks | [Middleware order in the `portfolio` store](https://github.com/seandinwiddie/portfolio/blob/main/src/store.ts) |
+| Advanced | Source-data authority enforced mechanically | [API authority checker in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/scripts/redux/apiDataAuthority.mjs) |
+
 Modern Redux starts with ownership. Redux Toolkit handles shared durable client state; RTK Query handles reusable server documents; React owns local editing and interaction state; the router owns the URL.
 
 ## Decide Who Owns the State

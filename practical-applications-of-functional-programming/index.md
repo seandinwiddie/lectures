@@ -6,6 +6,18 @@ layout: lecture
 
 # Practical Applications of Functional Programming
 
+## Production source ladder
+
+These are complete application concerns expressed as a functional core plus explicit effects, not isolated syntax demonstrations.
+
+| Level | Concept | Production source |
+| --- | --- | --- |
+| Beginner | Runtime validation before data enters a domain | [Theme-mode guards in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeTypes.ts) |
+| Intermediate | Collection normalization and aggregation | [Observatory normalization system in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/systems/observatory.js) |
+| Intermediate | Domain data projected into a UI-ready model | [Mission-operation selectors in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/registry/missions/operations/operationsSelectors.ts) |
+| Advanced | Security policy separated from HTTP middleware | [Security policy data](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/components/securityPolicy.js) and [policy composition](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/security.js) in `api.sdin.dev` |
+| Advanced | Effects injected behind a bounded capability | [HTTP boundary in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/http.js) |
+
 Functional programming is most useful when it gives ordinary application code
 clear boundaries. Pure functions transform trusted values. Small adapters own
 network, storage, clock, and engine effects. The boundary between them validates

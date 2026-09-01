@@ -6,6 +6,18 @@ layout: lecture
 
 # Monads in Functional Programming
 
+## Production source ladder
+
+Read these as pragmatic stepping stones: expected absence first, tagged decisions next, then asynchronous computations whose failure stays explicit.
+
+| Level | Concept | Production source |
+| --- | --- | --- |
+| Beginner | Nullable parsing at a narrow boundary | [Theme identifier parsing in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeTypes.ts) |
+| Intermediate | Tagged valid/invalid results | [Origin parsing in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/security.js) |
+| Intermediate | Promise transformations with a recovered absence | [Stored-theme adapter in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/bridge/spectrum/themeSelection/themeSelectionAdapters.ts) |
+| Advanced | Async failure interpreted as serializable availability | [GitHub resource service in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/github.js) |
+| Advanced | Laws protected by focused behavior tests | [FP law checker in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/scripts/fp/fp_laws.node-test.mjs) |
+
 `Maybe` and `Either` make control flow explicit in data. Their value is not the vocabulary alone; it is the guarantee that mapping, chaining, and matching behave consistently across every branch.
 
 This lecture uses the shared contract implemented by the ForbocAI Rust, TypeScript, GDScript, and Unreal C++ functional cores.

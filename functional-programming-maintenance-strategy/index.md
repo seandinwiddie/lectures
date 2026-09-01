@@ -6,6 +6,18 @@ layout: lecture
 
 # Functional Programming Maintenance Strategy
 
+## Production source ladder
+
+Use the levels as a maintenance progression: protect behavior first, centralize authority next, then automate the architectural contracts that matter.
+
+| Level | Concept | Production source |
+| --- | --- | --- |
+| Beginner | Focused behavior tests beside a state owner | [Theme-selection tests in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/entities/bridge/spectrum/themeSelection/themeSelectionSlice.test.ts) |
+| Intermediate | One typed source projected to multiple consumers | [Theme projections in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeProjections.ts) |
+| Intermediate | Policy and state ownership tested separately | [Security tests in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/main/test/security.test.js) |
+| Advanced | Automated FP conformance around authored code | [FP conformance runner in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/scripts/fp/runFpChecks.mjs) |
+| Advanced | Automated Redux ownership and wiring checks | [Redux conformance runner in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/scripts/redux/checkConformance.mjs) |
+
 This lecture explores strategies for maintaining functional programming codebases effectively.
 
 > "Maintainable code is not accidental—it's architectural. Pure functions with single responsibilities, strict types, comprehensive tests, and clear documentation create systems that scale gracefully and refactor fearlessly." - AI Insight

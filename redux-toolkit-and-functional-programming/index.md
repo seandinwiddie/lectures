@@ -6,6 +6,18 @@ layout: lecture
 
 # Redux Toolkit and Functional Programming
 
+## Production source ladder
+
+Use the ladder to connect each RTK abstraction to the responsibility it owns in a deployed application.
+
+| Level | Concept | Production source |
+| --- | --- | --- |
+| Beginner | `createSlice` with event-oriented actions | [Theme-selection state in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/entities/bridge/spectrum/themeSelection/themeSelectionSlice.ts) |
+| Intermediate | Store factory, default middleware, and inferred types | [Store wiring in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/store.ts) |
+| Intermediate | Selectors that derive UI-ready data | [Mission-operation selectors in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/registry/missions/operations/operationsSelectors.ts) |
+| Advanced | Typed RTK Query documents and transformations | [API root in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/substrate/kernel/api/apiApi.ts) |
+| Advanced | Listener middleware for browser persistence | [Theme-selection listeners in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/bridge/spectrum/themeSelection/themeSelectionListeners.ts) |
+
 Redux Toolkit keeps Redux's functional contract while removing handwritten boilerplate. This lecture builds one vertical feature from domain events through a typed React boundary, then introduces the RTK 2 tools used by larger applications.
 
 ## Learning Goals

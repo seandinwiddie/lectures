@@ -6,6 +6,18 @@ layout: lecture
 
 # Category Theory Fundamentals
 
+## Production source ladder
+
+The vocabulary becomes useful when it explains real transformations. Use these sources to identify objects, arrows, products, folds, and structure-preserving projections.
+
+| Level | Concept | Production source |
+| --- | --- | --- |
+| Intermediate | Mapping a structure without changing its shape | [Theme profile projection in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeProjections.ts) |
+| Intermediate | Product and sum types for a closed domain | [Theme domain algebra in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeTypes.ts) |
+| Advanced | Folds that combine repository facts into summaries | [GitHub aggregations in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/github.js) |
+| Advanced | A typed boundary morphism from wire data to app data | [RTK Query response normalization in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/substrate/kernel/api/apiApi.ts) |
+| Advanced | Composition laws exercised as executable checks | [FP law suite in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/scripts/fp/fp_laws.node-test.mjs) |
+
 This lecture introduces the mathematical foundations of functional programming through category theory.
 
 > "Category theory is the mathematics of composition: it explains why map, flatMap, and function composition work together so beautifully. Understanding the laws reveals that functional programming isn't arbitrary—it's fundamentally correct." - AI Insight

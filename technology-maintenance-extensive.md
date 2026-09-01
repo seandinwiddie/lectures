@@ -8,6 +8,18 @@ canonical_url: "https://seandinwiddie.github.io/lectures/technology-maintenance.
 
 # FP and Modern Redux Maintenance Strategy: Extended Notes
 
+## Production source ladder
+
+These fixed production snapshots provide review targets for the deeper migration decisions in this document.
+
+| Level | Concept | Production source |
+| --- | --- | --- |
+| Beginner | A narrow type guard at an input boundary | [Theme-mode guards in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeTypes.ts) |
+| Intermediate | Incremental migration anchored by a modern store | [Configured store factory in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/store.ts) |
+| Intermediate | An effectful adapter kept outside reducers | [Stored-theme adapter in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/bridge/spectrum/themeSelection/themeSelectionAdapters.ts) |
+| Advanced | Stale-on-error caching with an injected clock and transport | [GitHub service in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/github.js) |
+| Advanced | Architecture drift detected from source structure | [Feature-role checker in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/scripts/check-feature-file-contract.mjs) |
+
 These non-indexed notes expand on selected tradeoffs in the [canonical maintenance strategy](./technology-maintenance.md). They are retained for maintainers who want migration rationale without creating a competing search document.
 
 ## Authority Before Architecture

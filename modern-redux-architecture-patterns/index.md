@@ -6,6 +6,18 @@ layout: lecture
 
 # Modern Redux Architecture Patterns
 
+## Production source ladder
+
+Read the architecture from the center outward: establish owners, compose the store, attach server data, then place reactive work at an explicit system boundary.
+
+| Level | Concept | Production source |
+| --- | --- | --- |
+| Intermediate | Domain slices composed by a root reducer | [Reducer composition in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/substrate/kernel/composition/compositionReducers.ts) |
+| Intermediate | Store lifetime expressed as a factory | [Store factory in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/store.ts) |
+| Advanced | RTK Query as the server-document authority | [API slice in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/substrate/kernel/api/apiApi.ts) |
+| Advanced | Listener middleware as the reactive workflow boundary | [Boot listeners](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/substrate/kernel/boot/bootListeners.ts) and [theme listeners](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/bridge/spectrum/themeSelection/themeSelectionListeners.ts) in `portfolio` |
+| Advanced | Architecture enforced with role and store checks | [Redux role-boundary checker in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/scripts/redux/roleBoundaries.mjs) |
+
 Modern Redux architecture is less about putting data in one store and more about making authority, events, effects, and feature boundaries obvious.
 
 ## Architecture at a Glance

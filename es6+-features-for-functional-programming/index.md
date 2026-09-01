@@ -6,6 +6,18 @@ layout: lecture
 
 # ES6+ Features for Functional Programming
 
+## Production source ladder
+
+Treat the syntax as a vocabulary for declaring transformations and module boundaries, then study how those declarations cooperate under load.
+
+| Level | Concept | Production source |
+| --- | --- | --- |
+| Beginner | `const`, arrow functions, arrays, and object literals | [Theme profiles in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeProfiles.ts) |
+| Beginner | Destructuring and spread at a projection boundary | [Theme platform projections in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeProjections.ts) |
+| Intermediate | `map`, `filter`, `reduce`, and stable sorting | [GitHub data pipelines in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/github.js) |
+| Intermediate | ES modules as explicit dependency boundaries | [Store composition in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/store.ts) |
+| Advanced | Promises coordinated without leaking transport data | [Contribution loading in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/contributions.js) |
+
 This lecture explores how modern TypeScript features enhance functional programming capabilities.
 
 > "Modern JavaScript features like arrow functions, destructuring, and spread operators aren't just syntax sugar—they're tools that make functional programming patterns natural and expressive." - AI Insight

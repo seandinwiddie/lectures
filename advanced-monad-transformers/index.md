@@ -6,6 +6,18 @@ layout: lecture
 
 # Advanced Monad Transformers
 
+## Production source ladder
+
+These sources show why production TypeScript often names each context directly instead of hiding network, cache, environment, and error behavior in one stack.
+
+| Level | Concept | Production source |
+| --- | --- | --- |
+| Intermediate | A reusable environment-injected request capability | [Bounded fetch factory in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/http.js) |
+| Intermediate | Server-document context owned by RTK Query | [API slice in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/substrate/kernel/api/apiApi.ts) |
+| Advanced | Async, cache, stale-data, and failure contexts composed explicitly | [Observatory service](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/systems/observatory.js) and [cache entity](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/entities/observatoryStore.js) in `api.sdin.dev` |
+| Advanced | Reactive effect context separated from reducers | [Typed listener middleware in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/substrate/kernel/boot/bootListeners.ts) |
+| Advanced | Partial upstream results accumulated without exposing raw failures | [Repository aggregation in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/github.js) |
+
 Real workflows often combine more than one context: a dependency environment, an asynchronous operation, and a recoverable domain failure. Monad transformers provide a principled way to stack those contexts.
 
 In TypeScript and engine SDKs, an explicit composite type is often clearer than pretending the language supports a fully generic higher-kinded transformer interface.

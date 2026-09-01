@@ -6,6 +6,18 @@ layout: article
 
 # FP and Modern Redux Maintenance Strategy
 
+## Production source ladder
+
+Use the ladder to turn each maintenance rule into an inspectable contract. The snapshots remain fixed so future refactors can be compared against a known production example.
+
+| Level | Concept | Production source |
+| --- | --- | --- |
+| Beginner | Behavior protected by a focused reducer test | [Theme-selection slice tests in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/entities/bridge/spectrum/themeSelection/themeSelectionSlice.test.ts) |
+| Intermediate | Explicit state and server-data owners | [Store composition](https://github.com/seandinwiddie/portfolio/blob/main/src/store.ts) and [RTK Query root](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/substrate/kernel/api/apiApi.ts) in `portfolio` |
+| Intermediate | Security policy and runtime state isolated by ECS role | [Security policy component](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/components/securityPolicy.js) and [rate-limit entity](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/entities/rateLimitStore.js) in `api.sdin.dev` |
+| Advanced | Source-data authority checked in CI | [API data-authority check in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/scripts/check-api-data-authority.mjs) |
+| Advanced | FP and Redux contracts checked mechanically | [FP checks](https://github.com/seandinwiddie/portfolio/blob/main/scripts/fp/runFpChecks.mjs) and [Redux checks](https://github.com/seandinwiddie/portfolio/blob/main/scripts/redux/checkConformance.mjs) in `portfolio` |
+
 This is the canonical maintenance guide for the curriculum. It combines functional programming with current Redux Toolkit practices while keeping authority boundaries explicit. Choose the owner of data first, then choose the tool.
 
 ## Purpose

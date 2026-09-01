@@ -6,6 +6,18 @@ layout: lecture
 
 # What Is a Function?
 
+## Production source ladder
+
+Move from calculations with no observable effects toward functions that explicitly receive the capabilities they need.
+
+| Level | Concept | Production source |
+| --- | --- | --- |
+| Beginner | Deterministic input-to-output calculation | [Luminance and contrast functions in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeColorMath.ts) |
+| Beginner | Function values passed into collection operations | [Theme projection functions in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeProjections.ts) |
+| Intermediate | Curried configuration followed by execution | [Bounded fetch factory in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/http.js) |
+| Intermediate | Folds that summarize a collection | [Repository and activity aggregation in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/github.js) |
+| Advanced | Pure policy functions composed into middleware effects | [Security composition in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/security.js) |
+
 This lecture introduces the fundamental concept of functions in TypeScript and how they form the basis of functional programming. This is where your journey into lean, modular functional programming begins. You'll learn to write functions that are pure, testable, and composable - the building blocks of maintainable codebases.
 
 > "A pure function is a mathematical relationship: given the same inputs, it always produces the same outputs with no hidden dependencies or side effects. This predictability is the cornerstone of reliable software." - AI Insight

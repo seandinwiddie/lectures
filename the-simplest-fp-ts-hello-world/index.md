@@ -6,6 +6,17 @@ layout: lecture
 
 # The Simplest FP TypeScript Hello World
 
+## Production source ladder
+
+Use these examples in order: begin with one typed transformation, then follow the same value-oriented design into composed application boundaries.
+
+| Level | Concept | Production source |
+| --- | --- | --- |
+| Beginner | A typed pure function with one output | [Theme color calculations in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeColorMath.ts) |
+| Beginner | Readonly domain values and literal choices | [Theme domain types in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeTypes.ts) |
+| Intermediate | A reusable higher-order effect boundary | [Bounded fetch construction in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/http.js) |
+| Intermediate | Pure normalization around an asynchronous boundary | [GitHub response normalization in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/github.js) |
+
 This lecture demonstrates the simplest possible functional programming example in TypeScript - a pure function that processes data without side effects.
 
 > "Simplicity is the ultimate sophistication. A pure function that always returns the same output for the same input is the foundation of predictable, testable code." - AI Insight
