@@ -5,6 +5,11 @@ const root = process.cwd();
 const siteRoot = path.join(root, '_site');
 const failures = [];
 const fail = (message) => failures.push(message);
+const googleVerificationFilename = /^google[a-z0-9]+\.html$/i;
+
+const isGoogleVerificationArtifact = ({ filename, content }) =>
+  googleVerificationFilename.test(filename) &&
+  content.trim() === `google-site-verification: ${filename}`;
 
 function walk(directory, extension) {
   return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
@@ -49,7 +54,12 @@ if (!fs.existsSync(siteRoot)) {
   process.exit(1);
 }
 
-const htmlFiles = walk(siteRoot, '.html');
+const htmlFiles = walk(siteRoot, '.html').filter((file) =>
+  !isGoogleVerificationArtifact({
+    filename: path.basename(file),
+    content: fs.readFileSync(file, 'utf8'),
+  })
+);
 for (const file of htmlFiles) {
   const relative = path.relative(siteRoot, file);
   const html = fs.readFileSync(file, 'utf8');
