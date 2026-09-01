@@ -16,7 +16,7 @@ Read these as pragmatic stepping stones: expected absence first, tagged decision
 | Intermediate | Tagged valid/invalid results | [Origin parsing in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/e4a03c7e9556116afd82e64f0e07719099d08c0d/src/security.js#L37-L61) |
 | Intermediate | Promise transformations with a recovered absence | [Stored-theme adapter in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/bridge/spectrum/themeSelection/themeSelectionAdapters.ts#L17-L41) |
 | Advanced | Stale-on-error recovery represented as serializable availability | [GitHub resource service in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/e4a03c7e9556116afd82e64f0e07719099d08c0d/src/github.js#L159-L274) |
-| Advanced | Laws protected by focused behavior tests | [FP law checker in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/scripts/fp/fp_laws.node-test.mjs#L42-L113) |
+| Advanced | Optional presentation handled through explicit Maybe matching | [Observatory projection in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/registry/observatory/signalArray/signalArraySelectors.ts#L156-L163) |
 
 `Maybe` and `Either` make control flow explicit in data. Their value is not the vocabulary alone; it is the guarantee that mapping, chaining, and matching behave consistently across every branch.
 

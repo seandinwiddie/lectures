@@ -18,7 +18,7 @@ These production sources provide review targets for the deeper migration decisio
 | Intermediate | Incremental migration anchored by a modern store | [Configured store factory in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/store.ts#L12-L33) |
 | Intermediate | An effectful adapter kept outside reducers | [Stored-theme adapter in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/bridge/spectrum/themeSelection/themeSelectionAdapters.ts#L17-L41) |
 | Advanced | Stale-on-error caching with an injected clock and transport | [GitHub service in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/e4a03c7e9556116afd82e64f0e07719099d08c0d/src/github.js#L181-L274) |
-| Advanced | Architecture drift detected from source structure | [Feature-role checker in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/scripts/check-feature-file-contract.mjs#L33-L83) |
+| Advanced | Entity reducers composed through one system-owned registry | [Reducer composition system in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/substrate/kernel/composition/compositionReducers.ts#L1-L11) |
 
 These non-indexed notes expand on selected tradeoffs in the [canonical maintenance strategy](./technology-maintenance.md). They are retained for maintainers who want migration rationale without creating a competing search document.
 

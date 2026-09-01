@@ -16,7 +16,7 @@ Start with bounded work and narrow projections. Introduce caches and batching on
 | Intermediate | Bounded network work with a timeout | [HTTP capability in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/e4a03c7e9556116afd82e64f0e07719099d08c0d/src/http.js#L25-L37) |
 | Advanced | Short-TTL snapshot caching and in-flight request coalescing | [Observatory cache entity in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/e4a03c7e9556116afd82e64f0e07719099d08c0d/src/entities/observatoryStore.js#L13-L54) |
 | Advanced | Auto-batching and middleware order at the store boundary | [Store configuration in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/store.ts#L12-L33) |
-| Advanced | Automated selector-memoization review | [Redux selector checker in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/scripts/redux/selectorMemoization.mjs#L172-L230) |
+| Advanced | Memoized selector reuses derived feedback across stable inputs | [Theme feedback selector in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/entities/bridge/spectrum/themeCustom/themeCustomSelectors.ts#L71-L80) |
 
 This lecture explores performance optimization techniques in functional programming.
 

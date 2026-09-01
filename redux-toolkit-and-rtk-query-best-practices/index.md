@@ -17,7 +17,7 @@ Each example has one owner: the store owns client transitions, RTK Query owns se
 | Intermediate | Narrow query subscriptions with `selectFromResult` | [Observatory query composition in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/registry/observatory/signalArray/signalArrayThunks.ts#L23-L62) |
 | Advanced | Query fulfillment initializes client-owned preference state | [Theme listener workflow in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/bridge/spectrum/themeSelection/themeSelectionListeners.ts#L13-L35) |
 | Advanced | Listener middleware placed before serializability checks | [Middleware order in the `portfolio` store](https://github.com/seandinwiddie/portfolio/blob/main/src/store.ts#L12-L33) |
-| Advanced | Source-data authority enforced mechanically | [API authority checker in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/scripts/redux/apiDataAuthority.mjs#L306-L364) |
+| Advanced | One RTK Query boundary owns normalization, endpoints, and tags | [Portfolio API system](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/substrate/kernel/api/apiApi.ts#L17-L70) |
 
 Modern Redux starts with ownership. Redux Toolkit handles shared durable client state; RTK Query handles reusable server documents; React owns local editing and interaction state; the router owns the URL.
 
