@@ -12,11 +12,11 @@ Treat the syntax as a vocabulary for declaring transformations and module bounda
 
 | Level | Concept | Production source |
 | --- | --- | --- |
-| Beginner | `const`, arrow functions, arrays, and object literals | [Theme profiles in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeProfiles.ts) |
-| Beginner | Destructuring and spread at a projection boundary | [Theme platform projections in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeProjections.ts) |
-| Intermediate | `map`, `filter`, `reduce`, and stable sorting | [GitHub data pipelines in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/github.js) |
-| Intermediate | ES modules as explicit dependency boundaries | [Store composition in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/store.ts) |
-| Advanced | Promises coordinated without leaking transport data | [Contribution loading in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/contributions.js) |
+| Beginner | `const`, arrow functions, arrays, and object literals | [Theme profiles in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeProfiles.ts#L8-L28) |
+| Beginner | Destructuring and spread at a query projection boundary | [Observatory query options in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/registry/observatory/signalArray/signalArrayThunks.ts#L23-L62) |
+| Intermediate | `map`, `filter`, `reduce`, and stable sorting | [GitHub data pipelines in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/e4a03c7e9556116afd82e64f0e07719099d08c0d/src/github.js#L474-L482) |
+| Intermediate | ES modules as explicit dependency boundaries | [Store composition in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/store.ts#L12-L33) |
+| Advanced | Promises coordinated without leaking transport data | [Contribution loading in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/e4a03c7e9556116afd82e64f0e07719099d08c0d/src/contributions.js#L79-L108) |
 
 This lecture explores how modern TypeScript features enhance functional programming capabilities.
 

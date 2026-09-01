@@ -12,11 +12,11 @@ The linked implementations show composition growing from tiny functions into sel
 
 | Level | Concept | Production source |
 | --- | --- | --- |
-| Beginner | Small transformations with stable return types | [Theme color functions in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeColorMath.ts) |
-| Intermediate | Higher-order and curried projections | [Mission-operation selector pipeline in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/registry/missions/operations/operationsSelectors.ts) |
-| Intermediate | Declarative key and predicate dispatch | [Security decisions in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/security.js) |
-| Advanced | One source projected into CSS and native themes | [Theme projection pipeline in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeProjections.ts) |
-| Advanced | Pure core with an injected network effect | [Bounded HTTP effect in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/http.js) |
+| Beginner | Small transformations with stable return types | [Theme color functions in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeColorMath.ts#L6-L62) |
+| Intermediate | Higher-order and curried projections | [Mission-operation selector pipeline in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/registry/missions/operations/operationsSelectors.ts#L130-L255) |
+| Intermediate | Declarative key and predicate dispatch | [Security decisions in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/e4a03c7e9556116afd82e64f0e07719099d08c0d/src/security.js#L120-L172) |
+| Advanced | One source projected into CSS and native themes | [Theme projection pipeline in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeProjections.ts#L77-L197) |
+| Advanced | Pure core with an injected network effect | [Bounded HTTP effect in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/e4a03c7e9556116afd82e64f0e07719099d08c0d/src/http.js#L25-L37) |
 
 Composition turns small functions into a larger function while keeping each stage independently testable. The ForbocAI functional cores use the same algebra in Rust, TypeScript, GDScript, and Unreal C++11, but adapt the types and runtime costs to each host.
 

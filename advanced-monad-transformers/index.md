@@ -12,11 +12,11 @@ These sources show why production TypeScript often names each context directly i
 
 | Level | Concept | Production source |
 | --- | --- | --- |
-| Intermediate | A reusable environment-injected request capability | [Bounded fetch factory in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/http.js) |
-| Intermediate | Server-document context owned by RTK Query | [API slice in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/substrate/kernel/api/apiApi.ts) |
-| Advanced | Async, cache, stale-data, and failure contexts composed explicitly | [Observatory service](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/systems/observatory.js) and [cache entity](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/entities/observatoryStore.js) in `api.sdin.dev` |
-| Advanced | Reactive effect context separated from reducers | [Typed listener middleware in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/substrate/kernel/boot/bootListeners.ts) |
-| Advanced | Partial upstream results accumulated without exposing raw failures | [Repository aggregation in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/github.js) |
+| Intermediate | A reusable environment-injected request capability | [Bounded fetch factory in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/e4a03c7e9556116afd82e64f0e07719099d08c0d/src/http.js#L25-L37) |
+| Intermediate | Server-document context owned by RTK Query | [API slice in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/substrate/kernel/api/apiApi.ts#L17-L70) |
+| Advanced | Async, cache, stale-data, and failure contexts composed explicitly | [Observatory service](https://github.com/seandinwiddie/api.sdin.dev/blob/e4a03c7e9556116afd82e64f0e07719099d08c0d/src/systems/observatory.js#L659-L702) and [cache entity](https://github.com/seandinwiddie/api.sdin.dev/blob/e4a03c7e9556116afd82e64f0e07719099d08c0d/src/entities/observatoryStore.js#L13-L54) in `api.sdin.dev` |
+| Advanced | Reactive effect context separated from reducers | [Typed listener middleware in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/substrate/kernel/boot/bootListeners.ts#L4-L15) |
+| Advanced | Partial upstream results accumulated without exposing raw failures | [Repository aggregation in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/e4a03c7e9556116afd82e64f0e07719099d08c0d/src/github.js#L538-L582) |
 
 Real workflows often combine more than one context: a dependency environment, an asynchronous operation, and a recoverable domain failure. Monad transformers provide a principled way to stack those contexts.
 

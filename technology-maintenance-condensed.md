@@ -14,11 +14,11 @@ Use these production examples to move from a local rule to a mechanically enforc
 
 | Level | Concept | Production source |
 | --- | --- | --- |
-| Beginner | A focused reducer owns one client transition | [Theme-selection slice in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/entities/bridge/spectrum/themeSelection/themeSelectionSlice.ts) |
-| Intermediate | Server documents and client state have distinct owners | [Store wiring](https://github.com/seandinwiddie/portfolio/blob/main/src/store.ts) and [RTK Query root](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/substrate/kernel/api/apiApi.ts) in `portfolio` |
-| Intermediate | Query results become a pure presentation model | [Observatory selectors in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/registry/observatory/signalArray/signalArraySelectors.ts) |
-| Advanced | Runtime cache state is isolated from service effects | [Observatory cache entity](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/entities/observatoryStore.js) and [service system](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/systems/observatory.js) in `api.sdin.dev` |
-| Advanced | FP, RTK, and ECS boundaries are checked mechanically | [Redux conformance runner](https://github.com/seandinwiddie/portfolio/blob/main/scripts/redux/checkConformance.mjs) and [ECS conformance check](https://github.com/seandinwiddie/portfolio/blob/main/scripts/check-ecs-conformance.mjs) in `portfolio` |
+| Beginner | A focused reducer owns one client transition | [Theme-selection slice in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/entities/bridge/spectrum/themeSelection/themeSelectionSlice.ts#L50-L104) |
+| Intermediate | Server documents and client state have distinct owners | [Store wiring](https://github.com/seandinwiddie/portfolio/blob/main/src/store.ts#L12-L33) and [RTK Query root](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/substrate/kernel/api/apiApi.ts#L17-L70) in `portfolio` |
+| Intermediate | Query results become a pure presentation model | [Observatory selectors in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/registry/observatory/signalArray/signalArraySelectors.ts#L109-L163) |
+| Advanced | Runtime cache state is isolated from service effects | [Observatory cache entity](https://github.com/seandinwiddie/api.sdin.dev/blob/e4a03c7e9556116afd82e64f0e07719099d08c0d/src/entities/observatoryStore.js#L13-L54) and [service system](https://github.com/seandinwiddie/api.sdin.dev/blob/e4a03c7e9556116afd82e64f0e07719099d08c0d/src/systems/observatory.js#L659-L702) in `api.sdin.dev` |
+| Advanced | FP, RTK, and ECS boundaries are checked mechanically | [Redux conformance runner](https://github.com/seandinwiddie/portfolio/blob/main/scripts/redux/checkConformance.mjs#L70-L99) and [ECS conformance check](https://github.com/seandinwiddie/portfolio/blob/main/scripts/check-ecs-conformance.mjs#L106-L176) in `portfolio` |
 
 This non-indexed quick reference summarizes the [canonical maintenance strategy](./technology-maintenance.md). Use the canonical guide when a decision needs examples or tradeoffs.
 

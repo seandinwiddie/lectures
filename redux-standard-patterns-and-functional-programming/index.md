@@ -12,11 +12,11 @@ Follow one event through state ownership, derivation, rendering, and effects. Ea
 
 | Level | Concept | Production source |
 | --- | --- | --- |
-| Beginner | Event-named actions and reducer-owned transitions | [Theme-selection slice in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/entities/bridge/spectrum/themeSelection/themeSelectionSlice.ts) |
-| Intermediate | A configured store with inferred state and dispatch | [Application store in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/store.ts) |
-| Intermediate | Pure state-to-view projection | [Mission-operation view-model selectors in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/registry/missions/operations/operationsSelectors.ts) |
-| Advanced | Reactive work triggered by domain events | [Theme listener workflows in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/bridge/spectrum/themeSelection/themeSelectionListeners.ts) |
-| Advanced | Server documents owned by RTK Query | [Portfolio API slice](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/substrate/kernel/api/apiApi.ts) |
+| Beginner | Event-named actions and reducer-owned transitions | [Theme-selection slice in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/entities/bridge/spectrum/themeSelection/themeSelectionSlice.ts#L50-L104) |
+| Intermediate | A configured store with inferred state and dispatch | [Application store in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/store.ts#L12-L33) |
+| Intermediate | Pure state-to-view projection | [Mission-operation view-model selectors in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/registry/missions/operations/operationsSelectors.ts#L130-L255) |
+| Advanced | Reactive work triggered by domain events | [Theme listener workflows in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/bridge/spectrum/themeSelection/themeSelectionListeners.ts#L13-L35) |
+| Advanced | Server documents owned by RTK Query | [Portfolio API slice](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/substrate/kernel/api/apiApi.ts#L17-L70) |
 
 Redux applies functional programming to state transitions: events are plain data, reducers calculate the next state, and selectors derive the view. Redux Toolkit (RTK) is the standard way to write that model in modern applications.
 

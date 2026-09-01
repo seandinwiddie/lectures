@@ -12,11 +12,11 @@ Move from calculations with no observable effects toward functions that explicit
 
 | Level | Concept | Production source |
 | --- | --- | --- |
-| Beginner | Deterministic input-to-output calculation | [Luminance and contrast functions in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeColorMath.ts) |
-| Beginner | Function values passed into collection operations | [Theme projection functions in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeProjections.ts) |
-| Intermediate | Curried configuration followed by execution | [Bounded fetch factory in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/http.js) |
-| Intermediate | Folds that summarize a collection | [Repository and activity aggregation in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/github.js) |
-| Advanced | Pure policy functions composed into middleware effects | [Security composition in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/security.js) |
+| Beginner | Deterministic input-to-output calculation | [Luminance and contrast functions in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeColorMath.ts#L6-L62) |
+| Beginner | Function values passed into collection operations | [Theme projection functions in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeProjections.ts#L256-L264) |
+| Intermediate | Configuration captured by a returned request function | [Bounded fetch factory in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/e4a03c7e9556116afd82e64f0e07719099d08c0d/src/http.js#L25-L37) |
+| Intermediate | Folds that summarize a collection | [Repository and activity aggregation in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/e4a03c7e9556116afd82e64f0e07719099d08c0d/src/github.js#L311-L341) |
+| Advanced | Pure policy functions composed into middleware effects | [Security composition in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/e4a03c7e9556116afd82e64f0e07719099d08c0d/src/security.js#L265-L282) |
 
 This lecture introduces the fundamental concept of functions in TypeScript and how they form the basis of functional programming. This is where your journey into lean, modular functional programming begins. You'll learn to write functions that are pure, testable, and composable - the building blocks of maintainable codebases.
 

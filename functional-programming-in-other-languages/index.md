@@ -12,11 +12,11 @@ Compare the contract, not the punctuation. The TypeScript client and CommonJS se
 
 | Level | Concept | Production source |
 | --- | --- | --- |
-| Beginner | Pure collection transformations in TypeScript | [Theme color core in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeColorMath.ts) |
-| Intermediate | Plain serializable domain contracts in TypeScript | [API types in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/components/substrate/kernel/api/apiTypes.ts) |
-| Intermediate | A closure-backed factory in Node CommonJS | [Rate-limit store entity in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/entities/rateLimitStore.js) |
-| Advanced | Curried policy transitions independent of framework syntax | [Security state transitions in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/security.js) |
-| Advanced | TypeScript ECS topology checked as source structure | [ECS conformance checker in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/scripts/check-ecs-conformance.mjs) |
+| Beginner | Pure collection transformations in TypeScript | [Theme color core in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeColorMath.ts#L6-L62) |
+| Intermediate | Plain serializable domain contracts in TypeScript | [API types in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/components/substrate/kernel/api/apiTypes.ts#L93-L114) |
+| Intermediate | A closure-backed factory in Node CommonJS | [Rate-limit store entity in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/e4a03c7e9556116afd82e64f0e07719099d08c0d/src/entities/rateLimitStore.js#L2-L22) |
+| Advanced | Curried policy transitions independent of framework syntax | [Security state transitions in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/e4a03c7e9556116afd82e64f0e07719099d08c0d/src/security.js#L120-L172) |
+| Advanced | TypeScript ECS topology checked as source structure | [ECS conformance checker in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/scripts/check-ecs-conformance.mjs#L106-L176) |
 
 Functional programming travels best as a behavioral contract, not a literal port. This lecture compares five functional-core implementations from the same production ecosystem: two Rust designs, a TypeScript package, a GDScript port, and an Unreal C++11 header.
 

@@ -12,11 +12,11 @@ The sequence moves from typed calculations to contracts that keep a functional c
 
 | Level | Concept | Production source |
 | --- | --- | --- |
-| Beginner | Precisely typed unary and binary functions | [Theme color functions in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeColorMath.ts) |
-| Intermediate | Generic projections over a closed domain | [Theme projection machinery in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeProjections.ts) |
-| Intermediate | Type guards that refine unknown input | [Theme mode parsing in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeTypes.ts) |
-| Advanced | Discriminated availability and error states | [GitHub API types in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/components/substrate/kernel/api/apiTypes.ts) |
-| Advanced | Typed server documents normalized at the cache edge | [RTK Query API root in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/substrate/kernel/api/apiApi.ts) |
+| Beginner | Precisely typed unary and binary functions | [Theme color functions in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeColorMath.ts#L6-L62) |
+| Intermediate | Generic projections over a closed domain | [Theme projection machinery in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeProjections.ts#L256-L264) |
+| Intermediate | Type guards that refine unknown input | [Theme mode parsing in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeTypes.ts#L1-L36) |
+| Advanced | Discriminated availability and error states | [GitHub API types in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/components/substrate/kernel/api/apiTypes.ts#L200-L236) |
+| Advanced | Typed server documents normalized at the cache edge | [RTK Query API root in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/substrate/kernel/api/apiApi.ts#L17-L70) |
 
 This lecture explores how TypeScript enhances functional programming with type safety and better developer experience.
 

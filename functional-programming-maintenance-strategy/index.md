@@ -12,11 +12,11 @@ Use the levels as a maintenance progression: protect behavior first, centralize 
 
 | Level | Concept | Production source |
 | --- | --- | --- |
-| Beginner | Focused behavior tests beside a state owner | [Theme-selection tests in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/entities/bridge/spectrum/themeSelection/themeSelectionSlice.test.ts) |
-| Intermediate | One typed source projected to multiple consumers | [Theme projections in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeProjections.ts) |
-| Intermediate | Policy and state ownership tested separately | [Security tests in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/main/test/security.test.js) |
-| Advanced | Automated FP conformance around authored code | [FP conformance runner in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/scripts/fp/runFpChecks.mjs) |
-| Advanced | Automated Redux ownership and wiring checks | [Redux conformance runner in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/scripts/redux/checkConformance.mjs) |
+| Beginner | Focused behavior tests beside a state owner | [Theme-selection tests in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/entities/bridge/spectrum/themeSelection/themeSelectionSlice.test.ts#L11-L72) |
+| Intermediate | One typed source projected to multiple consumers | [Theme projections in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeProjections.ts#L77-L197) |
+| Intermediate | Policy and state ownership tested separately | [Security tests in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/e4a03c7e9556116afd82e64f0e07719099d08c0d/test/security.test.js#L61-L158) |
+| Advanced | Automated FP conformance around authored code | [FP conformance runner in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/scripts/fp/runFpChecks.mjs#L13-L57) |
+| Advanced | Automated Redux ownership and wiring checks | [Redux conformance runner in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/scripts/redux/checkConformance.mjs#L70-L99) |
 
 This lecture explores strategies for maintaining functional programming codebases effectively.
 

@@ -12,10 +12,10 @@ Use these examples in order: begin with one typed transformation, then follow th
 
 | Level | Concept | Production source |
 | --- | --- | --- |
-| Beginner | A typed pure function with one output | [Theme color calculations in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeColorMath.ts) |
-| Beginner | Readonly domain values and literal choices | [Theme domain types in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeTypes.ts) |
-| Intermediate | A reusable higher-order effect boundary | [Bounded fetch construction in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/http.js) |
-| Intermediate | Pure normalization around an asynchronous boundary | [GitHub response normalization in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/github.js) |
+| Beginner | A typed pure function with one output | [Theme color calculations in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeColorMath.ts#L6-L62) |
+| Beginner | Readonly domain values and literal choices | [Theme domain types in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeTypes.ts#L1-L36) |
+| Intermediate | A reusable higher-order effect boundary | [Bounded fetch construction in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/e4a03c7e9556116afd82e64f0e07719099d08c0d/src/http.js#L25-L37) |
+| Intermediate | Pure normalization around an asynchronous boundary | [GitHub response normalization in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/e4a03c7e9556116afd82e64f0e07719099d08c0d/src/github.js#L276-L302) |
 
 This lecture demonstrates the simplest possible functional programming example in TypeScript - a pure function that processes data without side effects.
 

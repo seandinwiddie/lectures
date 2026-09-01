@@ -12,11 +12,11 @@ Use the ladder to connect each RTK abstraction to the responsibility it owns in 
 
 | Level | Concept | Production source |
 | --- | --- | --- |
-| Beginner | `createSlice` with event-oriented actions | [Theme-selection state in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/entities/bridge/spectrum/themeSelection/themeSelectionSlice.ts) |
-| Intermediate | Store factory, default middleware, and inferred types | [Store wiring in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/store.ts) |
-| Intermediate | Selectors that derive UI-ready data | [Mission-operation selectors in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/registry/missions/operations/operationsSelectors.ts) |
-| Advanced | Typed RTK Query documents and transformations | [API root in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/substrate/kernel/api/apiApi.ts) |
-| Advanced | Listener middleware for browser persistence | [Theme-selection listeners in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/bridge/spectrum/themeSelection/themeSelectionListeners.ts) |
+| Beginner | `createSlice` with event-oriented actions | [Theme-selection state in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/entities/bridge/spectrum/themeSelection/themeSelectionSlice.ts#L50-L104) |
+| Intermediate | Store factory, default middleware, and inferred types | [Store wiring in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/store.ts#L12-L33) |
+| Intermediate | Selectors that derive UI-ready data | [Mission-operation selectors in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/registry/missions/operations/operationsSelectors.ts#L130-L255) |
+| Advanced | Typed RTK Query documents and transformations | [API root in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/substrate/kernel/api/apiApi.ts#L17-L70) |
+| Advanced | Listener middleware for browser persistence | [Theme-selection listeners in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/bridge/spectrum/themeSelection/themeSelectionListeners.ts#L13-L35) |
 
 Redux Toolkit keeps Redux's functional contract while removing handwritten boilerplate. This lecture builds one vertical feature from domain events through a typed React boundary, then introduces the RTK 2 tools used by larger applications.
 

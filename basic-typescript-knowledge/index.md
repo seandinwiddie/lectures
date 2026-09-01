@@ -8,15 +8,15 @@ layout: lecture
 
 ## Production source ladder
 
-The level names describe the order in which to study each concept. The linked snapshots show the types carrying real API, theme, and rendering constraints.
+The level names describe the order in which to study each concept. The linked sources show the types carrying real API, theme, and rendering constraints.
 
 | Level | Concept | Production source |
 | --- | --- | --- |
-| Beginner | Literal unions, readonly fields, and tuple shapes | [Theme contracts in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeTypes.ts) |
-| Beginner | Interfaces for external document shapes | [Typed API contracts in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/components/substrate/kernel/api/apiTypes.ts) |
-| Intermediate | Runtime narrowing with a type predicate | [Theme identifier guards in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeTypes.ts) |
-| Intermediate | Derived keys and mapped record types | [CSS-variable projections in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeProjections.ts) |
-| Advanced | Typed application state inferred from composition | [Store types and factory in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/store.ts) |
+| Beginner | Literal unions, readonly fields, and tuple shapes | [Theme contracts in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeTypes.ts#L1-L36) |
+| Beginner | Interfaces for external document shapes | [Typed API contracts in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/components/substrate/kernel/api/apiTypes.ts#L93-L114) |
+| Intermediate | Runtime narrowing with a type predicate | [Theme identifier guards in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeTypes.ts#L1-L36) |
+| Intermediate | Derived keys and mapped record types | [CSS-variable projections in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeProjections.ts#L77-L197) |
+| Advanced | Typed application state inferred from composition | [Store types and factory in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/store.ts#L12-L33) |
 
 This lecture gives you just enough TypeScript to move comfortably through the rest of the functional programming curriculum. You will learn the core of the type system, how to type functions precisely, and how strict typing reinforces immutability and pure functions.
 

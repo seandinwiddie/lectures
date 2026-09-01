@@ -12,11 +12,11 @@ These examples turn the chapter's small transformations into an application-scal
 
 | Level | Concept | Production source |
 | --- | --- | --- |
-| Beginner | Immutable mapping and folding | [Color ramps and contrast derivation in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeColorMath.ts) |
-| Beginner | Projection instead of mutation | [Theme-to-platform projections in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeProjections.ts) |
-| Intermediate | Reducer-owned immutable transitions | [Theme-selection slice in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/entities/bridge/spectrum/themeSelection/themeSelectionSlice.ts) |
-| Intermediate | Named predicate and dispatch rules | [Request policy decisions in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/security.js) |
-| Advanced | Pure transformations surrounded by injected effects | [GitHub aggregation service in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/github.js) |
+| Beginner | Immutable mapping and folding | [Color ramps and contrast derivation in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeColorMath.ts#L6-L62) |
+| Beginner | Projection instead of mutation | [Theme-to-platform projections in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeProjections.ts#L77-L197) |
+| Intermediate | Reducer-owned immutable transitions | [Theme-selection slice in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/entities/bridge/spectrum/themeSelection/themeSelectionSlice.ts#L50-L104) |
+| Intermediate | Named predicate and dispatch rules | [Request policy decisions in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/e4a03c7e9556116afd82e64f0e07719099d08c0d/src/security.js#L120-L172) |
+| Advanced | Pure transformations surrounded by injected effects | [GitHub aggregation service in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/e4a03c7e9556116afd82e64f0e07719099d08c0d/src/github.js#L414-L437) |
 
 This lecture introduces the fundamental concepts of functional programming using TypeScript.
 

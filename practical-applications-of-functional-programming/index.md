@@ -12,11 +12,11 @@ These are complete application concerns expressed as a functional core plus expl
 
 | Level | Concept | Production source |
 | --- | --- | --- |
-| Beginner | Runtime validation before data enters a domain | [Theme-mode guards in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeTypes.ts) |
-| Intermediate | Collection normalization and aggregation | [Observatory normalization system in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/systems/observatory.js) |
-| Intermediate | Domain data projected into a UI-ready model | [Mission-operation selectors in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/registry/missions/operations/operationsSelectors.ts) |
-| Advanced | Security policy separated from HTTP middleware | [Security policy data](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/components/securityPolicy.js) and [policy composition](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/security.js) in `api.sdin.dev` |
-| Advanced | Effects injected behind a bounded capability | [HTTP boundary in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/main/src/http.js) |
+| Beginner | Runtime validation before data enters a domain | [Theme-mode guards in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/styles/themes/themeTypes.ts#L1-L36) |
+| Intermediate | Collection normalization and aggregation | [Observatory normalization system in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/e4a03c7e9556116afd82e64f0e07719099d08c0d/src/systems/observatory.js#L208-L321) |
+| Intermediate | Domain data projected into a UI-ready model | [Mission-operation selectors in `portfolio`](https://github.com/seandinwiddie/portfolio/blob/main/src/features/systems/registry/missions/operations/operationsSelectors.ts#L130-L255) |
+| Advanced | Security policy separated from HTTP middleware | [Security policy data](https://github.com/seandinwiddie/api.sdin.dev/blob/e4a03c7e9556116afd82e64f0e07719099d08c0d/src/components/securityPolicy.js#L30-L55) and [policy composition](https://github.com/seandinwiddie/api.sdin.dev/blob/e4a03c7e9556116afd82e64f0e07719099d08c0d/src/security.js#L265-L282) in `api.sdin.dev` |
+| Advanced | Effects injected behind a bounded capability | [HTTP boundary in `api.sdin.dev`](https://github.com/seandinwiddie/api.sdin.dev/blob/e4a03c7e9556116afd82e64f0e07719099d08c0d/src/http.js#L25-L37) |
 
 Functional programming is most useful when it gives ordinary application code
 clear boundaries. Pure functions transform trusted values. Small adapters own
